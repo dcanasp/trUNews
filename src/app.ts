@@ -5,12 +5,12 @@
 //npx prisma generate// app.ts
 import express, { Express } from "express";
 import cors from 'cors';
-import { UserController } from './users/users.controller';
+import { UsersController } from './users/users.controller';
 
 export class App {
   private app: Express;
 
-  constructor(private userController: UserController) {
+  constructor(private usersController: UsersController) {
     this.app = express();
     this.app.use(express.json());
     this.app.use(cors());
@@ -18,9 +18,10 @@ export class App {
   }
 
   private registerControllers() {
-    this.app.get('/user/:id', (req, res) => this.userController.getUserProfile(req, res));
-    this.app.delete('/user/:id', (req, res) => this.userController.deleteUser(req, res));
-    // Other routes
+    this.app.get('/users/:id', (req, res) => this.usersController.getUsersProfile(req, res));
+    this.app.post('/users/create', (req,res)=> this.usersController.addUsers(req,res)); //añadir middleware, pero pues bien, preguntar si toca cambiarla  
+    this.app.delete('/users/:id', (req, res) => this.usersController.deleteUsers(req, res));
+  
   }
 
   public listen(port: number) {

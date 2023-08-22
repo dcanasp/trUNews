@@ -9,21 +9,21 @@
 
 // user.module.ts
 import { DatabaseService } from '../conectionDB/databaseService';
-import { UserService } from './users.service';
-import { UserController } from './users.controller';
+import { UsersService } from './users.service';
+import { UsersController } from './users.controller';
 
 export class UserModule {
-    private userController: UserController;
+    private usersController: UsersController;
 
     constructor() {
       const databaseService = new DatabaseService();
-      const userService = new UserService(databaseService);
-      this.userController = new UserController(userService);
+      const userService = new UsersService(databaseService);
+      this.usersController = new UsersController(userService);
   
       // Other wiring if needed
     }
   
-    public getUserController(): UserController {
-      return this.userController;
+    public getUserController(): UsersController {
+      return this.usersController;
     }
   }
