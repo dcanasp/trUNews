@@ -6,7 +6,8 @@
 import express, { Express } from "express";
 import cors from 'cors';
 import { UsersController } from './users/users.controller';
-
+import {logger} from './utils/logger'
+import routes from "./routes";
 export class App {
   private app: Express;
 
@@ -14,14 +15,13 @@ export class App {
     this.app = express();
     this.app.use(express.json());
     this.app.use(cors());
-    this.registerControllers();
+    // this.registerControllers();
+    this.app.use(routes);//importa index por default
+
   }
 
   private registerControllers() {
-    this.app.get('/users/:id', (req, res) => this.usersController.getUsersProfile(req, res));
-    this.app.post('/users/create', (req,res)=> this.usersController.addUsers(req,res)); //añadir middleware, pero pues bien, preguntar si toca cambiarla  
-    this.app.delete('/users/:id', (req, res) => this.usersController.deleteUsers(req, res));
-  
+
   }
 
   public listen(port: number) {

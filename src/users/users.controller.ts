@@ -1,10 +1,13 @@
 import { UsersService } from './users.service';
+import {logger} from '../utils/logger';
 
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
   public getUsersProfile(req:any, res:any) {
     const userId = req.params.id;
+    logger.log("debug","no entra controlador")
+
     this.usersService.getUsersProfile(userId)
       .then(profile => res.json(profile))
       .catch(err => res.status(400).json(err));
