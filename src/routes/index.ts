@@ -8,7 +8,6 @@ export const routes = Router();
 // const instanceUserRouter= new usersRouter()
 // logger.log("debug",instanceUserRouter.getUserRoutes())
 
-
 routes.use('/users', new usersRouter() .getUserRoutes())
 
 
