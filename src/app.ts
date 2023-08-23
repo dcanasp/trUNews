@@ -7,7 +7,7 @@ import express, { Express } from "express";
 import cors from 'cors';
 import { UsersController } from './users/users.controller';
 import {logger} from './utils/logger'
-import routes from "./routes";
+import {routes} from "./routes";
 export class App {
   private app: Express;
 
@@ -17,7 +17,7 @@ export class App {
     this.app.use(cors());
     // this.registerControllers();
     this.app.use(routes);//importa index por default
-
+    // crearRutas(this.app)
   }
 
   private registerControllers() {

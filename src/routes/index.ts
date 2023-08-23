@@ -4,15 +4,20 @@ import {usersRouter} from './user.routes';
 import { UserModule } from '../users/users.module';
 import {logger} from '../utils/logger';
 import { UsersController } from '../users/users.controller';
+import { App } from '../app';
+import express, { Express } from "express";
 
-const routes = Router();
-const userModule = new UserModule();
-const userController = userModule.getUserController(); 
 
-const instanceUserRouter= new usersRouter(userController)
+export const routes = Router();
+
+// const instanceUserRouter= new usersRouter()
 // logger.log("debug",instanceUserRouter.getUserRoutes())
 
-routes.use('/users', instanceUserRouter.getUserRoutes())
+
+routes.use('/users', new usersRouter() .getUserRoutes())
 
 
-export default routes;
+// export function crearRutas (app:Express){
+//     app.use( '/users', new usersRouter() .getUserRoutes() ) 
+
+// }
