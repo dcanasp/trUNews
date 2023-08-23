@@ -11,7 +11,7 @@ import {routes} from "./routes";
 export class App {
   private app: Express;
 
-  constructor(private usersController: UsersController) {
+  constructor() {
     this.app = express();
     this.app.use(express.json());
     this.app.use(cors());
@@ -20,9 +20,6 @@ export class App {
     // crearRutas(this.app)
   }
 
-  private registerControllers() {
-
-  }
 
   public listen(port: number) {
     this.app.listen(port, () => {

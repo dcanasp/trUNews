@@ -1,11 +1,6 @@
 import { Router } from 'express';
-
 import {usersRouter} from './user.routes';
-import { UserModule } from '../users/users.module';
 import {logger} from '../utils/logger';
-import { UsersController } from '../users/users.controller';
-import { App } from '../app';
-import express, { Express } from "express";
 
 
 export const routes = Router();
