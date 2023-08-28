@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "init": "npm i && npx prisma generate",
     "singleChange": "ts-node src/app.ts",
     "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/server.ts",
     "build": "tsc",

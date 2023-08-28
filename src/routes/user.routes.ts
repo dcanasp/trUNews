@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { UserModule } from '../users/users.module';
-import {logger} from '../utils/logger';
+import {logger,permaLogger} from '../utils/logger';
 import { UsersController } from '../users/users.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation'
 import { convertDateFields } from '../utils/convertDataTypes'

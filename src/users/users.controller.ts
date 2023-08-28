@@ -6,7 +6,6 @@ export class UsersController {
 
   public getUsersProfile(req:any, res:any) {
     const userId = req.params.id;
-    logger.log("debug","no entra controlador")
 
     this.usersService.getUsersProfile(userId)
       .then(profile => res.json(profile))
@@ -21,8 +20,9 @@ export class UsersController {
   }
 
   public addUsers(req:any,res:any){
-    const name = req.params.name //TODO validacion de datos 
-    this.usersService.addUsers(name)
+    const name = req.body.name //TODO validacion de datos 
+    const password = req.body.password;
+    this.usersService.addUsers(name,password)
     .then(token => res.json(token))
       .catch(err => res.status(400).json(err));
   }

@@ -14,7 +14,7 @@ export const permaLogger = createLogger({
     transports: [
       //new transports:
       new transports.File({
-        filename: "logs/example.log",
+        filename: "logs/request.log",
       }),
     ],
     //...
