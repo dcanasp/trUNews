@@ -1,5 +1,5 @@
 import { UsersService } from './users.service';
-import {logger} from '../utils/logger';
+import {logger, permaLogger} from '../utils/logger';
 
 export class UsersController {
   constructor(private usersService: UsersService) {}
@@ -20,10 +20,10 @@ export class UsersController {
   }
 
   public addUsers(req:any,res:any){
-    const name = req.body.name //TODO validacion de datos 
-    const password = req.body.password;
-    this.usersService.addUsers(name,password)
-    .then(token => res.json(token))
+    const token = res.locals.token;
+    permaLogger.log("debug",token)
+    this.usersService.addUsers(req.body)
+    .then(userId => res.json({userId,token}))
       .catch(err => res.status(400).json(err));
   }
 

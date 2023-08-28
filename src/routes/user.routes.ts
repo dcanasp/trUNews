@@ -5,6 +5,7 @@ import { UsersController } from '../users/users.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation'
 import { convertDateFields } from '../utils/convertDataTypes'
 import { createUserSchema } from '../middleware/dataValidation/schemas'
+import { generateJwt, verifyJwt } from '../auth/jwtServices'
 export class usersRouter {
     private enruttador: Router;
     private userModule: UserModule;
@@ -22,11 +23,14 @@ export class usersRouter {
 
         //al controlador le llega antes el modelo validado, ACA se valida                        //, middleware ,
         this.enruttador.get('/:id',
+            verifyJwt,
             (req:any, res:any) => this.userController.getUsersProfile(req, res));
         this.enruttador.post('/create',
-            convertDateFields(['NOMBREPARAMETRO']) ,validatePost(createUserSchema),
+            convertDateFields(['NOMBREPARAMETRO']) ,validatePost(createUserSchema), generateJwt,
             (req:any,res:any)=> this.userController.addUsers(req,res)); //añadir middleware, pero pues bien, preguntar si toca cambiarla  
-        this.enruttador.delete('/:id', (req:any, res:any) => this.userController.deleteUsers(req, res));
+        this.enruttador.delete('/:id', 
+            verifyJwt,
+            (req:any, res:any) => this.userController.deleteUsers(req, res));
     
         return this.enruttador
     }
