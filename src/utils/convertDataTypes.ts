@@ -16,19 +16,3 @@ export const convertDateFields = (fields: string[]) => {
     };
   };
 
-  export const convertStringToInt = () => {
-    return (req: Request, res: Response, next: NextFunction) => {
-    if (req.params.id) { //si existe
-        
-        try {
-            req.body.prueba = parseInt(req.params.id, 10); //guarde en los parametros
-            
-        } catch (error) {
-            res.status(400).json({ error: `es una fecha invalida` });
-            return;
-        }
-    }
-    next();
-    
-    };
-  };

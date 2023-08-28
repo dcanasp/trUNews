@@ -3,7 +3,7 @@ import { UserModule } from '../users/users.module';
 import {logger} from '../utils/logger';
 import { UsersController } from '../users/users.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation'
-import { convertDateFields,convertStringToInt } from '../utils/convertDataTypes'
+import { convertDateFields } from '../utils/convertDataTypes'
 import { createUserSchema } from '../middleware/dataValidation/schemas'
 export class usersRouter {
     private enruttador: Router;
