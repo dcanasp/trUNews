@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "singleChange": "ts-node src/app.ts",
-    "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/server.ts", 
+    "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/server.ts",
     "build": "tsc",
     "start": "build/server.js",
     "production": "tsc && node build/server.js"
@@ -27,7 +27,8 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.1",
-    "prisma": "^5.1.1"
+    "prisma": "^5.1.1",
+    "zod": "^3.22.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",
