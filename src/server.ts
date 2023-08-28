@@ -1,6 +1,7 @@
 
 import { App } from './app';
-import { UserModule } from './users/users.module';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const app = new App();
 app.listen(3000);

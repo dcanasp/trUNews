@@ -1,14 +1,14 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from "express";
-import { logger } from '../utils/logger';
+import { logger, permaLogger } from '../utils/logger';
 
-export const generateJwt = (req: Request, res: Response, next: NextFunction) => {
-  // You might pull these values from `req.body` or database
-    const { userId, password, rol } = req.body;
-    logger.log('debug',req.body)
-    
-    const token = jwt.sign({ userId: userId, hash: password, rol:rol }, 'yourSecretKey', { expiresIn: '1h' });
+const secret = process.env.JWT_SECRET!;
+
+export const generateJwt = (req: any, res: Response, next: NextFunction) => {
+    const { userId, hash, rol } = res.locals.newUser;
+    const token = jwt.sign({ userId: userId, hash: hash, rol:rol }, secret , { expiresIn: '72h' });
     res.locals.token = token;
+    permaLogger.log('debug',res.locals.token)
     next();
   };
 
@@ -19,8 +19,19 @@ export const verifyJwt = (req: any, res: Response, next: NextFunction) => {
     logger.log("debug",token)
     if (!token) return res.status(403).send({ auth: false, message: 'No token provided.' });
 
-    jwt.verify(token, 'yourSecretKey', (err: any, decoded: any) => {
+    jwt.verify(token, secret , (err: any, decoded: any) => {
         if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+    
+    if (parseInt(req.params.id, 10) !== decoded.userId) {
+        return res.status(403).send({ auth: false, message: 'User ID mismatch.' });
+        }
+    
+        // roles pero no esta implementado hasta ver como es que se va a hacer bien
+        //TODO: implementacion roles 
+        // if (decoded.role !== 1) {
+        // return res.status(403).send({ auth: false, message: 'Unauthorized role.' });
+        // }
+    
     logger.log("debug",decoded)
     req.userId = decoded.userId;//pss no lo estoy usando pero ahi viene el token abierto
     next();

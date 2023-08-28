@@ -19,12 +19,15 @@ export class UsersController {
       .catch(err => res.status(400).json(err));
   }
 
-  public addUsers(req:any,res:any){
-    const token = res.locals.token;
-    permaLogger.log("debug",token)
+  public addUsers(req:any,res:any,next:any){
+    // const token = res.locals.token;
+    // permaLogger.log("debug",token)
     this.usersService.addUsers(req.body)
-    .then(userId => res.json({userId,token}))
-      .catch(err => res.status(400).json(err));
+    .then(userId => {
+      logger.log("debug",userId)
+      res.locals.newUser = userId; // save user in res.locals to pass to next middleware
+      next();})
+    .catch(err => res.status(400).json(err));
   }
 
   // aca iran todas las rutas

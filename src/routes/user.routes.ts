@@ -19,16 +19,19 @@ export class usersRouter {
     }
 
     public defineRoutes(){
-        logger.log("debug","entra a define routes")
 
-        //al controlador le llega antes el modelo validado, ACA se valida                        //, middleware ,
         this.enruttador.get('/:id',
             verifyJwt,
             (req:any, res:any) => this.userController.getUsersProfile(req, res));
         this.enruttador.post('/create',
-            convertDateFields(['NOMBREPARAMETRO']) ,validatePost(createUserSchema), generateJwt,
-            (req:any,res:any)=> this.userController.addUsers(req,res)); //añadir middleware, pero pues bien, preguntar si toca cambiarla  
-        this.enruttador.delete('/:id', 
+            convertDateFields(['NOMBREPARAMETRO']) ,validatePost(createUserSchema),
+            (req:any,res:any,next:any)=> this.userController.addUsers(req,res,next),
+            generateJwt,(req: any, res: any) => {
+                res.json({ user: res.locals.newUser, token: res.locals.token }); //es temporal mandarle el user, es para pruebas
+              }
+            );
+
+            this.enruttador.delete('/:id', 
             verifyJwt,
             (req:any, res:any) => this.userController.deleteUsers(req, res));
     

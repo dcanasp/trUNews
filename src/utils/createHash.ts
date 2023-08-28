@@ -2,7 +2,6 @@ import { hash,verify } from "argon2";
 import { logger, permaLogger } from "./logger";
 
 export async function hashPassword(password:string): Promise<string>{
-    logger.log("debug","LLega a hasheo password")
     
     try {
         const hashPassword = await hash(password);

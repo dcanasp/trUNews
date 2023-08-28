@@ -22,8 +22,8 @@ export class UsersService {
     const hash = await hashPassword(body.password);
     const userCreated = await this.databaseService.getClient().users.create({data:{name:body.name,hash:hash,rol:body.rol} });
     
-    logger.log("debug",userCreated)
-    return userCreated.id_users
+    // logger.log("debug",userCreated)
+    return { userId:userCreated.id_users,hash:userCreated.hash,rol:userCreated.rol }
     //return await verifyHash(password,hash) //PARA VERIFICAR SI LA CLAVE ES LA MISMA, TOCA SACAR LA CLAVE DE LA DB PRIMERO
   }
 
