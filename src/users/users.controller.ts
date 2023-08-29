@@ -34,7 +34,7 @@ export class UsersController {
 
   public checkPassword(req:Request,res:Response){
     this.privateUserService.checkPassword(req.body)
-    .then(() => res.json({ message: 'User deleted successfully' }))
+    .then((token) => res.json({ message: 'succesfull',token:token }))
     .catch(err => res.status(400).json(err));
   }
 

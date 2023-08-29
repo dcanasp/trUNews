@@ -4,7 +4,7 @@ import {logger,permaLogger} from '../utils/logger';
 import { UsersController } from '../users/users.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation'
 import { convertDateFields } from '../utils/convertDataTypes'
-import { createUserSchema } from '../middleware/dataValidation/schemas'
+import { checkPasswordSchema, createUserSchema } from '../middleware/dataValidation/schemas'
 import { generateJwt, verifyJwt } from '../auth/jwtServices'
 export class usersRouter {
     private enruttador: Router;
@@ -36,6 +36,7 @@ export class usersRouter {
             (req:any, res:any) => this.userController.deleteUsers(req, res));
         
         this.enruttador.post('/checkPassword',
+              validatePost(checkPasswordSchema),
               (req:any, res:any) => this.userController.checkPassword(req, res));
         
         
