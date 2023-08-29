@@ -5,7 +5,6 @@ export async function hashPassword(password:string): Promise<string>{
     
     try {
         const hashPassword = await hash(password);
-        permaLogger.log("debug",hashPassword);
         return hashPassword;
         
     } catch (error) {

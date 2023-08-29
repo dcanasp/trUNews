@@ -31,10 +31,15 @@ export class usersRouter {
               }
             );
 
-            this.enruttador.delete('/:id', 
+        this.enruttador.delete('/:id', 
             verifyJwt,
             (req:any, res:any) => this.userController.deleteUsers(req, res));
-    
+        
+        this.enruttador.post('/checkPassword',
+              (req:any, res:any) => this.userController.checkPassword(req, res));
+        
+        
+        
         return this.enruttador
     }
     public getUserRoutes(){

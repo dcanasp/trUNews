@@ -5,7 +5,6 @@
 //npx prisma generate// app.ts
 import express, { Express } from "express";
 import cors from 'cors';
-import { UsersController } from './users/users.controller';
 import {logger} from './utils/logger'
 import {routes} from "./routes";
 export class App {
