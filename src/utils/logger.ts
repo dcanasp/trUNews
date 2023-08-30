@@ -1,21 +1,36 @@
-import winston,{ createLogger, transports, format } from "winston"
+import { createLogger, transports, format } from "winston"
 
-export const logger = winston.createLogger({
+export const logger = createLogger({
+  format: format.json(),
+  transports: [
+    new transports.Console({
       level: "debug",
-      format: winston.format.json(),
-      transports: [new winston.transports.Console()],
-    });
+    }),
+    new transports.Console({
+      level: "error",
+    }),
+  ],
+});
     
   
 export const permaLogger = createLogger({
-    level: "debug",
-    format: format.json(),
-    //logger method...
-    transports: [
-      //new transports:
-      new transports.File({
-        filename: "logs/request.log",
-      }),
-    ],
-    //...
+  format: format.json(),
+  //logger method...
+  transports: [
+    new transports.File({
+      filename: "logs/error.log",
+      level: "error",
+      maxsize: 5000000,
+      maxFiles: 2,
+    }),
+    new transports.File({
+      filename: "logs/debug.log",
+      level: "debug",
+      maxsize: 5000000,
+      maxFiles: 2,
+    }),
+  ],
   });
+
+
+  

@@ -10,7 +10,8 @@
     "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/server.ts",
     "build": "tsc",
     "start": "build/server.js",
-    "production": "tsc && node build/server.js"
+    "production": "tsc && node build/server.js",
+    "migratePrisma": "npx prisma migrate dev && npx prisma migrate deploy"
   },
   "repository": {
     "type": "git",
