@@ -6,6 +6,7 @@ import { validatePost } from '../middleware/dataValidation/zodValidation'
 import { convertDateFields } from '../utils/convertDataTypes'
 import { checkPasswordSchema, createUserSchema } from '../middleware/dataValidation/schemas'
 import { generateJwt, verifyJwt } from '../auth/jwtServices'
+
 export class usersRouter {
     private enruttador: Router;
     private userModule: UserModule;
