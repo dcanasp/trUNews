@@ -20,3 +20,16 @@ export const checkPasswordSchema = z.object({
     username: z.string({required_error:"debe haber username"}),
     password: z.string({required_error:"debe haber username"})
 }).strict()
+
+export const createArticleSchema = z.object({
+    title: z.string({ required_error: "Debe haber un título" }),
+    date: z.date({
+        invalid_type_error: "Debe ser una fecha",
+        required_error: "Debe haber una fecha"
+    }),
+    views: z.number().optional(),
+    content: z.string({ required_error: "Debe haber contenido" }),
+    id_writer: z.number(),
+    id_text: z.number(),
+    id_image: z.number(),
+}).strict();
