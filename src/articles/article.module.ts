@@ -1,14 +1,14 @@
 import { DatabaseService } from '../conectionDB/databaseService';
-import { ArticleService } from './article.service'; // Asegúrate de importar el servicio adecuado
-import { ArticleController } from './article.controller'; // Asegúrate de importar el controlador adecuado
+import { ArticleService } from './article.service'; 
+import { ArticleController } from './article.controller'; 
 
 export class ArticleModule {
   private articleController: ArticleController;
 
   constructor() {
     const databaseService = new DatabaseService();
-    const articleService = new ArticleService(databaseService); // Crea el servicio de artículo
-    this.articleController = new ArticleController(articleService); // Crea el controlador de artículo
+    const articleService = new ArticleService(databaseService); 
+    this.articleController = new ArticleController(articleService); 
   }
 
   public getArticleController(): ArticleController {

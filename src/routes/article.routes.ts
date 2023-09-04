@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ArticleModule } from '../articles/article.module';
-import { UsersController } from '../users/users.controller'; // Importa el controlador de usuarios si es necesario
+import { ArticleController } from '../articles/article.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation';
 import { convertDateFields } from '../utils/convertDataTypes';
 import { createArticleSchema } from '../middleware/dataValidation/schemas';
@@ -9,22 +9,25 @@ import { generateJwt, verifyJwt } from '../auth/jwtServices';
 export class ArticleRouter {
   private router: Router;
   private articleModule: ArticleModule;
+  private articleController: ArticleController; 
 
   constructor() {
     this.router = Router();
     this.articleModule = new ArticleModule();
+    this.articleController = this.articleModule.getArticleController();
 
     this.defineRoutes();
   }
 
   public defineRoutes() {
     // Rutas públicas para ver artículos sin autenticación
-    this.router.get('/articles', (req, res) => {
-      // Lógica para obtener y mostrar los artículos públicos (sin autenticación)
+    this.router.get('/all', (req:any, res:any) => {
+        this.articleController.getArticles(req,res);
+        
     });
 
     this.router.get('/articles/:id', (req, res) => {
-      // Lógica para obtener y mostrar un artículo público por ID (sin autenticación)
+        (req:any, res:any) => this.articleController.getArticleById(req, res)
     });
 
     // Rutas protegidas que requieren autenticación

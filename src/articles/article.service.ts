@@ -2,10 +2,14 @@ import { DatabaseService } from '../conectionDB/databaseService';
 import { logger, permaLogger } from '../utils/logger';
 import { createArticleSchema } from '../middleware/dataValidation/schemas';
 import { z } from 'zod';
-import { createArticleType } from '../types/article'; // Asegúrate de importar el tipo adecuado
+import { createArticleType } from '../types/article'; 
 
 export class ArticleService {
   constructor(private databaseService: DatabaseService) {}
+
+  public async getArticles() {
+    return await this.databaseService.getClient().article.findMany();
+  }
 
   public async getArticleById(articleId: string) {
     const articleId2 = parseInt(articleId, 10);
