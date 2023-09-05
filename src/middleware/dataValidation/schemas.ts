@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const createUserSchema = z.object({
-    // "name":"pruena","password":"david","rol":1,"profesion":"escritor"
     username: z.string({required_error: "Debe haber un username UNICO"}),
     name: z.string({ required_error:"Debe haber name"}),
     password: z.string(),

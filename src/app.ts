@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from "helmet";
 import {permaLogger} from './utils/logger'
 import {routes} from "./routes";
+import { swaggerUi,specs } from "./swagger/swagger";
 export class App {
   private app: Express;
 
@@ -11,7 +12,9 @@ export class App {
     this.app.use(express.json()); //para que el post sea un json
     this.app.use(cors());
     this.app.use(helmet());
-
+    this.app.use("/api-docs",swaggerUi.serve,swaggerUi.setup(specs));
+  
+    // this.registerControllers();
     this.app.use(routes);//importa index por default
     this.loggerMiddleware()
     
