@@ -1,16 +1,15 @@
-import { DatabaseService } from '../conectionDB/databaseService';
+import { z } from 'zod';
+import { DatabaseService } from '../db/databaseService';
 import { hashPassword, verifyHash} from '../utils/createHash'
 import { logger, permaLogger } from '../utils/logger';
-import { createUserSchema } from '../middleware/dataValidation/schemas'
-import { PrivateUserService } from './private.user.service'
-import { z } from 'zod';
-import { createUserType } from '../types/user';
+import { createUserSchema, checkPasswordSchema } from '../middleware/dataValidation/schemas'
+import { redoToken } from '../auth/jwtServices';
+import { chechPasswordType } from '../dto/user';
+import { createUserType } from '../dto/user';
 export class UsersService {
   constructor(private databaseService: DatabaseService) {
     
   }
-
-  
   
   public async getUsersProfile(userId: string) {
     let userId2 = parseInt(userId, 10);
@@ -33,10 +32,24 @@ export class UsersService {
     //return await verifyHash(password,hash) //PARA VERIFICAR SI LA CLAVE ES LA MISMA, TOCA SACAR LA CLAVE DE LA DB PRIMERO
   }
   
-  public async checkPassword(user:number){
-    
-    return await this.databaseService.getClient().user.findUnique({where:{id_user: user} });
-  }
-  
+  private async getUserByUsername(user:string){
+        const usuario = await this.databaseService.getClient().user.findUnique({where:{username: user} })  ;
+        if (usuario){
+            return usuario
+        }
+        permaLogger.log("error","no hay usuario")
+        throw Error("no hay usuario")
+    }
+
+    public async checkPassword(body: chechPasswordType ){
+        let success = false;
+        const User = await this.getUserByUsername(body.username); 
+        const hash = User.hash
+
+        if ( await verifyHash(body.password,hash) ){
+            success = true;
+        }
+        return {"success":success,"token":redoToken({"userId": User.id_user,"hash":hash,"rol":User.rol})}
+    }
 
 }

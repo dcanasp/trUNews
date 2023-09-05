@@ -1,7 +1,6 @@
-import { DatabaseService } from '../conectionDB/databaseService';
+import { DatabaseService } from '../db/databaseService';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
-import { PrivateUserService } from './private.user.service';
 
 export class UserModule {
     private usersController: UsersController;
@@ -9,8 +8,7 @@ export class UserModule {
     constructor() {
       const databaseService = new DatabaseService();
       const userService = new UsersService(databaseService);
-      const privateUserService = new PrivateUserService(databaseService)
-      this.usersController = new UsersController(userService,privateUserService);
+      this.usersController = new UsersController(userService);
   
       // otra parametro instanciado
     }

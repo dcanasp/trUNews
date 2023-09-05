@@ -1,10 +1,9 @@
 import { UsersService } from './users.service';
 import { Request,Response,NextFunction, response } from 'express';
 import {logger, permaLogger} from '../utils/logger';
-import { PrivateUserService } from './private.user.service';
 
 export class UsersController {
-  constructor(private usersService: UsersService,private privateUserService: PrivateUserService) {}
+  constructor(private usersService: UsersService) {}
 
   public getUsersProfile(req:any, res:any) {
     const userId = req.params.id;
@@ -33,7 +32,7 @@ export class UsersController {
   }
 
   public checkPassword(req:Request,res:Response){
-    this.privateUserService.checkPassword(req.body)
+    this.usersService.checkPassword(req.body)
     .then( response => res.json(response))
     .catch(err =>{ res.status(400).json(err), permaLogger.log("error","post=> user/chechPassword // "+err)});
   }

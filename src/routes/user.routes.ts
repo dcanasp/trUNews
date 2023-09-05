@@ -6,12 +6,12 @@ import { validatePost } from '../middleware/dataValidation/zodValidation'
 import { convertDateFields } from '../utils/convertDataTypes'
 import { checkPasswordSchema, createUserSchema } from '../middleware/dataValidation/schemas'
 import { generateJwt, verifyJwt } from '../auth/jwtServices'
-export class usersRouter {
-    private enruttador: Router;
+export class UsersRouter {
+    private router: Router;
     private userModule: UserModule;
     private userController: UsersController;
     constructor(){
-        this.enruttador = Router();
+        this.router = Router();
         this.userModule = new UserModule();
         this.userController = this.userModule.getUserController(); 
 
@@ -20,10 +20,10 @@ export class usersRouter {
 
     public defineRoutes(){
 
-        this.enruttador.get('/:id',
+        this.router.get('/:id',
             verifyJwt,
             (req:any, res:any) => this.userController.getUsersProfile(req, res));
-        this.enruttador.post('/create',
+        this.router.post('/create',
             convertDateFields(['NOMBREPARAMETRO']) ,validatePost(createUserSchema),
             (req:any,res:any,next:any)=> this.userController.addUsers(req,res,next),
             generateJwt,(req: any, res: any) => {
@@ -31,17 +31,17 @@ export class usersRouter {
               }
             );
 
-        this.enruttador.delete('/:id', 
+        this.router.delete('/:id', 
             verifyJwt,
             (req:any, res:any) => this.userController.deleteUsers(req, res));
         
-        this.enruttador.post('/checkPassword',
+        this.router.post('/checkPassword',
               validatePost(checkPasswordSchema),
               (req:any, res:any) => this.userController.checkPassword(req, res));
         
         
         
-        return this.enruttador
+        return this.router
     }
     public getUserRoutes(){
         // logger.log("debug",this.defineRoutes())    

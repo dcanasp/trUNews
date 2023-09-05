@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from "express";
 import { logger, permaLogger } from '../utils/logger';
-import { redoTokenType } from '../types/user';
+import { redoTokenType } from '../dto/user';
 
 const secret = process.env.JWT_SECRET!;
 
