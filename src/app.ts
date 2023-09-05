@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from "helmet";
 import {permaLogger} from './utils/logger'
 import {routes} from "./routes";
-import { swaggerUi,specs } from "./swagger/swagger";
+import { swaggerUi,specs } from "./utils/swagger/swagger";
 export class App {
   private app: Express;
 

@@ -1,15 +1,15 @@
 import { Router } from 'express';
-import { UserModule } from '../users/users.module';
+import { UserModule } from '../user/user.module';
 import {logger,permaLogger} from '../utils/logger';
-import { UsersController } from '../users/users.controller';
+import { UserController } from '../user/user.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation'
 import { convertDateFields } from '../utils/convertDataTypes'
 import { checkPasswordSchema, createUserSchema } from '../middleware/dataValidation/schemas'
 import { generateJwt, verifyJwt } from '../auth/jwtServices'
-export class UsersRouter {
+export class UserRouter {
     private router: Router;
     private userModule: UserModule;
-    private userController: UsersController;
+    private userController: UserController;
     constructor(){
         this.router = Router();
         this.userModule = new UserModule();
@@ -23,12 +23,15 @@ export class UsersRouter {
         this.router.get('/:id',
             verifyJwt,
             (req:any, res:any) => this.userController.getUsersProfile(req, res));
+            
         this.router.post('/create',
             convertDateFields(['NOMBREPARAMETRO']) ,validatePost(createUserSchema),
-            (req:any,res:any,next:any)=> this.userController.addUsers(req,res,next),
-            generateJwt,(req: any, res: any) => {
+            (req:any,res:any,next:any)=> { (this.userController.addUsers(req,res,next)) },
+            generateJwt,
+            (req: any, res: any) => {
                 res.json({ user: res.locals.newUser, token: res.locals.token }); //es temporal mandarle el user, es para pruebas
-              }
+                
+            }
             );
 
         this.router.delete('/:id', 
@@ -44,7 +47,6 @@ export class UsersRouter {
         return this.router
     }
     public getUserRoutes(){
-        // logger.log("debug",this.defineRoutes())    
         return this.defineRoutes();
     }
     

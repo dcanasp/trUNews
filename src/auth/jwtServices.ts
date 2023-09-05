@@ -17,7 +17,7 @@ export const generateJwt = (req: any, res: Response, next: NextFunction) => {
 
 export const verifyJwt = (req: any, res: Response, next: NextFunction) => {
     const token = req.headers['authorization'];
-    // logger.log("debug",token)
+    // logger.log('debug',token)
     if (!token) return res.status(403).send({ auth: false, message: 'No token provided.' });
 
     jwt.verify(token, secret , (err: any, decoded: any) => {
@@ -33,7 +33,7 @@ export const verifyJwt = (req: any, res: Response, next: NextFunction) => {
         // return res.status(403).send({ auth: false, message: 'Unauthorized role.' });
         // }
     
-    // logger.log("debug",decoded)
+    // logger.log('debug',decoded)
     req.userId = decoded.userId;//pss no lo estoy usando pero ahi viene el token abierto
     next();
   });
