@@ -14,6 +14,7 @@ export class App {
     this.app.use(helmet());
     this.app.use("/api-docs",swaggerUi.serve,swaggerUi.setup(specs));
   
+    //no deberia
     // this.registerControllers();
     this.app.use(routes);//importa index por default
     this.loggerMiddleware()
