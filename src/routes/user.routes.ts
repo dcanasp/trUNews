@@ -1,17 +1,17 @@
 import { Router } from 'express';
-import { UserModule } from '../users/users.module';
+import { UserModule } from '../user/user.module';
 import {logger,permaLogger} from '../utils/logger';
-import { UsersController } from '../users/users.controller';
+import { UserController } from '../user/user.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation'
 import { convertDateFields } from '../utils/convertDataTypes'
 import { checkPasswordSchema, createUserSchema } from '../middleware/dataValidation/schemas'
 import { generateJwt, verifyJwt } from '../auth/jwtServices'
-export class usersRouter {
-    private enruttador: Router;
+export class UserRouter {
+    private router: Router;
     private userModule: UserModule;
-    private userController: UsersController;
+    private userController: UserController;
     constructor(){
-        this.enruttador = Router();
+        this.router = Router();
         this.userModule = new UserModule();
         this.userController = this.userModule.getUserController(); 
 
@@ -20,31 +20,33 @@ export class usersRouter {
 
     public defineRoutes(){
 
-        this.enruttador.get('/:id',
+        this.router.get('/:id',
             verifyJwt,
             (req:any, res:any) => this.userController.getUsersProfile(req, res));
-        this.enruttador.post('/create',
+            
+        this.router.post('/create',
             convertDateFields(['NOMBREPARAMETRO']) ,validatePost(createUserSchema),
-            (req:any,res:any,next:any)=> this.userController.addUsers(req,res,next),
-            generateJwt,(req: any, res: any) => {
+            (req:any,res:any,next:any)=> { (this.userController.addUsers(req,res,next)) },
+            generateJwt,
+            (req: any, res: any) => {
                 res.json({ user: res.locals.newUser, token: res.locals.token }); //es temporal mandarle el user, es para pruebas
-              }
+                
+            }
             );
 
-        this.enruttador.delete('/:id', 
+        this.router.delete('/:id', 
             verifyJwt,
             (req:any, res:any) => this.userController.deleteUsers(req, res));
         
-        this.enruttador.post('/checkPassword',
+        this.router.post('/checkPassword',
               validatePost(checkPasswordSchema),
               (req:any, res:any) => this.userController.checkPassword(req, res));
         
         
         
-        return this.enruttador
+        return this.router
     }
     public getUserRoutes(){
-        // logger.log("debug",this.defineRoutes())    
         return this.defineRoutes();
     }
     
