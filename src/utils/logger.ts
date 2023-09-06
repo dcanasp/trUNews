@@ -29,6 +29,12 @@ export const permaLogger = createLogger({
       maxsize: 5000000,
       maxFiles: 2,
     }),
+    new transports.File({
+      filename: "logs/request.log",
+      level: "info",
+      maxsize: 5000000,
+      maxFiles: 2,
+    }),
   ],
   });
 
