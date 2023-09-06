@@ -27,7 +27,6 @@ export const createArticleSchema = z.object({
         required_error: "Debe haber una fecha"
     }),
     views: z.number().optional(),
-    content: z.string({ required_error: "Debe haber contenido" }),
     id_writer: z.number(),
     id_text: z.number(),
     id_image: z.number(),

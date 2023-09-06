@@ -1,8 +1,8 @@
-import { DatabaseService } from '../conectionDB/databaseService';
+import { DatabaseService } from '../db/databaseService';
 import { logger, permaLogger } from '../utils/logger';
 import { createArticleSchema } from '../middleware/dataValidation/schemas';
 import { z } from 'zod';
-import { createArticleType } from '../types/article'; 
+import { createArticleType } from '../dto/article'; 
 
 export class ArticleService {
   constructor(private databaseService: DatabaseService) {}
@@ -17,22 +17,30 @@ export class ArticleService {
   }
 
   public async createArticle(body: createArticleType) {
-    // Aquí debes implementar la lógica para crear un artículo en la base de datos
-    // Esto puede implicar la creación de registros en múltiples tablas si es necesario
-    // Debes retornar el artículo creado o los datos relevantes del artículo
+    const articleCreated = await this.databaseService.getClient().article.create({
+        data: {
+            title: body.title,
+            date: body.date,
+            views: 0,
+            id_writer: body.id_writer,
+            id_text: body.id_text,
+            id_image: body.id_image
+        }
+    }).catch((err) => {
+        return ;
+    }) ;
+    return articleCreated
   }
 
-  public async updateArticle(articleId: string, body: any) {
-    const articleId2 = parseInt(articleId, 10);
-    // Implementa la lógica para actualizar un artículo en la base de datos
-    // Debes retornar el artículo actualizado o los datos relevantes del artículo actualizado
+  public async deleteArticle(articleId: number) {
+      return await this.databaseService.getClient().article.delete({
+          where: {
+              id_article: articleId
+          }
+      }).catch((err) => {
+          return ;
+      });
+
   }
 
-  public async deleteArticle(articleId: string) {
-    const articleId2 = parseInt(articleId, 10);
-    // Implementa la lógica para eliminar un artículo de la base de datos
-    // Puedes retornar un mensaje de éxito o cualquier otra información relevante
-  }
-
-  // Puedes agregar más métodos de servicio relacionados con los artículos según sea necesario
 }
