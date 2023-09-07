@@ -33,14 +33,19 @@ export class ArticleService {
   }
 
   public async deleteArticle(articleId: number) {
-      return await this.databaseService.getClient().article.delete({
-          where: {
-              id_article: articleId
-          }
-      }).catch((err) => {
-          return ;
-      });
+    try {
+        const result = await this.databaseService.getClient().article.delete({
+            where: {
+                id_article: articleId
+            }
+        });
+        if (result) {
+            return { message: 'Artículo eliminado exitosamente' };
+        }
+    } catch (error) {
+        throw error;
+    }
+}
 
-  }
 
 }

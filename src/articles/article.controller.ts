@@ -21,10 +21,10 @@ export class ArticleController {
   }
 
   public createArticle(req: Request, res: Response, next: any) {
-    this.articleFacade.createArticle(req, req.body)
+    this.articleFacade.createArticle(req)
       .then(article => {
         res.locals.newArticle = article; 
-        next();
+        res.json(article);
       })
       .catch(err => {
         res.status(400).json(err);

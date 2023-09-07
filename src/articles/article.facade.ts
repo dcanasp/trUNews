@@ -24,9 +24,12 @@ export class ArticleFacade {
     return article;
   }
 
-  public async createArticle(req: Request, body: createArticleType) {
-      const articleCreated = await this.articleService.createArticle(body);
-      return { message: 'Artículo creado correctamente', articleCreated};
+  public async createArticle(req: Request) {
+      const articleCreated = await this.articleService.createArticle(req.body);
+      if (!articleCreated){
+          throw new DatabaseErrors('')
+      }
+      return {articleId: articleCreated.id_article, title: articleCreated.title}
   }
 
 
