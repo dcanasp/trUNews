@@ -31,3 +31,9 @@ export const createArticleSchema = z.object({
     id_text: z.number(),
     id_image: z.number(),
 }).strict();
+
+
+export const addImageSchema = z.object({
+    nombreArchivo: z.string().optional(),
+    contenido: z.any({}).refine((val: any) => val !== undefined)
+}).strict()
