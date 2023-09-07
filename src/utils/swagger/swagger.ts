@@ -1,32 +1,21 @@
 const swaggerJsdoc = require("swagger-jsdoc");
 export const swaggerUi = require("swagger-ui-express");
+  
+const swaggerAutogen = require('swagger-autogen')();
 
-const options = {
-    definition: {
-      openapi: "3.1.0",
-      info: {
-        title: "LogRocket Express API with Swagger",
-        version: "0.1.0",
-        description:
-          "This is a simple CRUD API application made with Express and documented with Swagger",
-        license: {
-          name: "MIT",
-          url: "https://spdx.org/licenses/MIT.html",
-        },
-        contact: {
-          name: "LogRocket",
-          url: "https://logrocket.com",
-          email: "[email protected]",
-        },
-      },
-      servers: [
-        {
-          url: "http://localhost:3000",
-        },
-      ],
-    },
-    apis: ["../../routes/*.routes.ts"],
-  };
-  
-export const specs = swaggerJsdoc(options);
-  
+const doc = {
+  info: {
+    title: 'My API',
+    description: 'Description',
+  },
+  host: 'localhost:'+process.env.PORT,
+  schemes: ['http'],
+};
+
+const outputFile = './swagger-output.json';
+
+const endpointsFiles = ['./src/routes/user.routes.ts' ];
+
+// PARA ACTUALIZAR SWAGGER quitar comentario abajo
+// ACTIVAR SWAGGER
+// swaggerAutogen(outputFile, endpointsFiles, doc);

@@ -1,9 +1,13 @@
 import express, { Express, Request, Response ,NextFunction } from "express";
 import cors from 'cors';
 import helmet from "helmet";
-import {permaLogger} from './utils/logger'
 import {routes} from "./routes";
-import { swaggerUi,specs } from "./utils/swagger/swagger";
+import { swaggerUi} from "./utils/swagger/swagger";
+import {logger,permaLogger} from './utils/logger'
+const fs = require('fs'); 
+const rawdata = fs.readFileSync('./swagger-output.json');
+const swaggerDocument = JSON.parse(rawdata);
+
 export class App {
   private app: Express;
 
@@ -12,7 +16,7 @@ export class App {
     this.app.use(express.json()); //para que el post sea un json
     this.app.use(cors());
     this.app.use(helmet());
-    this.app.use("/api-docs",swaggerUi.serve,swaggerUi.setup(specs));
+    this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
   
     this.app.use(routes);//importa index por default
     this.loggerMiddleware()
