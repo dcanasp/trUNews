@@ -21,7 +21,7 @@ export class ArticleController {
   }
 
   public createArticle(req: Request, res: Response, next: any) {
-    this.articleFacade.createArticle(req, req.body)
+    this.articleFacade.createArticle(req)
       .then(article => {
         res.locals.newArticle = article; 
         res.json(article);
