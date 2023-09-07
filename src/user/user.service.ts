@@ -4,15 +4,15 @@ import {hashPassword, verifyHash} from '../utils/createHash'
 import {logger, permaLogger} from '../utils/logger';
 import {redoToken} from '../auth/jwtServices';
 import {chechPasswordType} from '../dto/user';
-import {createUserType} from '../dto/user';
+import {createUserType, addImageType} from '../dto/user';
 import {DatabaseErrors} from '../errors/database.errors'
+import { uploadToS3 } from '../aws/addS3'
 export class UserService {
     constructor(private databaseService : DatabaseService) {
     }
 
     public async getUsersProfile(userId : string) {
         let userId2 = parseInt(userId, 10);
-        // TODO: CAMBIAR ESTO, LA VALIDACION Y CASTEO DE DATOS VA EN UN MIDDLEWARE ACA NO
         const user = await this.databaseService.getClient().user.findFirst({
             where: {
                 id_user: userId2
@@ -76,5 +76,34 @@ export class UserService {
         
     }
 
+public async addImage(body: addImageType){
+    try {
+    const ultimo = await this.databaseService.getClient().image.findMany({
+        orderBy: {
+            id_image: 'desc',
+        },
+        take: 1,
+    });
+    const imageBuffer = Buffer.from(body.contenido.split(',')[1], 'base64');
+    //debe ser un buffer el contenido
+    const ultimo_usuario = (ultimo[0].id_image +1).toString()
+    const extension = '.png'
+    
+    const url = await uploadToS3((ultimo_usuario+extension),imageBuffer)//body.contenido);
+    permaLogger.log('debug',imageBuffer)
+    if (!url){
+        throw new DatabaseErrors('no se pudo subir a s3');
+    }
+    //crear nuevo registro
+    const crear = await this.databaseService.getClient().image.create({
+        data:{"base":process.env.S3_url + ultimo_usuario + extension,
+            // "nombre_archivo": body.nombreArchivo 
+        }
+    })
+    return crear.base
+    } catch (error) {
+        return ;
+    }
+}
 
 }

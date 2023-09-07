@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router,Request,Response,NextFunction } from 'express';
 import { UserModule } from '../user/user.module';
 import {logger,permaLogger} from '../utils/logger';
 import { UserController } from '../user/user.controller';
@@ -22,13 +22,13 @@ export class UserRouter {
 
         this.router.get('/:id',
             verifyJwt,
-            (req:any, res:any) => this.userController.getUsersProfile(req, res));
+            (req:Request, res:Response) => this.userController.getUsersProfile(req, res));
             
         this.router.post('/create',
             convertDateFields(['NOMBREPARAMETRO']) ,validatePost(createUserSchema),
-            (req:any,res:any,next:any)=> { (this.userController.addUsers(req,res,next)) },
+            (req:Request,res:Response,next:NextFunction)=> { (this.userController.addUsers(req,res,next)) },
             generateJwt,
-            (req: any, res: any) => {
+            (req: Request, res: Response) => {
                 res.json({ user: res.locals.newUser, token: res.locals.token }); //es temporal mandarle el user, es para pruebas
                 
             }
@@ -36,14 +36,16 @@ export class UserRouter {
 
         this.router.delete('/:id', 
             verifyJwt,
-            (req:any, res:any) => this.userController.deleteUsers(req, res));
+            (req:Request, res:Response) => this.userController.deleteUsers(req, res));
         
         this.router.post('/checkPassword',
               validatePost(checkPasswordSchema),
-              (req:any, res:any) => this.userController.checkPassword(req, res));
+              (req:Request, res:Response) => this.userController.checkPassword(req, res));
         
+        this.router.post('/addImage',(req:Request,res:Response) => this.userController.addImage(req,res) )
+     
         
-        
+
         return this.router
     }
     public getUserRoutes(){

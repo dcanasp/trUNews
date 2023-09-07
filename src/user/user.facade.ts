@@ -15,7 +15,6 @@ export class UserFacade {
 		}
 		//@ts-ignore
 		delete user.hash
-		console.log(user)
         return user
         // TODO: CAMBIAR ESTO, LA VALIDACION Y CASTEO DE DATOS VA EN UN MIDDLEWARE ACA NO
         // return await this.databaseService.getClient().user.findFirst({ where: { id_user: userId2 } });
@@ -49,5 +48,12 @@ export class UserFacade {
 
     }
 
+    public async addImage(body:any){
+        const urlS3 =await this.usersService.addImage(body);
+        if(!urlS3){
+            return{'err':'no se pudo subir a S3'}
+        }
+        return {"url":urlS3}
+    }
   
 }

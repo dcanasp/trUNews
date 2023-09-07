@@ -19,3 +19,8 @@ export const checkPasswordSchema = z.object({
     username: z.string({required_error:"debe haber username"}),
     password: z.string({required_error:"debe haber username"})
 }).strict()
+
+export const addImageSchema = z.object({
+    nombreArchivo: z.string().optional(),
+    contenido: z.any({}).refine((val: any) => val !== undefined)
+}).strict()

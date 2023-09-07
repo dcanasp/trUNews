@@ -5,7 +5,7 @@ import { redoTokenType } from '../dto/user';
 
 const secret = process.env.JWT_SECRET!;
 
-export const generateJwt = (req: any, res: Response, next: NextFunction) => {
+export const generateJwt = (req: Request, res: Response, next: NextFunction) => {
     const { userId, hash, rol } = res.locals.newUser;
     const token = jwt.sign({ userId: userId, hash: hash, rol:rol }, secret , { expiresIn: '72h' });
     res.locals.token = token;

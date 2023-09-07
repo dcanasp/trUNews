@@ -13,13 +13,13 @@ export class App {
 
   constructor() {
     this.app = express();
-    this.app.use(express.json()); //para que el post sea un json
+    this.app.use(express.json({limit: '50mb'})); //para que el post sea un json
     this.app.use(cors());
     this.app.use(helmet());
     this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-  
-    this.app.use(routes);//importa index por default
     this.loggerMiddleware()
+    
+    this.app.use(routes);//importa index por default
     
   }
 
@@ -37,7 +37,7 @@ export class App {
       next()} )
   }
   public logRequest(req: Request){
-      permaLogger.log("request", {
+      permaLogger.log("info", {
       method: req.method,
       url: req.url,
       headers: req.headers,

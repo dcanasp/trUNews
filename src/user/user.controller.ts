@@ -32,10 +32,17 @@ export class UserController {
 
     public checkPassword(req : Request, res : Response) {
         this.userFacade.checkPassword(req.body).then(response => res.json(response)).catch(err => {
-            res.status(400).json(err),
-            permaLogger.log("error", "post=> user/chechPassword // " + err)
+            permaLogger.log('error', "post=> user/chechPassword // " + err);
+            res.status(400).json(err);
         });
     }
 
-    // aca iran todas las rutas
+    public addImage(req: Request, res:Response){
+        this.userFacade.addImage(req.body).then(response => res.json(response)).catch(err => {
+            permaLogger.log('error','post =>add image '+ err);
+            res.status(400).json(err);
+
+        });
+    }
+
 }
