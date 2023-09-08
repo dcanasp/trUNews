@@ -28,12 +28,8 @@ export const createArticleSchema = z.object({
     }),
     views: z.number().optional(),
     id_writer: z.number(),
-    id_text: z.number(),
-    id_image: z.number(),
+    text: z.string({ required_error: "Debe haber un texto" }),
+    image_url: z.any({}).refine((val: any) => val !== undefined) 
+    // z.number({ required_error: "Debe haber ua imagen" }),
 }).strict();
 
-
-export const addImageSchema = z.object({
-    nombreArchivo: z.string().optional(),
-    contenido: z.any({}).refine((val: any) => val !== undefined)
-}).strict()
