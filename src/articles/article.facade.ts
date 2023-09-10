@@ -17,7 +17,7 @@ export class ArticleFacade {
 
   public async getArticleById(req: Request) {
     const articleId = req.params.id;
-    const article = await this.articleService.getArticleById(articleId);
+    const article = await this.articleService.getArticleById(parseInt(articleId, 10));
     if (!article) {
       return { error: 'El artículo no existe' };
     }
@@ -27,7 +27,8 @@ export class ArticleFacade {
   public async createArticle(req: Request) {
       const articleCreated = await this.articleService.createArticle(req.body);
       if (!articleCreated){
-          throw new DatabaseErrors('')
+        return {"err":"No se pudo crear el articulo"}  
+        // throw new DatabaseErrors('No se pudo crear el articulo')
       }
       return {articleId: articleCreated.id_article, title: articleCreated.title}
   }

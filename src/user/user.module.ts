@@ -7,7 +7,7 @@ export class UserModule {
     private userController : UserController;
 
     constructor() {
-		const databaseService = new DatabaseService();
+		const databaseService = DatabaseService.getInstance();
 		const userService = new UserService(databaseService);
         const userFacade = new UserFacade(userService)
         this.userController = new UserController(userFacade);

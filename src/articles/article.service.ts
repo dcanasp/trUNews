@@ -4,24 +4,28 @@ import { createArticleSchema } from '../middleware/dataValidation/schemas';
 import { z } from 'zod';
 import { createArticleType } from '../dto/article'; 
 import { uploadToS3 } from '../aws/addS3'
-import {DatabaseErrors} from '../errors/database.errors'
+import { DatabaseErrors } from '../errors/database.errors'
+import { UserService }  from '../user/user.service'
+import { lector } from '../utils/roleDefinition'
 
 
 export class ArticleService {
-  constructor(private databaseService: DatabaseService) {}
+  constructor(private databaseService: DatabaseService, private userService:UserService) {}
 
   public async getArticles() {
     return await this.databaseService.getClient().article.findMany();
   }
 
-  public async getArticleById(articleId: string) {
-    const articleId2 = parseInt(articleId, 10);
-    return await this.databaseService.getClient().article.findFirst({ where: { id_article: articleId2 } });
+  public async getArticleById(articleId: number) {
+    return await this.databaseService.getClient().article.findFirst({ where: { id_article: articleId } });
   }
 
   public async createArticle(body: createArticleType) {
+    const user = await this.userService.getUserById(body.id_writer)
+    if (!user || user.rol===lector){
+        return ;
+    }
     const url = await this.addImage(body.image_url)
-    console.log(url)
     if (!url){
         throw new DatabaseErrors('no se pudo crear en s3')
     }
@@ -65,7 +69,6 @@ public async addImage(contenido: any){
     });
     const imageBuffer = Buffer.from(contenido.split(',')[1], 'base64');
     //debe ser un buffer el contenido
-    console.log(ultimo)
     let ultimo_usuario = (1).toString()
     if (ultimo[0]){
         ultimo_usuario = (ultimo[0].id_article +1).toString()

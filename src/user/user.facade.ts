@@ -48,12 +48,12 @@ export class UserFacade {
 
     }
 
-    public async addImage(body:any){
-        const urlS3 =await this.usersService.addImage(body);
-        if(!urlS3){
-            return{'err':'no se pudo subir a S3'}
-        }
-        return {"url":urlS3}
-    }
+    // public async addImage(body:any){
+    //     const urlS3 =await this.usersService.addImage(body);
+    //     if(!urlS3){
+    //         return{'err':'no se pudo subir a S3'}
+    //     }
+    //     return {"url":urlS3}
+    // }
   
 }

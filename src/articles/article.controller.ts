@@ -33,7 +33,7 @@ export class ArticleController {
 
   public deleteArticle(req: Request, res: Response) {
     this.articleFacade.deleteArticle(req)
-      .then(() => res.json({ message: 'Artículo eliminado exitosamente' }))
+      .then((response) => res.json(response))
       .catch(err => {
         res.status(400).json(err);
       });

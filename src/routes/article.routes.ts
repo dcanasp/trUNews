@@ -16,8 +16,8 @@ export class ArticleRouter {
     this.router = Router();
     this.articleModule = new ArticleModule();
     this.articleController = this.articleModule.getArticleController();
-
-    this.defineRoutes();
+    
+    // this.defineRoutes();
   }
 
   public defineRoutes() {
@@ -43,6 +43,7 @@ export class ArticleRouter {
 
     this.router.delete(
       '/:id',
+      verifyJwt(),
       (req: any, res: any) => {
         this.articleController.deleteArticle(req, res);
       }

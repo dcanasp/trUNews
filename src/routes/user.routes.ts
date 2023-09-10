@@ -6,6 +6,7 @@ import { validatePost } from '../middleware/dataValidation/zodValidation'
 import { convertDateFields } from '../utils/convertDataTypes'
 import { checkPasswordSchema, createUserSchema } from '../middleware/dataValidation/schemas'
 import { generateJwt, verifyJwt } from '../auth/jwtServices'
+import {lector, escritor } from '../utils/roleDefinition'
 export class UserRouter {
     private router: Router;
     private userModule: UserModule;
@@ -21,7 +22,7 @@ export class UserRouter {
     public defineRoutes(){
 
         this.router.get('/:id',
-            verifyJwt,
+            verifyJwt(),
             (req:Request, res:Response) => this.userController.getUsersProfile(req, res));
             
         this.router.post('/create',
@@ -35,14 +36,14 @@ export class UserRouter {
             );
 
         this.router.delete('/:id', 
-            verifyJwt,
+            verifyJwt(escritor),
             (req:Request, res:Response) => this.userController.deleteUsers(req, res));
         
         this.router.post('/checkPassword',
               validatePost(checkPasswordSchema),
               (req:Request, res:Response) => this.userController.checkPassword(req, res));
         
-        this.router.post('/addImage',(req:Request,res:Response) => this.userController.addImage(req,res) )
+        // this.router.post('/addImage',(req:Request,res:Response) => this.userController.addImage(req,res) )
      
         
 
