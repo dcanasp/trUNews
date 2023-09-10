@@ -24,7 +24,7 @@ export class UserFacade {
 
         const userId = req.params.id;
         if(! await this.usersService.deleteUsers(parseInt(userId, 10)) ){
-			return {"err":'no existe usuario!'}
+			return {"err":'no existe usuario! o no esta permitido eliminarlo'}
 		}
         return {"message": "usuario eliminado correctamente!"}
     }

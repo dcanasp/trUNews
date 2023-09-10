@@ -12,10 +12,10 @@ model article {
   id_writer  Int
   title      String   @db.VarChar(250)
   date       DateTime @db.Date
-  views      Int 
-  text       String     
+  views      Int
+  text       String
   image_url   String
-  writer     user     @relation(fields: [id_writer], references: [id_user])
+  writer     user     @relation(fields: [id_writer], references: [id_user], onDelete: Cascade)
 }
 
 model article_has_categories {
@@ -63,12 +63,12 @@ model trend_author {
 
 model user {
   id_user     Int       @id @default(autoincrement())
-  username    String    @unique 
+  username    String    @unique
   name        String    @db.VarChar(45)
-  hash        String    
+  hash        String
   lastname    String    @db.VarChar(45)
   rol         Int
   profession  String?   @db.VarChar(45)
-  description String?   
+  description String?
   article     article[]
 }

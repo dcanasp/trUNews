@@ -26,7 +26,12 @@ export class UserService {
                 id_user: userId
             }
         }).catch((err) => {
-            return;
+            try {
+                throw new DatabaseErrors(err)
+            }
+            catch(err2){
+                return ;
+            }
         });
 
     }
