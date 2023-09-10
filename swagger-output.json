@@ -11,7 +11,7 @@
     "http"
   ],
   "paths": {
-    "/users/{id}": {
+    "users/{id}": {
       "get": {
         "description": "",
         "parameters": [
@@ -61,7 +61,7 @@
         }
       }
     },
-    "/users/create": {
+    "users/create": {
       "post": {
         "description": "",
         "responses": {
@@ -74,7 +74,70 @@
         }
       }
     },
-    "/users/checkPassword": {
+    "users/checkPassword": {
+      "post": {
+        "description": "",
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+
+    "articles/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "articles/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "articles/create": {
       "post": {
         "description": "",
         "responses": {
