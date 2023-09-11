@@ -4,6 +4,7 @@ import helmet from "helmet";
 import {routes} from "./routes";
 import { swaggerUi} from "./utils/swagger/swagger";
 import {logger,permaLogger} from './utils/logger'
+import { rateLimiter } from './utils/rateLimiter';
 const fs = require('fs'); 
 const rawdata = fs.readFileSync('./swagger-output.json');
 const swaggerDocument = JSON.parse(rawdata);
@@ -16,6 +17,7 @@ export class App {
     this.app.use(express.json({limit: '50mb'})); //para que el post sea un json
     this.app.use(cors());
     this.app.use(helmet());
+    this.app.use( rateLimiter );
     this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     this.loggerMiddleware()
     

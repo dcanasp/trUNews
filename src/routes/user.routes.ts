@@ -6,7 +6,7 @@ import { validatePost } from '../middleware/dataValidation/zodValidation'
 import { convertDateFields } from '../utils/convertDataTypes'
 import { checkPasswordSchema, createUserSchema } from '../middleware/dataValidation/schemas'
 import { generateJwt, verifyJwt } from '../auth/jwtServices'
-import {lector, escritor } from '../utils/roleDefinition'
+import { Roles } from '../utils/roleDefinition'
 export class UserRouter {
     private router: Router;
     private userModule: UserModule;
@@ -36,7 +36,7 @@ export class UserRouter {
             );
 
         this.router.delete('/:id', 
-            verifyJwt(escritor),
+            verifyJwt(Roles.escritor),
             (req:Request, res:Response) => this.userController.deleteUsers(req, res));
         
         this.router.post('/checkPassword',

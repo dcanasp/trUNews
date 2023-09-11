@@ -6,7 +6,7 @@ import { createArticleType } from '../dto/article';
 import { uploadToS3 } from '../aws/addS3'
 import { DatabaseErrors } from '../errors/database.errors'
 import { UserService }  from '../user/user.service'
-import { lector } from '../utils/roleDefinition'
+import { Roles } from '../utils/roleDefinition'
 
 
 export class ArticleService {
@@ -22,7 +22,7 @@ export class ArticleService {
 
   public async createArticle(body: createArticleType) {
     const user = await this.userService.getUserById(body.id_writer)
-    if (!user || user.rol===lector){
+    if (!user || user.rol===Roles.lector){
         return ;
     }
     const url = await this.addImage(body.image_url)

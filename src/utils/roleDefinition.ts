@@ -1,3 +1,5 @@
-export const escritor = 1;
-export const lector = 2;
-export const admin = 0;
+export enum Roles {
+    escritor = 1,
+    lector = 2,
+    admin = 0
+}

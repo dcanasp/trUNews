@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import {Request, Response, NextFunction} from "express";
 import {logger, permaLogger} from '../utils/logger';
 import {redoTokenType} from '../dto/user';
-import {admin} from '../utils/roleDefinition';
+import {Roles} from '../utils/roleDefinition';
 
 const secret = process.env.JWT_SECRET !;
 
@@ -38,7 +38,7 @@ export const verifyJwt = (rol? : number) => {
                 return res.status(403).send({auth: false, message: 'User ID mismatch.'});
             }
 			//si no le mande rol, puede ser cualquiera y salta este, si es admin se va
-            if (rol && decoded.rol !== rol && decoded.rol !== admin) { 
+            if (rol && decoded.rol !== rol && decoded.rol !== Roles.admin) { 
                 return res.status(403).send({auth: false, message: 'Unauthorized role.'});
             }
 
