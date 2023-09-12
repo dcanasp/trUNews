@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { PrismaClient } from '@prisma/client';
 import { injectable } from 'tsyringe'
 const prisma = new PrismaClient();

@@ -1,26 +1,24 @@
-import { Router } from 'express';
-import { ArticleModule } from '../articles/article.module';
+import "reflect-metadata"
+import { Router, Request, Response } from 'express';
+import { injectable, inject } from 'tsyringe'
 import { ArticleController } from '../articles/article.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation';
 import { convertDateFields } from '../utils/convertDataTypes';
 import { createArticleSchema } from '../middleware/dataValidation/schemas';
 import { generateJwt, verifyJwt } from '../auth/jwtServices';
-import { Request, Response } from 'express';
 
+
+@injectable()
 export class ArticleRouter {
   private router: Router;
-  private articleModule: ArticleModule;
-  private articleController: ArticleController; 
+  private articleController; 
 
-  constructor() {
-    this.router = Router();
-    this.articleModule = new ArticleModule();
-    this.articleController = this.articleModule.getArticleController();
-    
-    // this.defineRoutes();
+  constructor(@inject(ArticleController) articleController:ArticleController){
+        this.router = Router();
+        this.articleController = articleController    
   }
 
-  public defineRoutes() {
+  public routes() {
     // Rutas públicas para ver artículos sin autenticación
     this.router.get('/', (req:Request, res:Response) => {
         this.articleController.getArticles(req,res);
@@ -37,7 +35,7 @@ export class ArticleRouter {
       convertDateFields(['date']),
       validatePost(createArticleSchema),
       (req: Request, res: Response, next: any) =>
-        this.articleModule.getArticleController().createArticle(req, res, next),
+        this.articleController.createArticle(req, res, next),
     );
 
 
@@ -52,7 +50,4 @@ export class ArticleRouter {
     return this.router;
   }
 
-  public getArticleRoutes() {
-    return this.defineRoutes();
-  }
 }

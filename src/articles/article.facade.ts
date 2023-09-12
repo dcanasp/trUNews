@@ -1,10 +1,15 @@
+import "reflect-metadata";
 import { Request } from 'express';
+import { injectable, inject } from 'tsyringe'
 import { ArticleService } from './article.service';
-import { createArticleType } from '../dto/article'; 
 import { DatabaseErrors } from '../errors/database.errors';
 
+@injectable()
 export class ArticleFacade {
-  constructor(private articleService: ArticleService) {}
+  private articleService;
+  constructor(@inject(ArticleService) articleService: ArticleService) {
+    this.articleService = articleService
+  }
 
   public async getArticles(req: Request) {
     try {

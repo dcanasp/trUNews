@@ -5,7 +5,7 @@ import {redoToken} from '../auth/jwtServices';
 import {chechPasswordType} from '../dto/user';
 import {createUserType} from '../dto/user';
 import {DatabaseErrors} from '../errors/database.errors'
-import { injectable } from 'tsyringe'
+import { injectable,inject } from 'tsyringe'
 import {container} from "tsyringe";
 import {DatabaseService} from '../db/databaseService';
 
@@ -13,13 +13,14 @@ import {DatabaseService} from '../db/databaseService';
 const databaseService = (container.resolve(DatabaseService)).getClient();
 @injectable()
 export class UserService {
-
-    constructor() {
+    private databaseService;
+    constructor(@inject(DatabaseService) databaseService: DatabaseService) {
+        this.databaseService = databaseService.getClient()
     }
 
     public async getUsersProfile(userId : string) {
         let userId2 = parseInt(userId, 10);
-        const user = await databaseService.user.findFirst({
+        const user = await this.databaseService.user.findFirst({
             where: {
                 id_user: userId2
             }
@@ -29,7 +30,7 @@ export class UserService {
 
     public async deleteUsers(userId : number) {
 
-        return await databaseService.user.delete({
+        return await this.databaseService.user.delete({
             where: {
                 id_user: userId
             }
@@ -46,7 +47,7 @@ export class UserService {
 
     public async addUsers(body : createUserType) {
         const hash = await hashPassword(body.password);
-        const userCreated = await databaseService.user.create({
+        const userCreated = await this.databaseService.user.create({
             data: {
                 name: body.name,
                 lastname: body.lastname,
@@ -75,7 +76,7 @@ export class UserService {
     }
 
     private async getUserByUsername(user : string) {
-        const usuario = await databaseService.user.findUnique({
+        const usuario = await this.databaseService.user.findUnique({
             where: {
                 username: user
             }
@@ -90,7 +91,7 @@ export class UserService {
 
     public async getUserById(user_id : number) {
         try {
-            const usuario = await databaseService.user.findUnique({
+            const usuario = await this.databaseService.user.findUnique({
                 where: {
                     id_user: user_id
                 }
