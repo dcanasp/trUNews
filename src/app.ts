@@ -31,7 +31,9 @@ export class App {
       console.log(`Server running on port ${port}`);
     });
   }
-
+  //puta: refactoricemos con tsyringe
+  //puta: eliminar todo lo no necesario, en lo posible las clases
+  //puta: cambiar a otro archivo
   public loggerMiddleware(){
     this.app.use( 
       (req: Request, res: Response, next: NextFunction) => { 

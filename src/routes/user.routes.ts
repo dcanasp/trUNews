@@ -4,7 +4,7 @@ import {logger,permaLogger} from '../utils/logger';
 import { UserController } from '../user/user.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation'
 import { convertDateFields } from '../utils/convertDataTypes'
-import { checkPasswordSchema, createUserSchema } from '../middleware/dataValidation/schemas'
+import { checkPasswordSchema, createUserSchema, decryptJWTSchema } from '../middleware/dataValidation/schemas'
 import { generateJwt, verifyJwt } from '../auth/jwtServices'
 import { Roles } from '../utils/roleDefinition'
 export class UserRouter {
@@ -45,7 +45,9 @@ export class UserRouter {
         
         // this.router.post('/addImage',(req:Request,res:Response) => this.userController.addImage(req,res) )
      
-        
+		this.router.post('/decryptJWT',
+			validatePost(decryptJWTSchema),
+			(req:Request,res:Response) => {this.userController.decryptJWT(req,res)});
 
         return this.router
     }

@@ -3,6 +3,7 @@ import {UserService} from './user.service';
 import {UserController} from './user.controller';
 import {UserFacade} from './user.facade';
 
+//puta: porque esta clase? que hace?
 export class UserModule {
     private userController : UserController;
 

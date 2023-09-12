@@ -59,3 +59,16 @@ export const redoToken = (data : redoTokenType) => {
     permaLogger.log('debug', token);
     return token;
 }
+
+
+export const  decryptToken = (token:string)=>{
+    console.log("prueba");
+    let decriptedToken;
+    const response = jwt.verify(token, secret, (err : any, decoded : any) => {
+        if (!err){
+            decriptedToken = decoded
+        } 
+        // logger.log('debug','fasd')
+    })
+    return  decriptedToken
+}
