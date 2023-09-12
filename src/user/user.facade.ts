@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import {Request} from 'express'
 import {logger, permaLogger} from '../utils/logger'
-import {createUserType, chechPasswordType} from '../dto/user';
+import {createUserType, chechPasswordType, decryptJWT} from '../dto/user';
 import { DatabaseErrors } from '../errors/database.errors';
 import {injectable,inject} from 'tsyringe'
 import { UserService } from './user.service'
@@ -54,6 +54,15 @@ export class UserFacade {
 
     }
 
+    public async decryptJWT(body : decryptJWT) {
+        const decripted = await this.usersService.decryptJWT(body);
+        logger.log('debug',decripted)
+		if(! decripted ){
+			return {"err":'el token ha fallado,es invalido o ha expirado'}
+		}
+		return {"userId":decripted["userId"],"rol":decripted["rol"]}
+
+    }
     // public async addImage(body:any){
     //     const urlS3 =await this.userService.addImage(body);
     //     if(!urlS3){

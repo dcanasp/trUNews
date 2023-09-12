@@ -1,8 +1,8 @@
 import {z} from 'zod';
 import {hashPassword, verifyHash} from '../utils/createHash'
 import {logger, permaLogger} from '../utils/logger';
-import {redoToken} from '../auth/jwtServices';
-import {chechPasswordType} from '../dto/user';
+import {redoToken, verifyJwt, decryptToken} from '../auth/jwtServices';
+import {chechPasswordType, decryptJWT} from '../dto/user';
 import {createUserType} from '../dto/user';
 import {DatabaseErrors} from '../errors/database.errors'
 import { injectable,inject } from 'tsyringe'
@@ -103,4 +103,10 @@ export class UserService {
         } catch {
             return;
         }}
+
+
+    public async decryptJWT(body:decryptJWT){
+        return await decryptToken(body.token)
+
+    }
 }

@@ -46,6 +46,13 @@ export class UserController {
         });
     }
 
+    public decryptJWT(req:Request,res:Response){
+        this.userFacade.decryptJWT(req.body).then(response => res.json(response)).catch(err => {
+            permaLogger.log('error', "post=> user/decryptJWT // " + err);
+            res.status(400).json(err);
+        });
+    }
+
     // public addImage(req: Request, res:Response){
     //     this.userFacade.addImage(req.body).then(response => res.json(response)).catch(err => {
     //         permaLogger.log('error','post =>add image '+ err);
