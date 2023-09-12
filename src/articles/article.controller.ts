@@ -1,8 +1,14 @@
-import { ArticleFacade } from './article.facade';
+import "reflect-metadata";
 import { Request, Response } from 'express';
+import { injectable, inject } from 'tsyringe'
+import { ArticleFacade } from './article.facade';
 
+@injectable()
 export class ArticleController {
-  constructor(private articleFacade: ArticleFacade) {}
+  private articleFacade;
+  constructor(@inject(ArticleFacade) articleFacade: ArticleFacade) {
+    this.articleFacade = articleFacade
+  }
 
   public async getArticles(req: Request, res: Response) {
     this.articleFacade.getArticles(req)

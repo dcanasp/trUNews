@@ -1,10 +1,19 @@
-import {UserFacade} from './user.facade';
+import "reflect-metadata";
 import {Request, Response, NextFunction, response} from 'express';
 import {logger, permaLogger} from '../utils/logger';
 import { DatabaseErrors } from '../errors/database.errors';
+// import {container} from "tsyringe";
+import { injectable, inject } from 'tsyringe';
+import { UserFacade } from './user.facade';
 
+
+// const userFacade = (container.resolve(UserFacade)); //es una forma de resolverlo manualmente, pero mejor inyectar
+@injectable()
 export class UserController {
-    constructor(private userFacade : UserFacade) {}
+    private userFacade: UserFacade;
+    constructor( @inject(UserFacade) userFacade: UserFacade ) {
+        this.userFacade = userFacade
+    }
 
     public getUsersProfile(req : any, res : any) {
 

@@ -1,17 +1,26 @@
 import {z} from 'zod';
-import {DatabaseService} from '../db/databaseService';
 import {hashPassword, verifyHash} from '../utils/createHash'
 import {logger, permaLogger} from '../utils/logger';
 import {redoToken, verifyJwt, decryptToken} from '../auth/jwtServices';
 import {chechPasswordType, decryptJWT} from '../dto/user';
 import {createUserType} from '../dto/user';
 import {DatabaseErrors} from '../errors/database.errors'
+import { injectable,inject } from 'tsyringe'
+import {container} from "tsyringe";
+import {DatabaseService} from '../db/databaseService';
+
+
+const databaseService = (container.resolve(DatabaseService)).getClient();
+@injectable()
 export class UserService {
-    constructor(private databaseService : DatabaseService) {}
+    private databaseService;
+    constructor(@inject(DatabaseService) databaseService: DatabaseService) {
+        this.databaseService = databaseService.getClient()
+    }
 
     public async getUsersProfile(userId : string) {
         let userId2 = parseInt(userId, 10);
-        const user = await this.databaseService.getClient().user.findFirst({
+        const user = await this.databaseService.user.findFirst({
             where: {
                 id_user: userId2
             }
@@ -21,7 +30,7 @@ export class UserService {
 
     public async deleteUsers(userId : number) {
 
-        return await this.databaseService.getClient().user.delete({
+        return await this.databaseService.user.delete({
             where: {
                 id_user: userId
             }
@@ -38,7 +47,7 @@ export class UserService {
 
     public async addUsers(body : createUserType) {
         const hash = await hashPassword(body.password);
-        const userCreated = await this.databaseService.getClient().user.create({
+        const userCreated = await this.databaseService.user.create({
             data: {
                 name: body.name,
                 lastname: body.lastname,
@@ -67,7 +76,7 @@ export class UserService {
     }
 
     private async getUserByUsername(user : string) {
-        const usuario = await this.databaseService.getClient().user.findUnique({
+        const usuario = await this.databaseService.user.findUnique({
             where: {
                 username: user
             }
@@ -82,7 +91,7 @@ export class UserService {
 
     public async getUserById(user_id : number) {
         try {
-            const usuario = await this.databaseService.getClient().user.findUnique({
+            const usuario = await this.databaseService.user.findUnique({
                 where: {
                     id_user: user_id
                 }

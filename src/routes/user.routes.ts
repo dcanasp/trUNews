@@ -1,25 +1,27 @@
+import "reflect-metadata";
 import { Router,Request,Response,NextFunction } from 'express';
-import { UserModule } from '../user/user.module';
+// import { UserModule } from '../user/user.module';
 import {logger,permaLogger} from '../utils/logger';
-import { UserController } from '../user/user.controller';
+// import { UserController } from '../user/user.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation'
 import { convertDateFields } from '../utils/convertDataTypes'
 import { checkPasswordSchema, createUserSchema, decryptJWTSchema } from '../middleware/dataValidation/schemas'
 import { generateJwt, verifyJwt } from '../auth/jwtServices'
 import { Roles } from '../utils/roleDefinition'
+import { inject, injectable } from 'tsyringe'
+import {UserController} from '../user/user.controller'
+
+
+@injectable()
 export class UserRouter {
     private router: Router;
-    private userModule: UserModule;
-    private userController: UserController;
-    constructor(){
+    private userController;
+    constructor(@inject(UserController) userController:UserController){
         this.router = Router();
-        this.userModule = new UserModule();
-        this.userController = this.userModule.getUserController(); 
-
-        // this.defineRoutes();
+        this.userController = userController
     }
 
-    public defineRoutes(){
+    public routes(){
 
         this.router.get('/:id',
             verifyJwt(),
@@ -50,9 +52,6 @@ export class UserRouter {
 			(req:Request,res:Response) => {this.userController.decryptJWT(req,res)});
 
         return this.router
-    }
-    public getUserRoutes(){
-        return this.defineRoutes();
     }
     
 }
