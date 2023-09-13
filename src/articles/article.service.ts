@@ -76,7 +76,9 @@ export class ArticleService {
                 },
                 take: 1
             });
-            const imageBuffer = Buffer.from(contenido.split(',')[1], 'base64');
+            const folder = 'image'
+            const imageBuffer = contenido;
+            // const imageBuffer = Buffer.from(contenido.split(',')[1], 'base64');
             // debe ser un buffer el contenido
             let ultimo_usuario = (1).toString()
             if (ultimo[0]) {
@@ -86,13 +88,13 @@ export class ArticleService {
             const link = process.env.S3_url
             const extension = '.png'
             const file_name = (ultimo_usuario + extension)
-            const url = await uploadToS3(file_name, imageBuffer) // body.contenido);
+            const url = await uploadToS3(file_name, imageBuffer,folder) // body.contenido);
             permaLogger.log('debug', imageBuffer)
             if (! url) {
                 throw new DatabaseErrors('no se pudo subir a s3');
             }
             // crear nuevo registro
-            return link + file_name;
+            return `${link}${file_name}`;
         } catch (error) {
             return;
         }
