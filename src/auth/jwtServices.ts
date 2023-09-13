@@ -62,7 +62,6 @@ export const redoToken = (data : redoTokenType) => {
 
 
 export const  decryptToken = (token:string)=>{
-    console.log("prueba");
     let decriptedToken;
     const response = jwt.verify(token, secret, (err : any, decoded : any) => {
         if (!err){

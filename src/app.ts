@@ -5,32 +5,36 @@ import {routes} from "./routes";
 import { swaggerUi} from "./utils/swagger/swagger";
 import {logger,permaLogger} from './utils/logger'
 import { rateLimiter } from './utils/rateLimiter';
+import { testConection } from './utils/testConection'
 const fs = require('fs'); 
 const rawdata = fs.readFileSync('./swagger-output.json');
 const swaggerDocument = JSON.parse(rawdata);
 
-export class App {
+export class App  {
   private app: Express;
 
-  constructor() {
+   constructor() {
     this.app = express();
     this.app.use(express.json({limit: '50mb'})); //para que el post sea un json
     this.app.use(cors());
     this.app.use(helmet());
     this.app.use( rateLimiter );
     this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+    
+    testConection()
+    
     this.loggerMiddleware()
     
     this.app.use(routes);//importa index por default
     
   }
-
-
+  
   public listen(port: number) {
     this.app.listen(port, () => {
       console.log(`Server running on port ${port}`);
     });
   }
+
   //puta: refactoricemos con tsyringe
   //puta: eliminar todo lo no necesario, en lo posible las clases
   //puta: cambiar a otro archivo

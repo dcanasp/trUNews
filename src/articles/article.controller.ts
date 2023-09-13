@@ -29,7 +29,7 @@ export class ArticleController {
   public createArticle(req: Request, res: Response, next: any) {
     this.articleFacade.createArticle(req)
       .then(article => {
-        res.locals.newArticle = article; 
+        // res.locals.newArticle = article; //???? 
         res.json(article);
       })
       .catch(err => {

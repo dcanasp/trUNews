@@ -55,7 +55,7 @@ export class UserFacade {
     }
 
     public async decryptJWT(body : decryptJWT) {
-        const decripted = await this.usersService.decryptJWT(body);
+        const decripted = await this.userService.decryptJWT(body);
         logger.log('debug',decripted)
 		if(! decripted ){
 			return {"err":'el token ha fallado,es invalido o ha expirado'}

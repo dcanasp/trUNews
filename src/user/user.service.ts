@@ -10,7 +10,6 @@ import {container} from "tsyringe";
 import {DatabaseService} from '../db/databaseService';
 
 
-const databaseService = (container.resolve(DatabaseService)).getClient();
 @injectable()
 export class UserService {
     private databaseService;
