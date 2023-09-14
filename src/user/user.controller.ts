@@ -10,9 +10,7 @@ import { UserFacade } from './user.facade';
 // const userFacade = (container.resolve(UserFacade)); //es una forma de resolverlo manualmente, pero mejor inyectar
 @injectable()
 export class UserController {
-    private userFacade: UserFacade;
-    constructor( @inject(UserFacade) userFacade: UserFacade ) {
-        this.userFacade = userFacade
+    constructor( @inject(UserFacade) private userFacade: UserFacade ) {
     }
 
     public getUsersProfile(req : any, res : any) {

@@ -8,9 +8,7 @@ import { UserService } from './user.service'
 
 @injectable()
 export class UserFacade {
-    private userService;
-    constructor(@inject(UserService) userService: UserService) {
-        this.userService = userService
+    constructor(@inject(UserService) private userService: UserService) {
     }
 
     public async getUsersProfile(req : Request) {
@@ -23,7 +21,6 @@ export class UserFacade {
 		//@ts-ignore
 		delete user.hash
         return user
-        // TODO: CAMBIAR ESTO, LA VALIDACION Y CASTEO DE DATOS VA EN UN MIDDLEWARE ACA NO
         // return await this.databaseService.getClient().user.findFirst({ where: { id_user: userId2 } });
     }
 
@@ -48,7 +45,7 @@ export class UserFacade {
     public async checkPassword(body : chechPasswordType) {
         const checkPassword = await this.userService.checkPassword(body);
 		if(! checkPassword ){
-			return {"err":'usuario ya no existe'}
+			return {"err":'usuario no existe'}
 		}
 		return {"success": checkPassword[0], "token": checkPassword[1]}
 

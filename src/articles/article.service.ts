@@ -10,19 +10,17 @@ import {Roles} from '../utils/roleDefinition';
 
 @injectable()
 export class ArticleService {
-    private databaseService;
-    private userService;
-    constructor(@inject(DatabaseService) databaseService : DatabaseService, @inject(UserService) userService : UserService) {
-        this.databaseService = databaseService;
-        this.userService = userService;
+    private databaseService
+    constructor(@inject(DatabaseService) databaseService : DatabaseService, @inject(UserService) private userService : UserService) {
+        this.databaseService = databaseService.getClient()
     }
 
     public async getArticles() {
-        return await this.databaseService.getClient().article.findMany();
+        return await this.databaseService.article.findMany();
     }
 
     public async getArticleById(articleId : number) {
-        return await this.databaseService.getClient().article.findFirst({
+        return await this.databaseService.article.findFirst({
             where: {
                 id_article: articleId
             }
@@ -30,32 +28,41 @@ export class ArticleService {
     }
 
     public async createArticle(body : createArticleType) {
+        try{
         const user = await this.userService.getUserById(body.id_writer)
         if (! user || user.rol === Roles.lector) {
+            throw new DatabaseErrors('no es un escritor')
             return;
         }
         const url = await this.addImage(body.image_url)
         if (! url) {
             throw new DatabaseErrors('no se pudo crear en s3')
         }
-        const articleCreated = await this.databaseService.getClient().article.create({
-            data: {
-                title: body.title,
-                date: body.date,
-                views: 0,
-                id_writer: body.id_writer,
-                text: body.text,
-                image_url: url
-            }
-        }).catch((err) => {
-            return;
-        });
-        return articleCreated
+
+            const articleCreated = await this.databaseService.article.create({
+                data: {
+                    title: body.title,
+                    date: body.date,
+                    views: 0,
+                    id_writer: body.id_writer,
+                    text: body.text,
+                    image_url: url
+                }
+            })
+       
+            if (!articleCreated){
+                throw new DatabaseErrors('no se pudo crear el articulo')    
+            }     
+            return articleCreated
+        }
+        catch{
+            return ;
+        }           
     }
 
     public async deleteArticle(articleId : number) {
         try {
-            const result = await this.databaseService.getClient().article.delete({
+            const result = await this.databaseService.article.delete({
                 where: {
                     id_article: articleId
                 }
@@ -70,7 +77,7 @@ export class ArticleService {
 
     public async addImage(contenido : any) {
         try {
-            const ultimo = await this.databaseService.getClient().article.findMany({
+            const ultimo = await this.databaseService.article.findMany({
                 orderBy: {
                     id_article: 'desc'
                 },

@@ -15,7 +15,7 @@ model article {
   views      Int
   text       String
   image_url   String
-  writer     user     @relation(fields: [id_writer], references: [id_user], onDelete: Cascade)
+  writer     users     @relation(fields: [id_writer], references: [id_user], onDelete: Cascade)
 }
 
 model article_has_categories {
@@ -61,7 +61,7 @@ model trend_author {
   profession    String @db.VarChar(45)
 }
 
-model user {
+model users {
   id_user     Int       @id @default(autoincrement())
   username    String    @unique
   name        String    @db.VarChar(45)

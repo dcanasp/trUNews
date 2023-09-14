@@ -40,17 +40,22 @@ export class App  {
   //puta: cambiar a otro archivo
   public loggerMiddleware(){
     this.app.use( 
-      (req: Request, res: Response, next: NextFunction) => { 
-      this.logRequest(req)
-      next()} )
-  }
+      (req: Request, res: Response, next: NextFunction) => {   
+          this.logRequest(req)
+          next()} )
+        }
   public logRequest(req: Request){
-      permaLogger.log("info", {
-      method: req.method,
-      url: req.url,
-      headers: req.headers,
-      body: req.body,
-    });
+    let logData = {
+        method: req.method,
+        url: req.url,
+        headers: req.headers,
+        body: req.body,
+    }
+    if (req.body && req.body.password) {
+        logData.body = 'Datos sencibles fueron eliminados de logs';
+      } 
+    
+    permaLogger.log("info", { logData });
   }
 
 

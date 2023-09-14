@@ -5,9 +5,7 @@ import { ArticleFacade } from './article.facade';
 
 @injectable()
 export class ArticleController {
-  private articleFacade;
-  constructor(@inject(ArticleFacade) articleFacade: ArticleFacade) {
-    this.articleFacade = articleFacade
+  constructor(@inject(ArticleFacade) private articleFacade: ArticleFacade) {
   }
 
   public async getArticles(req: Request, res: Response) {
