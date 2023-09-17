@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  // provider = "prisma-dbml-generator"//para sacar el sql de prisma
 }
 
 datasource db {
@@ -10,14 +11,12 @@ datasource db {
 model article {
   id_article Int      @id @default(autoincrement())
   id_writer  Int
-  id_text    Int
-  id_image   Int
-  title      String   @db.VarChar(45)
+  title      String   @db.VarChar(250)
   date       DateTime @db.Date
   views      Int
-  image      image    @relation(fields: [id_image], references: [id_image])
-  text       text     @relation(fields: [id_text], references: [id_text])
-  writer     user     @relation(fields: [id_writer], references: [id_user])
+  text       String
+  image_url   String
+  writer     users     @relation(fields: [id_writer], references: [id_user], onDelete: Cascade)
 }
 
 model article_has_categories {
@@ -39,24 +38,12 @@ model follower {
   @@id([id_follower, id_following])
 }
 
-model image {
-  id_image Int       @id @default(autoincrement())
-  base     String
-  article  article[]
-}
-
 model saved {
   id_user    Int
   id_article Int
   date       String @db.VarChar(45)
 
   @@id([id_user, id_article])
-}
-
-model text {
-  id_text Int       @id @default(autoincrement())
-  content String
-  article article[]
 }
 
 model trend_article {
@@ -75,14 +62,14 @@ model trend_author {
   profession    String @db.VarChar(45)
 }
 
-model user {
+model users {
   id_user     Int       @id @default(autoincrement())
-  username    String    @unique 
+  username    String    @unique
   name        String    @db.VarChar(45)
-  hash        String    
+  hash        String
   lastname    String    @db.VarChar(45)
   rol         Int
   profession  String?   @db.VarChar(45)
-  description String?   
+  description String?
   article     article[]
 }

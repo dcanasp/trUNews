@@ -1,13 +1,27 @@
-
+import "reflect-metadata";
 import { PrismaClient } from '@prisma/client';
-
+import { injectable } from 'tsyringe'
 const prisma = new PrismaClient();
-//es un llamado normal pero si quiero cambiar de orm o cualquier cosa, solo cambio este archivo
+@injectable()
 export class DatabaseService {
-    private client = prisma;
+  private static instance: DatabaseService | null = null;
+  private client = prisma;
+
+  public constructor() {
   
-    public getClient() {
-      return this.client;
+  }
+
+  public static getInstance(): DatabaseService {
+    if (!DatabaseService.instance) {
+      DatabaseService.instance = new DatabaseService();
     }
-  
+    return DatabaseService.instance;
+  }
+
+  public getClient() {
+    return this.client;
+  }
 }
+
+// const dbService = DatabaseService.getInstance();
+// const prismaClient = dbService.getClient();

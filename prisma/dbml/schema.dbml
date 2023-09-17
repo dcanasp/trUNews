@@ -1,0 +1,77 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table article {
+  id_article Int [pk, increment]
+  id_writer Int [not null]
+  title String [not null]
+  date DateTime [not null]
+  views Int [not null]
+  text String [not null]
+  image_url String [not null]
+  writer users [not null]
+}
+
+Table article_has_categories {
+  articles_id_article Int [not null]
+  categories_id_categories Int [not null]
+
+  indexes {
+    (articles_id_article, categories_id_categories) [pk]
+  }
+}
+
+Table categories {
+  id_category Int [pk, increment]
+  cat_name String [unique, not null]
+}
+
+Table follower {
+  id_follower Int [not null]
+  id_following Int [not null]
+
+  indexes {
+    (id_follower, id_following) [pk]
+  }
+}
+
+Table saved {
+  id_user Int [not null]
+  id_article Int [not null]
+  date String [not null]
+
+  indexes {
+    (id_user, id_article) [pk]
+  }
+}
+
+Table trend_article {
+  articles_id_article Int [pk]
+  title String [not null]
+  base String [not null]
+  date DateTime [not null]
+  author String [not null]
+}
+
+Table trend_author {
+  users_id_user Int [pk]
+  username String [unique, not null]
+  name String [not null]
+  lastname String [not null]
+  profession String [not null]
+}
+
+Table users {
+  id_user Int [pk, increment]
+  username String [unique, not null]
+  name String [not null]
+  hash String [not null]
+  lastname String [not null]
+  rol Int [not null]
+  profession String
+  description String
+  article article [not null]
+}
+
+Ref: article.id_writer > users.id_user [delete: Cascade]

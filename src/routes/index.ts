@@ -1,17 +1,13 @@
 import { Router } from 'express';
+import { ArticleRouter } from './article.routes';
 import {UserRouter} from './user.routes';
 import {logger} from '../utils/logger';
-
+import {container} from 'tsyringe'
 
 export const routes = Router();
 
-// const instanceUserRouter= new usersRouter()
-// logger.log('debug',instanceUserRouter.getUserRoutes())
+const userRouter = container.resolve(UserRouter);
+const articleRouter = container.resolve(ArticleRouter)
 
-routes.use('/users', new UserRouter() .getUserRoutes());
-
-
-// export function crearRutas (app:Express){
-//     app.use( '/users', new usersRouter() .getUserRoutes() ) 
-
-// }
+routes.use('/articles', articleRouter.routes())
+routes.use('/users', userRouter.routes());
