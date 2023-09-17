@@ -49,6 +49,25 @@ export const verifyJwt = (rol? : number) => {
     };
 };
 
+export const verifyJwtPost = (param: string) => {
+    return(req : any, res : Response, next : NextFunction) => {
+        const token = req.headers['authorization'];
+        if (! token) 
+            return res.status(403).send({auth: false, message: 'No token provided.'});
+        jwt.verify(token, secret, (err : any, decoded : any) => {
+            if (err) 
+                return res.status(500).send({auth: false, message: 'Token expirado o error servidor'});
+
+            if (parseInt(req.body[param], 10) !== decoded.userId) {
+                console.log(req.body[param])
+                return res.status(403).send({auth: false, message: 'User ID mismatch.'});
+            }
+            req.userId = decoded.userId; // pss no lo estoy usando pero ahi viene el token abierto
+            next();
+        });
+    };
+};
+
 
 export const redoToken = (data : redoTokenType) => {
     const token = jwt.sign({

@@ -1,11 +1,11 @@
 import "reflect-metadata"
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'tsyringe'
 import { ArticleController } from '../articles/article.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation';
 import { convertDateFields } from '../utils/convertDataTypes';
 import { createArticleSchema } from '../middleware/dataValidation/schemas';
-import { generateJwt, verifyJwt } from '../auth/jwtServices';
+import { verifyJwt, verifyJwtPost } from '../auth/jwtServices';
 
 
 @injectable()
@@ -34,7 +34,8 @@ export class ArticleRouter {
       '/create',
       convertDateFields(['date']),
       validatePost(createArticleSchema),
-      (req: Request, res: Response, next: any) =>
+      verifyJwtPost('id_writer'),  
+      (req: Request, res: Response, next: NextFunction) =>
         this.articleController.createArticle(req, res, next),
     );
 
@@ -42,7 +43,7 @@ export class ArticleRouter {
     this.router.delete(
       '/:id',
       verifyJwt(),
-      (req: any, res: any) => {
+      (req: Request, res: Response) => {
         this.articleController.deleteArticle(req, res);
       }
     );

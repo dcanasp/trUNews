@@ -13,7 +13,7 @@ export class UserController {
     constructor( @inject(UserFacade) private userFacade: UserFacade ) {
     }
 
-    public getUsersProfile(req : any, res : any) {
+    public getUsersProfile(req : Request, res : Response) {
 
         this.userFacade.getUsersProfile(req).then(profile => res.json(profile)).catch(err => {
             res.status(400).json(err);
@@ -21,7 +21,7 @@ export class UserController {
         });
     }
 
-    public deleteUsers(req : any, res : any) {
+    public deleteUsers(req : Request, res : Response) {
         this.userFacade.deleteUsers(req).then((message) => res.json(message)).catch(err => {
             res.status(400).json(err),
             permaLogger.log("error", "delete=> user/:id // " + err)

@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe'
 import { ArticleFacade } from './article.facade';
 
@@ -24,7 +24,7 @@ export class ArticleController {
       });
   }
 
-  public createArticle(req: Request, res: Response, next: any) {
+  public createArticle(req: Request, res: Response, next: NextFunction) {
     this.articleFacade.createArticle(req)
       .then(article => {
         // res.locals.newArticle = article; //???? 
