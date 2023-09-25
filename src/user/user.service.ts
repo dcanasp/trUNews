@@ -19,7 +19,7 @@ export class UserService {
 
     public async getUsersProfile(userId : string) {
         let userId2 = parseInt(userId, 10);
-        const user = await this.databaseService.user.findFirst({
+        const user = await this.databaseService.users.findFirst({
             where: {
                 id_user: userId2
             }
@@ -29,7 +29,7 @@ export class UserService {
 
     public async deleteUsers(userId : number) {
 
-        return await this.databaseService.user.delete({
+        return await this.databaseService.users.delete({
             where: {
                 id_user: userId
             }
@@ -46,7 +46,7 @@ export class UserService {
 
     public async addUsers(body : createUserType) {
         const hash = await hashPassword(body.password);
-        const userCreated = await this.databaseService.user.create({
+        const userCreated = await this.databaseService.users.create({
             data: {
                 name: body.name,
                 lastname: body.lastname,
@@ -76,7 +76,7 @@ export class UserService {
     }
 
     private async getUserByUsername(user : string) {
-        const usuario = await this.databaseService.user.findUnique({
+        const usuario = await this.databaseService.users.findUnique({
             where: {
                 username: user
             }
@@ -91,7 +91,7 @@ export class UserService {
 
     public async getUserById(user_id : number) {
         try {
-            const usuario = await this.databaseService.user.findUnique({
+            const usuario = await this.databaseService.users.findUnique({
                 where: {
                     id_user: user_id
                 }
@@ -114,7 +114,7 @@ export class UserService {
         try {
             const userId2 = parseInt(userId, 10);
     
-            const existingUser = await this.databaseService.user.findFirst({
+            const existingUser = await this.databaseService.users.findFirst({
                 where: {
                     id_user: userId2,
                 },
@@ -124,7 +124,7 @@ export class UserService {
                 throw new DatabaseErrors('El usuario no existe');
             }
     
-            const updatedUser = await this.databaseService.user.update({
+            const updatedUser = await this.databaseService.users.update({
                 where: {
                     id_user: userId2,
                 },
@@ -146,7 +146,7 @@ public async updatePassword(userId: string, newPassword: string) {
     try {
         const userId2 = parseInt(userId, 10);
 
-        const existingUser = await this.databaseService.user.findFirst({
+        const existingUser = await this.databaseService.users.findFirst({
             where: {
                 id_user: userId2,
             },
@@ -158,7 +158,7 @@ public async updatePassword(userId: string, newPassword: string) {
 
         const newHashedPassword = await hashPassword(newPassword);
 
-        const updatedUser = await this.databaseService.user.update({
+        const updatedUser = await this.databaseService.users.update({
             where: {
                 id_user: userId2,
             },
