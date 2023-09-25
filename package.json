@@ -12,7 +12,8 @@
     "start": "build/server.js",
     "production": "tsc && node build/server.js",
     "migratePrisma": "npx prisma migrate dev && npx prisma migrate deploy",
-    "nodemon": "nodemon"
+    "nodemon": "nodemon",
+    "connectServer":"ssh -i ./trunews.pem ec2-user@ec2-35-175-244-104.compute-1.amazonaws.com"
   },
   "repository": {
     "type": "git",
