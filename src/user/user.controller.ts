@@ -5,7 +5,6 @@ import { DatabaseErrors } from '../errors/database.errors';
 // import {container} from "tsyringe";
 import { injectable, inject } from 'tsyringe';
 import { UserFacade } from './user.facade';
-import { log } from "console";
 
 
 // const userFacade = (container.resolve(UserFacade)); //es una forma de resolverlo manualmente, pero mejor inyectar
