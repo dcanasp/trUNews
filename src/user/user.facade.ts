@@ -60,6 +60,48 @@ export class UserFacade {
 		return {"userId":decripted["userId"],"rol":decripted["rol"]}
 
     }
+
+    public async updateProfile(req: Request, body: createUserType) {
+        const userId = req.params.id;
+        try {
+            // Verifica si el usuario existe
+            const existingUser = await this.userService.getUsersProfile(userId);
+    
+            if (!existingUser) {
+                return { error: 'El usuario no existe' };
+            }
+    
+            const updatedUser = await this.userService.updateProfile(userId, body);
+    
+            return updatedUser;
+        } catch (error) {
+            console.error(error);
+            throw new DatabaseErrors('Error al actualizar el perfil del usuario');
+        }
+    }
+    
+    
+    public async updatePassword(userId: string, currentPassword: string, newPassword: string) {
+        try {
+            // Verifica la contraseña actual del usuario
+            const checkPasswordResult = await this.userService.checkPassword({
+                username: userId,
+                password: currentPassword,
+            });
+
+            if (!checkPasswordResult) {
+                return { error: 'Contraseña actual incorrecta' };
+            }
+
+            const updatedUser = await this.userService.updatePassword(userId, newPassword);
+
+            return { success: 'Contraseña actualizada correctamente', user: updatedUser };
+        } catch (error) {
+            console.error(error);
+            return { error: 'Error al actualizar la contraseña' };
+        }
+    }
+
     // public async addImage(body:any){
     //     const urlS3 =await this.userService.addImage(body);
     //     if(!urlS3){

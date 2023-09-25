@@ -51,6 +51,18 @@ export class UserController {
         });
     }
 
+    public updatePassword = async (req: Request, res: Response) => {
+        try {
+            const userId = req.params.userId;
+            const { currentPassword, newPassword } = req.body;
+    
+            const result = await this.userFacade.updatePassword(userId, currentPassword, newPassword);
+            res.json(result);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error al actualizar la contraseña del usuario' });
+        }
+    };
     // public addImage(req: Request, res:Response){
     //     this.userFacade.addImage(req.body).then(response => res.json(response)).catch(err => {
     //         permaLogger.log('error','post =>add image '+ err);
