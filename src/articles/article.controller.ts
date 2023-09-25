@@ -51,4 +51,21 @@ export class ArticleController {
       });
   }
 
+  public allTrending(req: Request, res: Response) {
+    this.articleFacade.allTrending(req)
+      .then((response) => res.json(response))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
+  public trending(req: Request, res: Response) {
+    this.articleFacade.trending(req)
+      .then((response) => res.json(response))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
+
  }

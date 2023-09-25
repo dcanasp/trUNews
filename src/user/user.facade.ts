@@ -62,7 +62,6 @@ export class UserFacade {
 
 
     public async findAllUser() {
-        logger.log("debug","aca estoy?");
         const allUser = await this.userService.findAllUser();
 		if(! allUser ){
 			return {"err":'no se encontraron usuarios'}
