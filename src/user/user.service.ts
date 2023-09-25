@@ -193,6 +193,8 @@ export class UserService {
                     lastname: updatedProfileData.lastname || existingUser.lastname,
                     username: updatedProfileData.username || existingUser.username,
                     rol: updatedProfileData.rol || existingUser.rol,
+                    profession: updatedProfileData.profession || existingUser.profession,
+                    description: updatedProfileData.description || existingUser.description,
                 },
             });
     
@@ -205,7 +207,6 @@ export class UserService {
 public async updatePassword(userId: string, newPassword: string) {
     try {
         const userId2 = parseInt(userId, 10);
-
         const existingUser = await this.databaseService.users.findFirst({
             where: {
                 id_user: userId2,
