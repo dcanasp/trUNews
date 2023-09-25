@@ -47,9 +47,9 @@ model saved {
 
 model trend_article {
   articles_id_article Int      @id
-  title               String   @db.VarChar(250)
+  title               String   
   date                DateTime @db.Date
-  author              String   @db.VarChar(45)
+  author              String   
   image_url           String
   views               Int
   weight              Decimal

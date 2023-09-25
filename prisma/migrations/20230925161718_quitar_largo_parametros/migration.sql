@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "trend_article" ALTER COLUMN "title" SET DATA TYPE TEXT,
+ALTER COLUMN "author" SET DATA TYPE TEXT;

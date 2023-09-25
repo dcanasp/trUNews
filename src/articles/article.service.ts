@@ -7,6 +7,7 @@ import {uploadToS3} from '../aws/addS3';
 import {DatabaseErrors} from '../errors/database.errors';
 import {UserService} from '../user/user.service';
 import {Roles} from '../utils/roleDefinition';
+import {resizeImages} from '../utils/resizeImages';
 
 @injectable()
 export class ArticleService {
@@ -34,7 +35,7 @@ export class ArticleService {
             throw new DatabaseErrors('no es un escritor')
             return;
         }
-        const url = await this.addImage(body.image_url)
+        const url = await this.addImage(body.image_url,body.image_extension,body.ancho,body.image_ratio)
         if (! url) {
             throw new DatabaseErrors('no se pudo crear en s3')
         }
@@ -75,7 +76,7 @@ export class ArticleService {
         }
     }
 
-    public async addImage(contenido : any) {
+    public async addImage(contenido : any, extension:string = '.png',ancho:number=200,ratio:string='1:2') {
         try {
             const ultimo = await this.databaseService.article.findMany({
                 orderBy: {
@@ -83,9 +84,9 @@ export class ArticleService {
                 },
                 take: 1
             });
-            const folder = 'image'
-            const imageBuffer = contenido;
-            // const imageBuffer = Buffer.from(contenido.split(',')[1], 'base64');
+            const folder = 'image';
+            // const imageBuffer = contenido;
+            const imageBuffer = Buffer.from(contenido.split(',')[1], 'base64');
             // debe ser un buffer el contenido
             let ultimo_usuario = (1).toString()
             if (ultimo[0]) {
@@ -93,15 +94,16 @@ export class ArticleService {
             }
 
             const link = process.env.S3_url
-            const extension = '.png'
             const file_name = (ultimo_usuario + extension)
-            const url = await uploadToS3(file_name, imageBuffer,folder) // body.contenido);
-            permaLogger.log('debug', imageBuffer)
+            
+            const resizedImageBuffer = await resizeImages(imageBuffer,ancho,ratio);
+
+            const url = await uploadToS3(file_name, resizedImageBuffer,folder) // body.contenido);
             if (! url) {
                 throw new DatabaseErrors('no se pudo subir a s3');
             }
             // crear nuevo registro
-            return `${link}${file_name}`;
+            return `${link}${folder}/${file_name}`;
         } catch (error) {
             return;
         }
