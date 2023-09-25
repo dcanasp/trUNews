@@ -36,13 +36,19 @@ export class ArticleRouter {
         this.articleController.createArticle(req, res, next),
     );
 
-    
-    
-    this.router.get('/latest/:id', (req:Request, res:Response) => {
+    this.router.get('/latest/:quantity([0-9]+)', (req:Request, res:Response) => {
       this.articleController.getLatest(req,res);
       
     });
     
+    this.router.get('/trending/', (req:Request, res:Response) => {
+      this.articleController.allTrending(req,res);
+    });
+    this.router.get('/trending/:quantity([0-9]+)', (req:Request, res:Response) => {
+      this.articleController.trending(req,res);
+    });
+
+
     this.router.get('/:id([0-9]+)', (req:Request, res:Response) => {
           this.articleController.getArticleById(req, res)
     });

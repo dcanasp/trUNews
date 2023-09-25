@@ -107,10 +107,10 @@ export class ArticleService {
         }
     }
 
-    public async getLatest(cantidad:number){
+    public async getLatest(quantity:number){
         try {
             const articles = await this.databaseService.article.findMany({
-                take: cantidad,
+                take: quantity,
                 orderBy: {
                   date: 'desc'
                 },
@@ -131,4 +131,44 @@ export class ArticleService {
 
     }
 
+    public async allTrending(){
+        try {
+            const articles = await this.databaseService.trend_article.findMany({
+                orderBy: {
+                  weight: 'desc'
+                },
+            });
+            if (! articles) {
+                throw new DatabaseErrors('no se encontraron articlos tendencia');
+            }
+              return articles;
+
+        } catch (error) {
+            return ;
+        }
+
+    }
+
+    public async trending(quantity:number){
+        try {
+            const articles = await this.databaseService.trend_article.findMany({
+                take: quantity,
+                orderBy: {
+                  weight: 'desc'
+                },
+              });
+            if (! articles) {
+                throw new DatabaseErrors('no se encontraron articulos tendencia de cantidad dada');
+            }
+              return articles;
+
+        } catch (error) {
+            return ;
+        }
+
+    }
+
+
+
 }
+

@@ -48,12 +48,30 @@ export class ArticleFacade {
   }
 
   public async getLatest(req: Request) {
-    const cantidadNoticias = req.params.id;
+    const cantidadNoticias = req.params.quantity;
     const latest = await this.articleService.getLatest(parseInt(cantidadNoticias,10))
     if (!latest) {
       return { "err": 'no se pudieron traer Ultimos articulos' };
     }
     return latest;
+  }
+
+  public async allTrending(req: Request) {
+    const trending = await this.articleService.allTrending()
+    if (!trending) {
+      return { "err": 'no se pudieron traer Ultimos articulos' };
+    }
+    return trending;
+  }
+  
+  
+  public async trending(req: Request) {
+    const cantidadArticulos = req.params.quantity;
+    const trending = await this.articleService.trending(parseInt(cantidadArticulos,10))
+    if (!trending) {
+      return { "err": 'no se pudieron traer Ultimos articulos' };
+    }
+    return trending;
   }
 
 

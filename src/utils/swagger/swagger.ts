@@ -14,7 +14,7 @@ const doc = {
 
 const outputFile = './swagger-output.json';
 
-const endpointsFiles = ['./src/routes/article.routes.ts' ];
+const endpointsFiles = ['./src/routes/user.routes.ts' ];
 
 // PARA ACTUALIZAR SWAGGER quitar comentario abajo
 // ACTIVAR SWAGGER
