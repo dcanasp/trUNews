@@ -53,11 +53,30 @@ export class UserFacade {
 
     public async decryptJWT(body : decryptJWT) {
         const decripted = await this.userService.decryptJWT(body);
-        logger.log('debug',decripted)
 		if(! decripted ){
 			return {"err":'el token ha fallado,es invalido o ha expirado'}
 		}
 		return {"userId":decripted["userId"],"rol":decripted["rol"]}
+
+    }
+
+
+    public async findAllUser() {
+        logger.log("debug","aca estoy?");
+        const allUser = await this.userService.findAllUser();
+		if(! allUser ){
+			return {"err":'no se encontraron usuarios'}
+		}
+		return {allUser}
+
+    }
+
+    public async findUser(req: Request) {
+        const users = await this.userService.findUser(req.params.nombre);
+		if(! users ){
+			return {"err":'no hay usuarios con ese nombre'}
+		}
+		return {users}
 
     }
 
@@ -101,6 +120,7 @@ export class UserFacade {
             return { error: 'Error al actualizar la contraseña' };
         }
     }
+
 
     // public async addImage(body:any){
     //     const urlS3 =await this.userService.addImage(body);

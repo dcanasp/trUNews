@@ -107,5 +107,28 @@ export class ArticleService {
         }
     }
 
+    public async getLatest(cantidad:number){
+        try {
+            const articles = await this.databaseService.article.findMany({
+                take: cantidad,
+                orderBy: {
+                  date: 'desc'
+                },
+                select: {
+                  date: true,
+                  image_url: true,
+                  title: true
+                }
+              });
+            if (! articles) {
+                throw new DatabaseErrors('no se encontraron ultimos articulos');
+            }
+              return articles;
+
+        } catch (error) {
+            return ;
+        }
+
+    }
 
 }

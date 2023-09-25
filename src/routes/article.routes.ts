@@ -25,10 +25,7 @@ export class ArticleRouter {
         
     });
 
-    this.router.get('/:id', (req:Request, res:Response) => {
-          this.articleController.getArticleById(req, res)
-    });
-
+    
     // Rutas protegidas que requieren autenticación
     this.router.post(
       '/create',
@@ -39,15 +36,23 @@ export class ArticleRouter {
         this.articleController.createArticle(req, res, next),
     );
 
-
+    
+    
+    this.router.get('/latest/:id', (req:Request, res:Response) => {
+      this.articleController.getLatest(req,res);
+      
+    });
+    
+    this.router.get('/:id([0-9]+)', (req:Request, res:Response) => {
+          this.articleController.getArticleById(req, res)
+    });
     this.router.delete(
-      '/:id',
+      '/:id([0-9]+)',
       verifyJwt(),
       (req: Request, res: Response) => {
         this.articleController.deleteArticle(req, res);
       }
     );
-
     return this.router;
   }
 
