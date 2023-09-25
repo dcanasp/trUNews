@@ -107,6 +107,66 @@ export class UserService {
 
     public async decryptJWT(body:decryptJWT){
         return await decryptToken(body.token)
+    }
+
+    public async findAllUser(){
+        try {
+            
+            const usuario = await this.databaseService.users.findMany({});
+            if (! usuario) {
+                throw new DatabaseErrors('no hay usuarios');
+            }
+            return usuario;
+        } catch {
+            return;
+        }}
+
+    
+
+    
+    public async findUser(nombre:string){
+        try{
+            const usuario = await this.databaseService.users.findMany({
+                where: {
+                  OR: [
+                    {
+                      name: {
+                        contains: nombre,
+                        mode: 'insensitive',
+                      }
+                    },
+                    {
+                      lastname: {
+                        contains: nombre,
+                        mode: 'insensitive',
+                      }
+                    },
+                    {
+                        username: {
+                          contains: nombre,
+                          mode: 'insensitive',
+                        }
+                      }
+                  ]
+                },
+                select: {
+                  id_user: true,
+                  name: true,
+                  lastname: true,
+                  username: true,
+                  rol: true,
+                },
+                orderBy:{
+                        rol:'asc'
+                    }
+              });
+            if (! usuario || !usuario[0]) {
+                throw new DatabaseErrors('no hay usuarios con ese nombre');
+            }
+            return usuario;
+        }catch{
+            return;
+        }
 
     }
 }

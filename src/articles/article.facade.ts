@@ -24,7 +24,7 @@ export class ArticleFacade {
     const articleId = req.params.id;
     const article = await this.articleService.getArticleById(parseInt(articleId, 10));
     if (!article) {
-      return { error: 'El artículo no existe' };
+      return { "err": 'El artículo no existe' };
     }
     return article;
   }
@@ -42,11 +42,19 @@ export class ArticleFacade {
   public async deleteArticle(req: Request) {
     const articleId = req.params.id;
     if (!await this.articleService.deleteArticle(parseInt(articleId,10))) {
-      return { error: 'El artículo no existe o no se pudo eliminar' };
+      return { "err": 'El artículo no existe o no se pudo eliminar' };
     }
     return { message: 'Artículo eliminado correctamente' };
   }
 
-  // Otras funciones relacionadas con los artículos...
+  public async getLatest(req: Request) {
+    const cantidadNoticias = req.params.id;
+    const latest = await this.articleService.getLatest(parseInt(cantidadNoticias,10))
+    if (!latest) {
+      return { "err": 'no se pudieron traer Ultimos articulos' };
+    }
+    return latest;
+  }
+
 
 }

@@ -23,12 +23,8 @@ export class UserRouter {
 
     public routes(){
 
-        this.router.get('/:id',
-            verifyJwt(),
-            (req:Request, res:Response) => this.userController.getUsersProfile(req, res));
-            
         this.router.post('/create',
-            convertDateFields(['NOMBREPARAMETRO']) ,validatePost(createUserSchema),
+        convertDateFields(['NOMBREPARAMETRO']) ,validatePost(createUserSchema),
             (req:Request,res:Response,next:NextFunction)=> { (this.userController.addUsers(req,res,next)) },
             generateJwt,
             (req: Request, res: Response) => {
@@ -36,24 +32,36 @@ export class UserRouter {
                 
             }
             );
-
-        this.router.delete('/:id', 
-            verifyJwt(Roles.escritor),
-            (req:Request, res:Response) => this.userController.deleteUsers(req, res));
-        
-        this.router.post('/checkPassword',
-              validatePost(checkPasswordSchema),
-              (req:Request, res:Response) => this.userController.checkPassword(req, res));
-        
-        // this.router.post('/addImage',(req:Request,res:Response) => this.userController.addImage(req,res) )
-     
-		this.router.post('/decryptJWT',
+            
+            this.router.post('/checkPassword',
+            validatePost(checkPasswordSchema),
+            (req:Request, res:Response) => this.userController.checkPassword(req, res));
+            
+            // this.router.post('/addImage',(req:Request,res:Response) => this.userController.addImage(req,res) )
+            
+            this.router.post('/decryptJWT',
 			validatePost(decryptJWTSchema),
 			(req:Request,res:Response) => {this.userController.decryptJWT(req,res)});
 
-        return this.router
+            this.router.get('/find/',
+            (req:Request, res:Response) => this.userController.findAllUser(req, res));
+            
+            
+            this.router.get('/find/:nombre',
+            (req:Request, res:Response) => this.userController.findUser(req, res));
+            
+            
+            this.router.get('/:id([0-9]+)',
+                verifyJwt(),
+                (req:Request, res:Response) => this.userController.getUsersProfile(req, res));
+                
+            this.router.delete('/:id([0-9]+)', 
+                verifyJwt(Roles.escritor),
+                (req:Request, res:Response) => this.userController.deleteUsers(req, res));
+            
+            return this.router
+        
     }
-    
 }
 
 

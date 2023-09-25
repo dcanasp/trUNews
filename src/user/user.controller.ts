@@ -51,6 +51,22 @@ export class UserController {
         });
     }
 
+    public findAllUser(req:Request,res:Response){
+        logger.log("debug","aca estoy?");
+        console.log("locura");
+
+        this.userFacade.findAllUser().then(response => res.json(response)).catch(err => {
+            permaLogger.log('error', "get=> user/findAllUser // " + err);
+            res.status(400).json(err);
+        });
+    }
+
+    public findUser(req:Request,res:Response){
+        this.userFacade.findUser(req).then(response => res.json(response)).catch(err => {
+            permaLogger.log('error', "get=> user/findUser // " + err);
+            res.status(400).json(err);
+        });
+    }
     // public addImage(req: Request, res:Response){
     //     this.userFacade.addImage(req.body).then(response => res.json(response)).catch(err => {
     //         permaLogger.log('error','post =>add image '+ err);
