@@ -81,43 +81,35 @@ export class UserFacade {
 
     public async updateProfile(req: Request, body: createUserType) {
         const userId = req.params.id;
-        try {
-            // Verifica si el usuario existe
-            const existingUser = await this.userService.getUsersProfile(userId);
-    
-            if (!existingUser) {
-                return { error: 'El usuario no existe' };
-            }
-    
-            const updatedUser = await this.userService.updateProfile(userId, body);
-    
-            return updatedUser;
-        } catch (error) {
-            console.error(error);
-            throw new DatabaseErrors('Error al actualizar el perfil del usuario');
+        
+        const existingUser = await this.userService.getUsersProfile(userId);
+
+        if (!existingUser) {
+            return { error: 'El usuario no existe' };
         }
+
+        const updatedUser = await this.userService.updateProfile(userId, body);
+
+        return updatedUser;
     }
     
     
-    public async updatePassword(userId: string, currentPassword: string, newPassword: string) {
-        try {
-            // Verifica la contraseña actual del usuario
-            const checkPasswordResult = await this.userService.checkPassword({
-                username: userId,
-                password: currentPassword,
-            });
+    public async updatePassword(userId: string, username: string, currentPassword: string, newPassword: string) {
+        // Verifica la contraseña actual del usuario
 
-            if (!checkPasswordResult) {
-                return { error: 'Contraseña actual incorrecta' };
-            }
-
-            const updatedUser = await this.userService.updatePassword(userId, newPassword);
-
-            return { success: 'Contraseña actualizada correctamente', user: updatedUser };
-        } catch (error) {
-            console.error(error);
-            return { error: 'Error al actualizar la contraseña' };
+        const checkPasswordResult = await this.userService.checkPassword({
+            username: username,
+            password: currentPassword,
+        });
+        console.log("debugFacade", "updatePassword: ", userId, username, currentPassword, newPassword, checkPasswordResult)
+        if (!checkPasswordResult) {
+            return { error: 'Contraseña actual incorrecta' };
         }
+
+        const updatedUser = await this.userService.updatePassword(userId, newPassword);
+
+        return { success: 'Contraseña actualizada correctamente', user: updatedUser };
+
     }
 
 
