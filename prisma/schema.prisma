@@ -57,10 +57,11 @@ model trend_article {
 
 model trend_author {
   users_id_user Int    @id
-  username      String @unique @db.VarChar(45)
+  username      String @unique 
   name          String @db.VarChar(45)
   lastname      String @db.VarChar(45)
-  profession    String @db.VarChar(45)
+  profession    String 
+  weight        Decimal
 }
 
 model users {
@@ -70,7 +71,7 @@ model users {
   hash        String
   lastname    String    @db.VarChar(45)
   rol         Int
-  profession  String?   @db.VarChar(45)
+  profession  String?   
   description String?
   article     article[]
 }

@@ -15,7 +15,8 @@
     "nodemon": "nodemon",
     "connectServer": "ssh -i ./trunews.pem ec2-user@ec2-35-175-244-104.compute-1.amazonaws.com",
     "poblate": "tsc && node build/utils/poblateDB",
-    "trendArticle": "tsc && node build/articles/trendArticle"
+    "trendArticle": "tsc && node build/articles/trendArticle",
+    "trendUser": "tsc && node build/user/trendAuthor"
   },
   "repository": {
     "type": "git",

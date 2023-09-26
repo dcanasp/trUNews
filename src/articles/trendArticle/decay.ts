@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import {container,injectable,inject} from 'tsyringe';
 import {DatabaseService} from '../../db/databaseService';
-import { PrismaClient } from '@prisma/client';
 import { DatabaseErrors } from "../../errors/database.errors";
 import { permaLogger } from "../../utils/logger";
 
@@ -11,6 +10,7 @@ export class trendArticle {
     private threeMonthsAgo;
     private decayFactor;
     private powerLawFactor;
+    private weightMinimo = 100;
     constructor(@inject(DatabaseService) databaseService : DatabaseService) {
         this.databaseService = databaseService.getClient();
         this.decayFactor = 0.1; 
@@ -44,7 +44,9 @@ export class trendArticle {
             const weight = Math.exp(-this.decayFactor * ageInDays) * article.views;
             // const weight = 1/Math.pow(1+ageInDays,this.powerLawFactor) *article.views;
             weightedSum += weight * article.views; //la tengo para comparar algoritmos
-            
+            if (weight<=this.weightMinimo){
+                continue;
+            }
             try{
 
                 const trend_article = await this.databaseService.trend_article.create({
