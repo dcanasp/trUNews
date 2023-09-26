@@ -52,6 +52,7 @@ model trend_article {
   author              String   
   image_url           String
   views               Int
+  text                String
   weight              Decimal
 }
 

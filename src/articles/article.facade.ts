@@ -53,7 +53,26 @@ export class ArticleFacade {
     if (!latest) {
       return { "err": 'no se pudieron traer Ultimos articulos' };
     }
-    return latest;
+    const now = new Date();
+    let formated_latest:any[] = [];
+    for (let article of latest) {
+      const ageInDays = (now.getTime() - new Date(article.date).getTime()) / (1000 * 60 * 60 * 24);
+      let formated_date;
+      if (ageInDays < 1) {
+        formated_date = "Today";
+      } else {
+        formated_date = `Created ${Math.floor(ageInDays)} days ago`;
+      }
+      formated_latest.push({
+        "date": formated_date,
+        image_url: article.image_url,
+        title: article.title
+      })
+      console.log(formated_latest);
+    }
+
+
+    return formated_latest;
   }
 
   public async allTrending(req: Request) {

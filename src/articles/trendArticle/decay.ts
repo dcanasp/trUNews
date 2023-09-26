@@ -57,6 +57,7 @@ export class trendArticle {
                         date: article.date,
                         views: article.views,
                         title: article.title,
+                        text: article.text,
                         weight: weight
                     }
                 });
