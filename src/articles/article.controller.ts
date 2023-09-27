@@ -89,6 +89,12 @@ export class ArticleController {
       });
   }
 
-
+  public related(req: Request, res: Response) {
+    this.articleFacade.related(req)
+      .then((response) => res.json(response))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
 
  }
