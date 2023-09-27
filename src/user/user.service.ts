@@ -121,9 +121,6 @@ export class UserService {
             return;
         }}
 
-    
-
-    
     public async findUser(nombre:string){
         try{
             const usuario = await this.databaseService.users.findMany({

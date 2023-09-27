@@ -115,11 +115,6 @@ export class ArticleService {
                 take: quantity,
                 orderBy: {
                   date: 'desc'
-                },
-                select: {
-                  date: true,
-                  image_url: true,
-                  title: true
                 }
               });
             if (! articles) {
@@ -129,6 +124,44 @@ export class ArticleService {
 
         } catch (error) {
             return ;
+        }
+
+    }
+
+    public async findAllArticle(){
+        try {
+            
+            const article = await this.databaseService.article.findMany({
+                include:{ writer:true}
+            });
+            if (! article) {
+                throw new DatabaseErrors('no hay articulos');
+            }
+            return article;
+        } catch {
+            return;
+        }}
+
+    public async findArticle(nombre:string){
+        try{
+            const article = await this.databaseService.article.findMany({
+                where: {
+                    title: {
+                        contains: nombre,
+                        mode: 'insensitive',
+                    }                    
+                },
+                include:{ writer:true},
+                orderBy:{
+                        date:'desc'
+                    }
+              });
+            if (! article || !article[0]) {
+                throw new DatabaseErrors('no hay articulos con ese nombre');
+            }
+            return article;
+        }catch{
+            return;
         }
 
     }
@@ -171,6 +204,37 @@ export class ArticleService {
     }
 
 
+    public async feed (user_id:number){
+        let weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        
+        const articlesFromFollowedUsers = await this.databaseService.follower.findMany({
+            where: {
+              id_follower: user_id,
+            },
+            select: {
+              following: {
+                select: {
+                  article: {
+                    where: {
+                      date: {
+                        gte: weekAgo,
+                      },
+                    },
+                               
+                  },
+                },
+              },
+            },
+          });
+          
+        const flatArticles = articlesFromFollowedUsers.flatMap(follower => follower.following.article);
+        const latestArticles = await this.getLatest(10) || [];
+
+        const combinedArticles = [...flatArticles, ...latestArticles];
+      
+        return combinedArticles;
+    }
 
 }
 

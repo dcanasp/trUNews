@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { NextFunction, Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe'
 import { ArticleFacade } from './article.facade';
-
+import { permaLogger } from "../utils/logger";
 @injectable()
 export class ArticleController {
   constructor(@inject(ArticleFacade) private articleFacade: ArticleFacade) {
@@ -51,6 +51,20 @@ export class ArticleController {
       });
   }
 
+  public findAllArticle(req:Request,res:Response){
+    this.articleFacade.findAllArticle().then(response => res.json(response)).catch(err => {
+        permaLogger.log('error', "get=> Article/findAllArticle // " + err);
+        res.status(400).json(err);
+    });
+}
+
+  public findArticle(req:Request,res:Response){
+      this.articleFacade.findArticle(req).then(response => res.json(response)).catch(err => {
+          permaLogger.log('error', "get=> Article/findArticle // " + err);
+          res.status(400).json(err);
+      });
+  }
+
   public allTrending(req: Request, res: Response) {
     this.articleFacade.allTrending(req)
       .then((response) => res.json(response))
@@ -66,6 +80,15 @@ export class ArticleController {
         res.status(400).json(err);
       });
   }
+
+  public feed(req: Request, res: Response) {
+    this.articleFacade.feed(req)
+      .then((response) => res.json(response))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
 
 
  }
