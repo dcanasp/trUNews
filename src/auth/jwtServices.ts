@@ -86,7 +86,6 @@ export const  decryptToken = (token:string)=>{
         if (!err){
             decriptedToken = decoded
         } 
-        // logger.log('debug','fasd')
     })
-    return  decriptedToken
+    return  decriptedToken;
 }

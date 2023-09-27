@@ -88,6 +88,23 @@ export class UserController {
             res.status(400).json(err);
         });
     }
+
+    public allTrending(req: Request, res: Response) {
+        this.userFacade.allTrending(req)
+          .then((response) => res.json(response))
+          .catch(err => {
+            res.status(400).json(err);
+          });
+      }
+    
+      public trending(req: Request, res: Response) {
+        this.userFacade.trending(req)
+          .then((response) => res.json(response))
+          .catch(err => {
+            res.status(400).json(err);
+          });
+      }    
+
     // public addImage(req: Request, res:Response){
     //     this.userFacade.addImage(req.body).then(response => res.json(response)).catch(err => {
     //         permaLogger.log('error','post =>add image '+ err);

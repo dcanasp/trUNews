@@ -121,9 +121,6 @@ export class UserService {
             return;
         }}
 
-    
-
-    
     public async findUser(nombre:string){
         try{
             const usuario = await this.databaseService.users.findMany({
@@ -233,5 +230,45 @@ public async updatePassword(userId: string, newPassword: string) {
         throw new DatabaseErrors('Error al actualizar la contraseña del usuario');
     }
 }
+
+    public async allTrending(){
+        try {
+            const trendUsers = await this.databaseService.trend_author.findMany({
+                orderBy: {
+                  weight: 'desc'
+                },
+            });
+            if (! trendUsers) {
+                throw new DatabaseErrors('no se encontraron usuarios tendencia');
+            }
+              return trendUsers;
+
+        } catch (error) {
+            return ;
+        }
+
+    }
+
+    public async trending(quantity:number){
+        try {
+            const trendUsers = await this.databaseService.trend_author.findMany({
+                take: quantity,
+                orderBy: {
+                  weight: 'desc'
+                },
+              });
+            if (! trendUsers) {
+                throw new DatabaseErrors('no se encontraron articulos tendencia de cantidad dada');
+            }
+              return trendUsers;
+
+        } catch (error) {
+            return ;
+        }
+
+    }
+
+
+
 
 }

@@ -14,6 +14,8 @@ async function main(){
   await crearArticulos(database);
   await crearFollowers(database);
   await crearSaved(database);
+  await crearCategories(database);
+  await crearArticleHasCategories(database);
 }
 async function crearUsuarios(databaseService: PrismaClient) {
   for (let i = 0; i < numberOfEntries; i++) {
@@ -61,7 +63,7 @@ async function crearArticulos(databaseService: PrismaClient) {
     const title = faker.lorem.sentence();
     const date = faker.date.recent({ days: 30 });
     const views = Math.floor(Math.random()*1000);
-    const text = faker.lorem.paragraphs();
+    const text = `<div><h1>${faker.lorem.words()}</h1><p>${faker.lorem.paragraph()}</p><ul><li>${faker.lorem.word()}</li><li>${faker.lorem.word()}</li></ul><p>${faker.lorem.paragraph()}</p></div>`;
     const image_url = faker.image.url();
 
     await databaseService.article.create({
@@ -137,4 +139,47 @@ async function crearSaved(databaseService: PrismaClient) {
       console.error("Error creating saved: ", err);
     });
   }
+}
+
+async function crearCategories(databaseService: PrismaClient) {
+  const categories = ['U.S. NEWS', 'COMEDY', 'PARENTING', 'WORLD NEWS', 'CULTURE & ARTS', 'TECH', 'SPORTS', 'ENTERTAINMENT', 'POLITICS', 'WEIRD NEWS', 'ENVIRONMENT', 'EDUCATION', 'CRIME', 'SCIENCE', 'WELLNESS', 'BUSINESS', 'STYLE & BEAUTY', 'FOOD & DRINK', 'MEDIA', 'QUEER VOICES', 'HOME & LIVING', 'WOMEN', 'BLACK VOICES']
+  
+  for (const cat of categories) {
+    await databaseService.categories.create({
+      data: {
+        cat_name:cat
+        }
+    }).catch((err) => {
+      console.error("Error creating saved: ", err);
+    });
+  };
+}
+
+
+async function crearArticleHasCategories(databaseService: PrismaClient) {
+  const allCategoriesId = await databaseService.categories.findMany({
+    select: {
+      id_category: true
+    }
+  });
+
+  const allArticleIds = await databaseService.article.findMany({
+    select: {
+      id_article: true
+    }
+  });
+  for (const article of allArticleIds) {
+    const cantidadCategorias = Math.ceil(Math.random()*4);
+    for (let i=0;i<cantidadCategorias;i++){
+      const id_category = allCategoriesId[Math.floor(Math.random() * allCategoriesId.length)].id_category;
+      await databaseService.article_has_categories.create({
+        data: {
+          articles_id_article: article.id_article,
+          categories_id_categories: id_category
+        }
+      }).catch((err) => {
+        console.error("Error creating saved: ", err);//falla cuando por suerte un articulo queda con 2 veces la misma categoria
+      });
+    };
+  };
 }

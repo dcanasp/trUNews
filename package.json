@@ -15,7 +15,9 @@
     "nodemon": "nodemon",
     "connectServer": "ssh -i ./trunews.pem ec2-user@ec2-35-175-244-104.compute-1.amazonaws.com",
     "poblate": "tsc && node build/utils/poblateDB",
-    "trendArticle": "tsc && node build/articles/trendArticle"
+    "trendArticle": "tsc && node build/articles/trendArticle",
+    "trendUser": "tsc && node build/user/trendAuthor",
+    "fullStart": "tsc && node build/utils/poblateDB && node build/articles/trendArticle && node build/user/trendAuthor"
   },
   "repository": {
     "type": "git",
@@ -42,6 +44,7 @@
     "luxon": "^3.4.3",
     "node-cron": "^3.0.2",
     "reflect-metadata": "^0.1.13",
+    "sharp": "^0.32.6",
     "tsyringe": "^4.8.0",
     "zod": "^3.22.2"
   },

@@ -112,6 +112,26 @@ export class UserFacade {
     }
 
 
+
+    public async allTrending(req: Request) {
+        const trending = await this.userService.allTrending()
+        if (!trending) {
+          return { "err": 'no se pudieron traer Ultimos articulos' };
+        }
+        return trending;
+      }
+      
+      
+      public async trending(req: Request) {
+        const cantidadArticulos = req.params.quantity;
+        const trending = await this.userService.trending(parseInt(cantidadArticulos,10))
+        if (!trending) {
+          return { "err": 'no se pudieron traer Ultimos articulos' };
+        }
+        return trending;
+      }
+    
+
     // public async addImage(body:any){
     //     const urlS3 =await this.userService.addImage(body);
     //     if(!urlS3){
