@@ -79,6 +79,40 @@ export class UserFacade {
 
     }
 
+    public async updateProfile(req: Request, body: createUserType) {
+        const userId = req.params.id;
+        
+        const existingUser = await this.userService.getUsersProfile(userId);
+
+        if (!existingUser) {
+            return { error: 'El usuario no existe' };
+        }
+
+        const updatedUser = await this.userService.updateProfile(userId, body);
+
+        return updatedUser;
+    }
+    
+    
+    public async updatePassword(userId: string, username: string, currentPassword: string, newPassword: string) {
+        // Verifica la contraseña actual del usuario
+
+        const checkPasswordResult = await this.userService.checkPassword({
+            username: username,
+            password: currentPassword,
+        });
+        if (!checkPasswordResult) {
+            return { error: 'Contraseña actual incorrecta' };
+        }
+
+        const updatedUser = await this.userService.updatePassword(userId, newPassword);
+
+        return { success: 'Contraseña actualizada correctamente', user: updatedUser };
+
+    }
+
+
+
     public async allTrending(req: Request) {
         const trending = await this.userService.allTrending()
         if (!trending) {

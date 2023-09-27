@@ -11,7 +11,7 @@
     "http"
   ],
   "paths": {
-    "/users/create": {
+    "/create": {
       "post": {
         "description": "",
         "responses": {
@@ -24,7 +24,7 @@
         }
       }
     },
-    "/users/checkPassword": {
+    "/checkPassword": {
       "post": {
         "description": "",
         "responses": {
@@ -34,7 +34,7 @@
         }
       }
     },
-    "/users/decryptJWT": {
+    "/decryptJWT": {
       "post": {
         "description": "",
         "responses": {
@@ -44,35 +44,31 @@
         }
       }
     },
-    "/users/find/": {
-      "get": {
-        "description": "",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/users/find/{nombre}": {
-      "get": {
+    "/{id([0-9]+)}": {
+      "put": {
         "description": "",
         "parameters": [
           {
-            "name": "nombre",
+            "name": "id([0-9]+)",
             "in": "path",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
             "type": "string"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
-      }
-    },
-    "/users/{id([0-9]+)}": {
+      },
       "get": {
         "description": "",
         "parameters": [
@@ -122,126 +118,59 @@
         }
       }
     },
-    "/articles/": {
-        "get": {
-          "description": "",
-          "responses": {
-            "default": {
-              "description": ""
-            }
+    "/{id([0-9]+)}/updatePassword": {
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
-      },
-      "/articles/create": {
-        "post": {
-          "description": "",
-          "parameters": [
-            {
-              "name": "authorization",
-              "in": "header",
-              "type": "string"
-            }
-          ],
-          "responses": {
-            "400": {
-              "description": "Bad Request"
-            },
-            "403": {
-              "description": "Forbidden"
-            },
-            "500": {
-              "description": "Internal Server Error"
-            }
+      }
+    },
+    "/find/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
           }
         }
-      },
-      "/articles/latest/{quantity([0-9]+)}": {
-        "get": {
-          "description": "",
-          "parameters": [
-            {
-              "name": "quantity([0-9]+)",
-              "in": "path",
-              "required": true,
-              "type": "string"
-            }
-          ],
-          "responses": {
-            "default": {
-              "description": ""
-            }
+      }
+    },
+    "/find/{nombre}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "nombre",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
           }
         }
-      },
-      "/articles/trending/": {
-        "get": {
-          "description": "",
-          "responses": {
-            "default": {
-              "description": ""
-            }
-          }
-        }
-      },
-      "/articles/trending/{quantity([0-9]+)}": {
-        "get": {
-          "description": "",
-          "parameters": [
-            {
-              "name": "quantity([0-9]+)",
-              "in": "path",
-              "required": true,
-              "type": "string"
-            }
-          ],
-          "responses": {
-            "default": {
-              "description": ""
-            }
-          }
-        }
-      },
-      "/articles/{id([0-9]+)}": {
-        "get": {
-          "description": "",
-          "parameters": [
-            {
-              "name": "id([0-9]+)",
-              "in": "path",
-              "required": true,
-              "type": "string"
-            }
-          ],
-          "responses": {
-            "default": {
-              "description": ""
-            }
-          }
-        },
-        "delete": {
-          "description": "",
-          "parameters": [
-            {
-              "name": "id([0-9]+)",
-              "in": "path",
-              "required": true,
-              "type": "string"
-            },
-            {
-              "name": "authorization",
-              "in": "header",
-              "type": "string"
-            }
-          ],
-          "responses": {
-            "403": {
-              "description": "Forbidden"
-            },
-            "500": {
-              "description": "Internal Server Error"
-            }
-          }
-        }
+      }
     }
   }
 }

@@ -166,6 +166,71 @@ export class UserService {
         }
 
     }
+
+    public async updateProfile(userId: string, updatedProfileData: Partial<createUserType>) {
+        try {
+            const userId2 = parseInt(userId, 10);
+    
+            const existingUser = await this.databaseService.users.findFirst({
+                where: {
+                    id_user: userId2,
+                },
+            });
+    
+            if (!existingUser) {
+                throw new DatabaseErrors('El usuario no existe');
+            }
+    
+            const updatedUser = await this.databaseService.users.update({
+                where: {
+                    id_user: userId2,
+                },
+                data: {
+                    name: updatedProfileData.name || existingUser.name,
+                    lastname: updatedProfileData.lastname || existingUser.lastname,
+                    username: updatedProfileData.username || existingUser.username,
+                    rol: updatedProfileData.rol || existingUser.rol,
+                    profession: updatedProfileData.profession || existingUser.profession,
+                    description: updatedProfileData.description || existingUser.description,
+                },
+            });
+    
+            return updatedUser;
+        } catch (err) {
+            throw new DatabaseErrors('Error al actualizar el perfil del usuario');
+        }
+    }
+
+public async updatePassword(userId: string, newPassword: string) {
+    try {
+        const userId2 = parseInt(userId, 10);
+        const existingUser = await this.databaseService.users.findFirst({
+            where: {
+                id_user: userId2,
+            },
+        });
+
+        if (!existingUser) {
+            throw new DatabaseErrors('El usuario no existe');
+        }
+
+        const newHashedPassword = await hashPassword(newPassword);
+
+        const updatedUser = await this.databaseService.users.update({
+            where: {
+                id_user: userId2,
+            },
+            data: {
+                hash: newHashedPassword,
+            },
+        });
+
+        return updatedUser;
+    } catch (err) {
+        throw new DatabaseErrors('Error al actualizar la contraseña del usuario');
+    }
+}
+
     public async allTrending(){
         try {
             const trendUsers = await this.databaseService.trend_author.findMany({

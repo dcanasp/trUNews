@@ -43,6 +43,16 @@ export class UserRouter {
 			validatePost(decryptJWTSchema),
 			(req:Request,res:Response) => {this.userController.decryptJWT(req,res)});
 
+            this.router.put('/:id([0-9]+)',
+                verifyJwt(),
+                (req, res) => this.userController.updateProfile(req, res)
+            );
+    
+            this.router.put('/:id([0-9]+)/updatePassword',
+                verifyJwt(),
+                (req, res) => this.userController.updatePassword(req, res)
+            );
+
             this.router.get('/find/',
             (req:Request, res:Response) => this.userController.findAllUser(req, res));
             

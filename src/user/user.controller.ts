@@ -51,6 +51,30 @@ export class UserController {
         });
     }
 
+    public updatePassword = async (req: Request, res: Response) => {
+        try {
+            const userId = req.params.id;
+            const { username, currentPassword, newPassword } = req.body;
+            const result = await this.userFacade.updatePassword(userId, username, currentPassword, newPassword);
+            res.json(result);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error al actualizar la contraseña del usuario' });
+        }
+    };
+    
+    public updateProfile = async (req: Request, res: Response) => {
+        try {
+            const updatedProfileData = req.body;
+
+            const result = await this.userFacade.updateProfile(req, updatedProfileData);
+            res.status(200).json(result);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error al actualizar el perfil del usuario' });
+        }
+    };
+
     public findAllUser(req:Request,res:Response){
         this.userFacade.findAllUser().then(response => res.json(response)).catch(err => {
             permaLogger.log('error', "get=> user/findAllUser // " + err);
