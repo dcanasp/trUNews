@@ -231,13 +231,26 @@ public async updatePassword(userId: string, newPassword: string) {
 }
 
     public async tryImage(body:imageType){
-        const imageBuffer = Buffer.from(body.contenido.split(',')[1], 'base64');
-        const resizedImageBuffer = await resizeImages(imageBuffer,body.width,body.ratio);
-        return await convertBase64(resizedImageBuffer);
+        try{
+
+            const imageBuffer = Buffer.from(body.contenido.split(',')[1], 'base64');
+            const resizedImageBuffer = await resizeImages(imageBuffer,body.width,body.ratio);
+        if(!resizedImageBuffer){
+            throw new DatabaseErrors(' NO se pudo re cortar la imagen')
+        }
+        const base64Imagen =await convertBase64(resizedImageBuffer);
+        if(!base64Imagen){
+            throw new DatabaseErrors(' NO se pasar a base 64 la imagen ')
+        }
+        return base64Imagen;
+        }
+        catch{
+            return;
+        }
     }
     
 
-    //TODO: pasar a perfil
+    //TODO: pasar a perfil fin
 
     public async allTrending(){
         try {

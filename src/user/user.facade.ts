@@ -18,9 +18,9 @@ export class UserFacade {
 		if (!user){
             return false
 		}
-		//@ts-ignore
-		delete user.hash
-        return user
+        const returnableUser:Partial<typeof user> = user 
+		delete returnableUser.hash
+        return returnableUser
         // return await this.databaseService.getClient().user.findFirst({ where: { id_user: userId2 } });
     }
 

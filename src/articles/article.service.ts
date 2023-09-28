@@ -179,7 +179,7 @@ export class ArticleService {
                 orderBy: {
                   weight: 'desc'
                 },
-                select:{
+                select:{ //TODO: REMOVE ES PARA PRUEBAS DE GRAFICOS
                     articles_id_article:true,
                     date:true,
                     views:true,
