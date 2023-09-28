@@ -24,7 +24,7 @@ export class ArticleController {
       });
   }
 
-  public createArticle(req: Request, res: Response, next: NextFunction) {
+  public createArticle(req: Request, res: Response) {
     this.articleFacade.createArticle(req)
       .then(article => {
         // res.locals.newArticle = article; //???? 

@@ -39,7 +39,7 @@ export class ArticleService {
             throw new DatabaseErrors('no es un escritor')
             return;
         }
-        const url = await this.addImage(body.image_url,body.image_extension)
+        const url = await this.addImage(body.image_url,body.image_extension,body.ancho,body.image_ratio)
         if (! url) {
             throw new DatabaseErrors('no se pudo crear en s3')
         }
@@ -80,7 +80,7 @@ export class ArticleService {
         }
     }
 
-    public async addImage(contenido : any, extension:string) {
+    public async addImage(contenido: string, extension:string,ancho:number,ratio:string) {
         try {
             const ultimo = await this.databaseService.article.findMany({
                 orderBy: {
@@ -100,8 +100,9 @@ export class ArticleService {
             const link = process.env.S3_url
             const file_name = (ultimo_usuario + extension)
             
+            const resizedImageBuffer = await resizeImages(imageBuffer,ancho,ratio);
 
-            const url = await uploadToS3(file_name, imageBuffer,folder) // body.contenido);
+            const url = await uploadToS3(file_name, resizedImageBuffer,folder) // body.contenido);
             if (! url) {
                 throw new DatabaseErrors('no se pudo subir a s3');
             }
@@ -178,7 +179,14 @@ export class ArticleService {
                 orderBy: {
                   weight: 'desc'
                 },
+                select:{
+                    articles_id_article:true,
+                    date:true,
+                    views:true,
+                    weight:true,
+                }
             });
+            console.log(((new Date).getTime() - articles[4].date.getTime()) / (1000 * 60 * 60 * 24));
             if (! articles) {
                 throw new DatabaseErrors('no se encontraron articlos tendencia');
             }
