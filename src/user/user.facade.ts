@@ -91,8 +91,8 @@ export class UserFacade {
             return { error: 'El usuario no existe' };
         }
         let new_image_url;
-        if(body.image_url!==undefined ){
-            if(body.image_extension===undefined){
+        if(body.image_url!="" && body.image_url!==undefined  ){
+            if(body.image_url=="" && body.image_extension===undefined){
                 body.image_extension='.png'
             }
             new_image_url = await this.userService.addImage(body.image_url,body.image_extension);

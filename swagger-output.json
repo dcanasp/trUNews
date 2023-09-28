@@ -1,8 +1,8 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "My API",
-    "description": "Description",
+    "title": "Trunews",
+    "description": "Back rutas",
     "version": "1.0.0"
   },
   "host": "localhost:3005",
@@ -11,49 +11,20 @@
     "http"
   ],
   "paths": {
-    "/create": {
-      "post": {
+    "/articles/": {
+      "get": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
+          "default": {
+            "description": ""
           }
         }
       }
     },
-    "/checkPassword": {
+    "/articles/create": {
       "post": {
-        "description": "",
-        "responses": {
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/decryptJWT": {
-      "post": {
-        "description": "",
-        "responses": {
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/{id([0-9]+}/updateProfile)": {
-      "put": {
         "description": "",
         "parameters": [
-          {
-            "name": "id([0-9]+",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
           {
             "name": "authorization",
             "in": "header",
@@ -61,6 +32,9 @@
           }
         ],
         "responses": {
+          "400": {
+            "description": "Bad Request"
+          },
           "403": {
             "description": "Forbidden"
           },
@@ -70,81 +44,7 @@
         }
       }
     },
-    "/{id([0-9]+)}/updatePassword": {
-      "put": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id([0-9]+)",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "403": {
-            "description": "Forbidden"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/tryImage": {
-      "post": {
-        "description": "",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/find/": {
-      "get": {
-        "description": "",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/find/{nombre}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "nombre",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/trending/": {
-      "get": {
-        "description": "",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/trending/{quantity([0-9]+)}": {
+    "/articles/latest/{quantity([0-9]+)}": {
       "get": {
         "description": "",
         "parameters": [
@@ -162,7 +62,73 @@
         }
       }
     },
-    "/{id([0-9]+)}/profile": {
+    "/articles/trending/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/articles/trending/{quantity([0-9]+)}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "quantity([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/articles/find/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/articles/find/{nombre}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "nombre",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/articles/feed/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/articles/related/{id([0-9]+)}": {
       "get": {
         "description": "",
         "parameters": [
@@ -180,7 +146,7 @@
         }
       }
     },
-    "/{id([0-9]+)}/me": {
+    "/articles/{id([0-9]+)}": {
       "get": {
         "description": "",
         "parameters": [
@@ -189,24 +155,14 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
           }
         ],
         "responses": {
-          "403": {
-            "description": "Forbidden"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "description": ""
           }
         }
-      }
-    },
-    "/{id([0-9]+)}": {
+      },
       "delete": {
         "description": "",
         "parameters": [
@@ -232,7 +188,228 @@
         }
       }
     },
-    "/{id}/follow/{idToFollow([0-9]+)}": {
+    "/users/create": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/users/checkPassword": {
+      "post": {
+        "description": "",
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/users/decryptJWT": {
+      "post": {
+        "description": "",
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/users/{id([0-9]+}/updateProfile)": {
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id([0-9]+",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/users/{id([0-9]+)}/updatePassword": {
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/users/tryImage": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/users/find/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/users/find/{nombre}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "nombre",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/users/trending/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/users/trending/{quantity([0-9]+)}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "quantity([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/users/{id([0-9]+)}/profile": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/users/{id([0-9]+)}/me": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/users/{id([0-9]+)}": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/users/{id}/follow/{idToFollow([0-9]+)}": {
       "post": {
         "description": "",
         "parameters": [
@@ -264,7 +441,7 @@
         }
       }
     },
-    "/{id}/unfollow/{idToUnfollow([0-9]+)}": {
+    "/users/{id}/unfollow/{idToUnfollow([0-9]+)}": {
       "post": {
         "description": "",
         "parameters": [
@@ -296,7 +473,7 @@
         }
       }
     },
-    "/{id}/followers/{userId}": {
+    "/users/{id}/followers/{userId}": {
       "get": {
         "description": "",
         "parameters": [
@@ -328,7 +505,7 @@
         }
       }
     },
-    "/{id}/following/{userId}": {
+    "/users/{id}/following/{userId}": {
       "get": {
         "description": "",
         "parameters": [

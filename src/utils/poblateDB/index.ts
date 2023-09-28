@@ -142,7 +142,7 @@ async function crearSaved(databaseService: PrismaClient) {
 }
 
 async function crearCategories(databaseService: PrismaClient) {
-  const categories = ['U.S. NEWS', 'COMEDY', 'PARENTING', 'WORLD NEWS', 'CULTURE & ARTS', 'TECH', 'SPORTS', 'ENTERTAINMENT', 'POLITICS', 'WEIRD NEWS', 'ENVIRONMENT', 'EDUCATION', 'CRIME', 'SCIENCE', 'WELLNESS', 'BUSINESS', 'STYLE & BEAUTY', 'FOOD & DRINK', 'MEDIA', 'QUEER VOICES', 'HOME & LIVING', 'WOMEN', 'BLACK VOICES']
+  const categories = ['U.S. NEWS', 'COMEDY', 'PARENTING', 'WORLD NEWS', 'ARTS & CULTURE','TECH', 'SPORTS', 'ENTERTAINMENT', 'POLITICS', 'WEIRD NEWS','ENVIRONMENT', 'EDUCATION', 'CRIME', 'SCIENCE', 'WELLNESS','BUSINESS', 'STYLE & BEAUTY', 'FOOD & DRINK', 'MEDIA','QUEER VOICES', 'HOME & LIVING', 'WOMEN', 'BLACK VOICES', 'TRAVEL','MONEY', 'RELIGION', 'LATINO VOICES', 'IMPACT','WEDDINGS & DIVORCES', 'GOOD NEWS', 'FIFTY']
   
   for (const cat of categories) {
     await databaseService.categories.create({
