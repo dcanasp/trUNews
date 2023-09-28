@@ -4,10 +4,13 @@ const config: Config.InitialOptions ={
   preset: 'ts-jest',
   setupFilesAfterEnv:['.jest.sestup.ts'],
   testEnvironment: 'node',
-  testMatch: ["**/tests/**/*.ts"],
+  testMatch: ["**/build/tests/**/*.ts"],
   moduleNameMapper:{
     '@/(.*)': '<rootDir>/src/$1'
-  }
+  },
+  transform: {
+    "^.+\\.js$": "babel-jest"
+  },
 
 }
 

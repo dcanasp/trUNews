@@ -5,8 +5,8 @@ const swaggerAutogen = require('swagger-autogen')();
 
 const doc = {
   info: {
-    title: 'My API',
-    description: 'Description',
+    title: 'Trunews',
+    description: 'Back rutas',
   },
   host: 'localhost:'+process.env.PORT,
   schemes: ['http'],
