@@ -47,6 +47,7 @@ export class UserFacade {
 		if(! checkPassword ){
 			return {"err":'usuario no existe'}
 		}
+        
 		return {"success": checkPassword[0], "token": checkPassword[1]}
 
     }
@@ -89,10 +90,20 @@ export class UserFacade {
         if (!existingUser) {
             return { error: 'El usuario no existe' };
         }
+        let new_image_url;
+        if(body.image_url!==undefined ){
+            if(body.image_extension===undefined){
+                body.image_extension='.png'
+            }
+            new_image_url = await this.userService.addImage(body.image_url,body.image_extension);
+        }
+        body.image_url= new_image_url;
+        const updatedUser = await this.userService.updateProfile(parseInt(userId, 10), body);
 
-        const updatedUser = await this.userService.updateProfile(userId, body);
-
-        return updatedUser;
+        
+        const returnableUser:Partial<typeof updatedUser> = updatedUser; 
+		delete returnableUser.hash
+        return returnableUser;
     }
     
     
@@ -114,7 +125,6 @@ export class UserFacade {
     }
 
     public async tryImage(body:imageType) {
-        // Verifica la contraseña actual del usuario
 
         const newImage = await this.userService.tryImage(body);
         if (!newImage) {

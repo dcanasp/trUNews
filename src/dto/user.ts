@@ -6,7 +6,6 @@ export type chechPasswordType = z.infer<typeof checkPasswordSchema>
 
 export interface redoTokenType {
     userId:number,
-    hash:string,
     rol:number
 }
 

@@ -7,6 +7,7 @@ import {createUserType} from '../dto/user';
 import {DatabaseErrors} from '../errors/database.errors'
 import {DatabaseService} from '../db/databaseService';
 import {resizeImages, convertBase64} from '../utils/resizeImages';
+import {uploadToS3} from '../aws/addS3'
 
 @injectable()
 export class UserService {
@@ -65,7 +66,7 @@ export class UserService {
             const hash = User.hash;
             const success = await verifyHash(body.password, hash);
             if (!success){throw new DatabaseErrors('se pudo regenerar el jwt')}
-            const token = redoToken({"userId": User.id_user, "hash": hash, "rol": User.rol});
+            const token = redoToken({"userId": User.id_user, "rol": User.rol});
             return [success, token];
         } catch (err) {
             return;
@@ -166,23 +167,23 @@ export class UserService {
     }
     //TODO: pasar a perfil
 
-    public async updateProfile(userId: string, updatedProfileData: Partial<createUserType>) {
+    public async updateProfile(userId: number, updatedProfileData: Partial<createUserType>) {
         try {
-            const userId2 = parseInt(userId, 10);
     
             const existingUser = await this.databaseService.users.findFirst({
                 where: {
-                    id_user: userId2,
+                    id_user: userId,
                 },
             });
     
             if (!existingUser) {
                 throw new DatabaseErrors('El usuario no existe');
             }
-    
+            
+            console.log(updatedProfileData);
             const updatedUser = await this.databaseService.users.update({
                 where: {
-                    id_user: userId2,
+                    id_user: userId,
                 },
                 data: {
                     name: updatedProfileData.name || existingUser.name,
@@ -252,6 +253,39 @@ public async updatePassword(userId: string, newPassword: string) {
     
 
     //TODO: pasar a perfil fin
+
+    public async addImage(contenido: string, extension:string) {
+        try {
+            const ultimo = await this.databaseService.article.findMany({
+                orderBy: {
+                    id_article: 'desc'
+                },
+                take: 1
+            });
+            const folder = 'profile';
+            // const imageBuffer = contenido;
+            const imageBuffer = Buffer.from(contenido.split(',')[1], 'base64');
+            // debe ser un buffer el contenido
+            let ultimo_usuario = (1).toString()
+            if (ultimo[0]) {
+                ultimo_usuario = (ultimo[0].id_article + 1).toString()
+            }
+
+            const link = process.env.S3_url
+            const file_name = (ultimo_usuario + extension)
+            
+            // const resizedImageBuffer = await resizeImages(imageBuffer,ancho,ratio);
+
+            const url = await uploadToS3(file_name, imageBuffer,folder) // body.contenido);
+            if (! url) {
+                throw new DatabaseErrors('no se pudo subir a s3');
+            }
+            // crear nuevo registro
+            return `${link}${folder}/${file_name}`;
+        } catch (error) {
+            return;
+        }
+    }
 
     public async allTrending(){
         try {

@@ -96,6 +96,16 @@
         }
       }
     },
+    "/tryImage": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/find/": {
       "get": {
         "description": "",

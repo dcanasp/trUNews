@@ -72,7 +72,6 @@ export const verifyJwtPost = (param: string) => {
 export const redoToken = (data : redoTokenType) => {
     const token = jwt.sign({
         userId: data.userId,
-        hash: data.hash,
         rol: data.rol
     }, secret, {expiresIn: '72h'});
     permaLogger.log('debug', token);
