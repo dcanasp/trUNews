@@ -13,4 +13,4 @@ import { trendAuthor } from "./create";
 
 
 const trend = container.resolve(trendAuthor);
-trend.create().then(result => console.log("funciona"));
+trend.create().then(result => console.log("funciona usuarios tendencia"));

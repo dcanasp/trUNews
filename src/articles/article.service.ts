@@ -179,14 +179,7 @@ export class ArticleService {
                 orderBy: {
                   weight: 'desc'
                 },
-                select:{ //TODO: REMOVE ES PARA PRUEBAS DE GRAFICOS
-                    articles_id_article:true,
-                    date:true,
-                    views:true,
-                    weight:true,
-                }
             });
-            console.log(((new Date).getTime() - articles[4].date.getTime()) / (1000 * 60 * 60 * 24));
             if (! articles) {
                 throw new DatabaseErrors('no se encontraron articlos tendencia');
             }

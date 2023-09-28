@@ -161,7 +161,6 @@ export class ArticleFacade {
 		if(!decryptedToken){
 			return {"err": 'token invalido'};
 		}
-		console.log(decryptedToken)
 		//@ts-ignore
 		const feed = await this.articleService.feed(decryptedToken.userId);
 		if (! feed || !feed[0]) {
