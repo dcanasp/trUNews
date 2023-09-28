@@ -121,6 +121,33 @@ export class UserController {
           });
       }    
 
+      public followUser(req: Request, res: Response) {
+        this.userFacade.followUser(req.params.id, req.params.idToFollow)
+          .then((response) => res.json(response))
+          .catch(err => {
+            res.status(400).json(err);
+          });
+    }
+    
+    public unfollowUser(req: Request, res: Response) {
+        this.userFacade.unfollowUser(req.params.id, req.params.idToUnfollow)
+          .then((response) => res.json(response))
+          .catch(err => {
+            res.status(400).json(err);
+          });
+    }
+
+    public async getFollowers(req: Request, res: Response) {
+        const userId = req.params.userId;
+        const followers = await this.userFacade.getFollowers(userId);
+        res.json(followers);
+    }
+
+    public async getFollowing(req: Request, res: Response) {
+        const userId = req.params.userId;
+        const following = await this.userFacade.getFollowing(userId);
+        res.json(following);
+    }
     // public addImage(req: Request, res:Response){
     //     this.userFacade.addImage(req.body).then(response => res.json(response)).catch(err => {
     //         permaLogger.log('error','post =>add image '+ err);

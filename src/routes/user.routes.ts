@@ -44,7 +44,7 @@ export class UserRouter {
 			(req:Request,res:Response) => {this.userController.decryptJWT(req,res)});
 
             //TODO: pasar a perfil
-            this.router.put('/:id([0-9]+)',
+            this.router.put('/:id([0-9]+/updateProfile)',
                 verifyJwt(),
                 (req, res) => this.userController.updateProfile(req, res)
             );
@@ -74,7 +74,10 @@ export class UserRouter {
             this.userController.trending(req,res);
             });
           
-            this.router.get('/:id([0-9]+)',
+            this.router.get('/:id([0-9]+)/profile',
+                (req:Request, res:Response) => this.userController.getUsersProfile(req, res));
+
+            this.router.get('/:id([0-9]+)/me',
                 verifyJwt(),
                 (req:Request, res:Response) => this.userController.getUsersProfile(req, res));
                 
@@ -82,8 +85,25 @@ export class UserRouter {
                 verifyJwt(Roles.escritor),
                 (req:Request, res:Response) => this.userController.deleteUsers(req, res));
             
+            this.router.post('/:id/follow/:idToFollow([0-9]+)',
+                verifyJwt(), 
+                (req:Request, res:Response) =>  this.userController.followUser(req, res));
+                
+            this.router.post('/:id/unfollow/:idToUnfollow([0-9]+)', 
+                verifyJwt(),
+                (req:Request, res:Response) =>  this.userController.unfollowUser(req, res));
+
+            this.router.get('/:id/followers/:userId', 
+                verifyJwt(),
+                (req:Request, res:Response) =>  this.userController.getFollowers(req, res));
+            
+            this.router.get('/:id/following/:userId', 
+                verifyJwt(), 
+                (req:Request, res:Response) =>  this.userController.getFollowing(req, res));
+
             return this.router
-        
+
+            
     }
 }
 
