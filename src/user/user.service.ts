@@ -364,10 +364,17 @@ public async updatePassword(userId: string, newPassword: string) {
                     id_following: userId2,
                 },
                 select: {
-                    id_follower: true,
+                    follower: {
+                        select: {
+                            id_user: true,
+                            username: true,
+                            image_url: true,
+                        },
+                    },
                 },
             });
-            return followers.map((follower) => follower.id_follower);
+
+            return followers.map((follower) => follower.follower);
         } catch (error) {
             throw new Error('Error al obtener los seguidores');
         }
@@ -381,10 +388,17 @@ public async updatePassword(userId: string, newPassword: string) {
                     id_follower: userId2,
                 },
                 select: {
-                    id_following: true,
+                    following: {
+                        select: {
+                            id_user: true,
+                            username: true,
+                            image_url: true,
+                        },
+                    },
                 },
             });
-            return following.map((follow) => follow.id_following);
+
+            return following.map((follow) => follow.following);
         } catch (error) {
             throw new Error('Error al obtener a quiénes sigue el usuario');
         }
