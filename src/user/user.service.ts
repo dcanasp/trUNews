@@ -1,14 +1,12 @@
-import {z} from 'zod';
+import { injectable,inject } from 'tsyringe'
 import {hashPassword, verifyHash} from '../utils/createHash'
 import {logger, permaLogger} from '../utils/logger';
 import {redoToken, verifyJwt, decryptToken} from '../auth/jwtServices';
-import {chechPasswordType, decryptJWT} from '../dto/user';
+import {chechPasswordType, decryptJWT, imageType} from '../dto/user';
 import {createUserType} from '../dto/user';
 import {DatabaseErrors} from '../errors/database.errors'
-import { injectable,inject } from 'tsyringe'
-import {container} from "tsyringe";
 import {DatabaseService} from '../db/databaseService';
-
+import {resizeImages, convertBase64} from '../utils/resizeImages';
 
 @injectable()
 export class UserService {
@@ -166,6 +164,7 @@ export class UserService {
         }
 
     }
+    //TODO: pasar a perfil
 
     public async updateProfile(userId: string, updatedProfileData: Partial<createUserType>) {
         try {
@@ -230,6 +229,14 @@ public async updatePassword(userId: string, newPassword: string) {
         throw new DatabaseErrors('Error al actualizar la contraseña del usuario');
     }
 }
+
+    public async tryImage(body:imageType){
+        const resizedImageBuffer = await resizeImages(body.buffer,body.width,body.ratio);
+        return await convertBase64(resizedImageBuffer);
+    }
+    
+
+    //TODO: pasar a perfil
 
     public async allTrending(){
         try {

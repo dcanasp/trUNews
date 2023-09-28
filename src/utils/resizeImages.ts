@@ -11,3 +11,11 @@ export async function resizeImages(imageBuffer:Buffer,ancho:number,ratio:string)
     }).toBuffer();
 
 } 
+
+
+export async function convertBase64(imageBuffer:Buffer){
+    
+  const base64String = imageBuffer.toString('base64');
+  return base64String;
+
+} 

@@ -39,7 +39,7 @@ export class ArticleService {
             throw new DatabaseErrors('no es un escritor')
             return;
         }
-        const url = await this.addImage(body.image_url,body.image_extension,body.ancho,body.image_ratio)
+        const url = await this.addImage(body.image_url,body.image_extension)
         if (! url) {
             throw new DatabaseErrors('no se pudo crear en s3')
         }
@@ -80,7 +80,7 @@ export class ArticleService {
         }
     }
 
-    public async addImage(contenido : any, extension:string = '.png',ancho:number=200,ratio:string='1:2') {
+    public async addImage(contenido : any, extension:string) {
         try {
             const ultimo = await this.databaseService.article.findMany({
                 orderBy: {
@@ -100,9 +100,8 @@ export class ArticleService {
             const link = process.env.S3_url
             const file_name = (ultimo_usuario + extension)
             
-            const resizedImageBuffer = await resizeImages(imageBuffer,ancho,ratio);
 
-            const url = await uploadToS3(file_name, resizedImageBuffer,folder) // body.contenido);
+            const url = await uploadToS3(file_name, imageBuffer,folder) // body.contenido);
             if (! url) {
                 throw new DatabaseErrors('no se pudo subir a s3');
             }

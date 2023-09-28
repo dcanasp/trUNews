@@ -34,8 +34,6 @@ export const createArticleSchema = z.object({
     text: z.string({ required_error: "Debe haber un texto" }),
     image_url: z.any({}).refine((val: any) => val !== undefined),
     image_extension: z.string(),
-    ancho: z.number(),
-    image_ratio: z.string()
     // z.number({ required_error: "Debe haber ua imagen" }),
 }).strict();
 

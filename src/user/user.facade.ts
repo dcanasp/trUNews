@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import {Request} from 'express'
 import {logger, permaLogger} from '../utils/logger'
-import {createUserType, chechPasswordType, decryptJWT} from '../dto/user';
+import {createUserType, chechPasswordType, decryptJWT,imageType} from '../dto/user';
 import { DatabaseErrors } from '../errors/database.errors';
 import {injectable,inject} from 'tsyringe'
 import { UserService } from './user.service'
@@ -79,6 +79,8 @@ export class UserFacade {
 
     }
 
+    //TODO: pasar a perfil
+
     public async updateProfile(req: Request, body: createUserType) {
         const userId = req.params.id;
         
@@ -111,7 +113,21 @@ export class UserFacade {
 
     }
 
+    public async tryImage(body:imageType) {
+        // Verifica la contraseña actual del usuario
 
+        const newImage = await this.userService.tryImage(body);
+        if (!newImage) {
+            return { error: 'no se pudo cortar la imagen' };
+        }
+
+
+        return { image: newImage};
+
+    }
+
+
+    //TODO: pasar a perfil fin
 
     public async allTrending(req: Request) {
         const trending = await this.userService.allTrending()

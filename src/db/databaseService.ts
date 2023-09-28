@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { PrismaClient } from '@prisma/client';
 import { injectable } from 'tsyringe'
+// const prisma = new PrismaClient();
 const prisma = new PrismaClient({ log: ['query', 'info', 'warn', 'error'],});
 @injectable()
 export class DatabaseService {

@@ -43,6 +43,7 @@ export class UserRouter {
 			validatePost(decryptJWTSchema),
 			(req:Request,res:Response) => {this.userController.decryptJWT(req,res)});
 
+            //TODO: pasar a perfil
             this.router.put('/:id([0-9]+)',
                 verifyJwt(),
                 (req, res) => this.userController.updateProfile(req, res)
@@ -52,6 +53,13 @@ export class UserRouter {
                 verifyJwt(),
                 (req, res) => this.userController.updatePassword(req, res)
             );
+            
+            this.router.post('/tryImage',
+                verifyJwt(),
+                (req, res) => this.userController.tryImage(req, res)
+            );
+
+            //TODO: pasar a perfil fin
 
             this.router.get('/find/',
             (req:Request, res:Response) => this.userController.findAllUser(req, res));

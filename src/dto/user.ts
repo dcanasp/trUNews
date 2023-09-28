@@ -11,3 +11,10 @@ export interface redoTokenType {
 }
 
 export type decryptJWT = z.infer<typeof decryptJWTSchema>
+
+export interface imageType{
+    buffer:Buffer,
+    extension:string,
+    width:number,
+    ratio:string
+}
