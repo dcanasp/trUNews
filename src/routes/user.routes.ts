@@ -55,7 +55,6 @@ export class UserRouter {
             );
             
             this.router.post('/tryImage',
-                verifyJwt(),
                 (req, res) => this.userController.tryImage(req, res)
             );
 

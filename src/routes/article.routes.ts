@@ -33,7 +33,7 @@ export class ArticleRouter {
       validatePost(createArticleSchema),
       verifyJwtPost('id_writer'),  
       (req: Request, res: Response, next: NextFunction) =>
-        this.articleController.createArticle(req, res, next),
+        this.articleController.createArticle(req, res),
     );
 
     this.router.get('/latest/:quantity([0-9]+)', (req:Request, res:Response) => {

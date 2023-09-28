@@ -231,7 +231,8 @@ public async updatePassword(userId: string, newPassword: string) {
 }
 
     public async tryImage(body:imageType){
-        const resizedImageBuffer = await resizeImages(body.buffer,body.width,body.ratio);
+        const imageBuffer = Buffer.from(body.contenido.split(',')[1], 'base64');
+        const resizedImageBuffer = await resizeImages(imageBuffer,body.width,body.ratio);
         return await convertBase64(resizedImageBuffer);
     }
     
