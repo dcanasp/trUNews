@@ -192,6 +192,7 @@ export class UserService {
                     rol: updatedProfileData.rol || existingUser.rol,
                     profession: updatedProfileData.profession || existingUser.profession,
                     description: updatedProfileData.description || existingUser.description,
+                    image_url: updatedProfileData.image_url || existingUser.image_url,
                 },
             });
     
@@ -266,6 +267,127 @@ public async updatePassword(userId: string, newPassword: string) {
             return ;
         }
 
+    }
+
+    public async isUserFollowing(userId: string, targetUserId: string) {
+        const follower = await this.databaseService.follower.findFirst({
+            where: {
+                id_follower: parseInt(userId, 10),
+                id_following: parseInt(targetUserId, 10),
+            },
+        });
+
+        return !!follower;
+    }
+
+    public async followUser(userId: string, userIdToFollow: string) {
+        try {
+            const user = await this.databaseService.users.findUnique({
+                where: {
+                    id_user: parseInt(userId, 10),
+                },
+            });
+
+            if (!user) {
+                throw new DatabaseErrors('El usuario no existe');
+            }
+
+            const userToFollow = await this.databaseService.users.findUnique({
+                where: {
+                    id_user: parseInt(userIdToFollow, 10),
+                },
+            });
+
+            if (!userToFollow) {
+                throw new DatabaseErrors('El usuario a seguir no existe');
+            }
+
+            if (await this.isUserFollowing(userId, userIdToFollow)) {
+                throw new DatabaseErrors('Ya sigues a este usuario');
+            }
+
+            await this.databaseService.follower.create({
+                data: {
+                    id_follower: user.id_user,
+                    id_following: userToFollow.id_user,
+                },
+            });
+
+            return { message: 'Usuario seguido exitosamente' };
+        } catch (error) {
+            throw new DatabaseErrors('Error al seguir al usuario');
+        }
+    }
+
+    public async unfollowUser(userId: string, userIdToUnfollow: string) {
+        try {
+            const user = await this.databaseService.users.findUnique({
+                where: {
+                    id_user: parseInt(userId, 10),
+                },
+            });
+
+            if (!user) {
+                throw new DatabaseErrors('El usuario no existe');
+            }
+            if (!await this.isUserFollowing(userId, userIdToUnfollow)) {
+                throw new DatabaseErrors('No sigues a este usuario');
+            }
+            const userToUnfollow = await this.databaseService.users.findUnique({
+                where: {
+                    id_user: parseInt(userIdToUnfollow, 10),
+                },
+            });
+
+            if (!userToUnfollow) {
+                throw new DatabaseErrors('El usuario a dejar de seguir no existe');
+            }
+
+            await this.databaseService.follower.deleteMany({
+                where: {
+                    id_follower: user.id_user,
+                    id_following: userToUnfollow.id_user,
+                },
+            });
+
+            return { message: 'Usuario dejado de seguir exitosamente' };
+        } catch (error) {
+            throw new DatabaseErrors('Error al dejar de seguir al usuario');
+        }
+    }
+
+    public async getFollowers(userId: string) {
+        try {
+            const userId2 = parseInt(userId, 10);
+            const followers = await this.databaseService.follower.findMany({
+                where: {
+                    id_following: userId2,
+                },
+                select: {
+                    id_follower: true,
+                },
+            });
+            return followers.map((follower) => follower.id_follower);
+        } catch (error) {
+            throw new Error('Error al obtener los seguidores');
+        }
+    }
+
+    public async getFollowing(userId: string) {
+        try {
+            const userId2 = parseInt(userId, 10);
+            const following = await this.databaseService.follower.findMany({
+                where: {
+                    id_follower: userId2,
+                },
+                select: {
+                    id_following: true,
+                },
+            });
+            return following.map((follow) => follow.id_following);
+        } catch (error) {
+            throw new Error('Error al obtener a quiénes sigue el usuario');
+        }
     }
 
 

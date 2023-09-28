@@ -131,7 +131,45 @@ export class UserFacade {
         return trending;
       }
     
+      public async followUser(userIdToFollow: string, currentUserId: string) {
+        try {
+            await this.userService.followUser(currentUserId, userIdToFollow);
 
+            return { message: 'Ahora sigues a este usuario' };
+        } catch (error) {
+            throw new DatabaseErrors('Error al seguir al usuario');
+        }
+    }
+
+    public async unfollowUser(userIdToUnfollow: string, currentUserId: string) {
+        try {
+            await this.userService.unfollowUser(currentUserId, userIdToUnfollow);
+
+            return { message: 'Dejaste de seguir a este usuario' };
+        } catch (error) {
+            throw new DatabaseErrors('Error al dejar de seguir al usuario');
+        }
+    }
+
+    public async getFollowers(userId: string) {
+        try{
+            const followers = await this.userService.getFollowers(userId);
+            return followers;
+        }
+        catch (error) {
+            throw new Error('Error al obtener los seguidores');
+        }
+    }
+
+    public async getFollowing(userId: string) {
+        try{
+            const following =  await this.userService.getFollowing(userId);
+            return following;  
+        }
+        catch (error) {
+            throw new Error('Error al obtener a quiénes sigue el usuario');
+        }
+    }
     // public async addImage(body:any){
     //     const urlS3 =await this.userService.addImage(body);
     //     if(!urlS3){

@@ -81,6 +81,7 @@ model users {
   rol         Int
   profession  String?   
   description String?
+  image_url   String?
   article     article[]
   followers   follower[] @relation("FollowerToUser")
   followings  follower[] @relation("FollowingToUser")
