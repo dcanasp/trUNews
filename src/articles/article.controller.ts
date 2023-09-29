@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { NextFunction, Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe'
 import { ArticleFacade } from './article.facade';
-import { permaLogger } from "../utils/logger";
+import { logger, permaLogger } from "../utils/logger";
 @injectable()
 export class ArticleController {
   constructor(@inject(ArticleFacade) private articleFacade: ArticleFacade) {
@@ -89,6 +89,28 @@ export class ArticleController {
       });
   }
 
+  public async saveArticle(req: Request, res: Response) {
+    this.articleFacade.saveArticle(req)
+      .then((response) => res.json(response))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+    } 
 
+  public async unsaveArticle(req: Request, res: Response) {
+    this.articleFacade.unsaveArticle(req)
+      .then((response) => res.json(response))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }    
+
+  public async getSavedArticles(req: Request, res: Response) {
+      this.articleFacade.getSavedArticles(req)
+        .then((response) => res.json(response))
+        .catch(err => {
+          res.status(400).json(err);
+        });
+  }
 
  }

@@ -68,6 +68,16 @@ export class ArticleRouter {
         this.articleController.deleteArticle(req, res);
       }
     );
+
+    this.router.post('/save/:articleId', 
+      (req:Request, res:Response) => this.articleController.saveArticle(req, res));
+
+    this.router.post('/unsave/:articleId',
+    (req: Request, res: Response) => this.articleController.unsaveArticle(req, res));
+  
+    this.router.get('/savedArticles', 
+      (req:Request, res:Response) => this.articleController.getSavedArticles(req, res));
+
     return this.router;
   }
 

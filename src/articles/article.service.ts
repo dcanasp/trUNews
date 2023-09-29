@@ -236,5 +236,85 @@ export class ArticleService {
         return combinedArticles;
     }
 
+    public async saveArticle(userId: number, articleId: number) {
+        try {
+            const existingSave = await this.databaseService.saved.findFirst({
+                where: {
+                    id_user: userId,
+                    id_article: articleId,
+                },
+            });
+
+            if (existingSave) {
+                throw new Error('El artículo ya está guardado');
+            }
+
+            return await this.databaseService.saved.create({
+                data: {
+                    id_user: userId,
+                    id_article: articleId,
+                    date: new Date().toISOString(),
+                },
+            });
+        } catch (error) {
+            throw new DatabaseErrors('Error al guardar el artículo');
+        }
+    }
+
+    public async unsaveArticle(userId: number, articleId: number) {
+        try {
+          const existingSave = await this.databaseService.saved.findFirst({
+            where: {
+              id_user: userId,
+              id_article: articleId,
+            },
+          });
+      
+          if (!existingSave) {
+            throw new Error('El artículo no está guardado, no se puede eliminar');
+          }
+      
+          return await this.databaseService.saved.deleteMany({
+            where: {
+              id_user: userId,
+              id_article: articleId,
+            },
+          });
+      
+        } catch (error) {
+          throw new DatabaseErrors('Error al eliminar el artículo de guardados');
+        }
+      }
+      
+    public async getSavedArticles(userId: number) {
+        try {
+            const savedArticles = await this.databaseService.saved.findMany({
+                where: {
+                    id_user: userId,
+                },
+                select: {
+                    article: {
+                        select: {
+                            id_article: true,
+                            title: true,
+                            date: true,
+                            image_url: true,
+                            text: true,
+                            writer: {
+                                select: {
+                                    id_user: true,
+                                    username: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+
+            return savedArticles.map((save) => save.article);
+        } catch (error) {
+            throw new DatabaseErrors('Error al obtener los artículos guardados');
+        }
+    }
 }
 
