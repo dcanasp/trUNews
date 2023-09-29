@@ -16,7 +16,7 @@ export class UserService {
         this.databaseService = databaseService.getClient()
     }
 
-    public async getUsersProfile(userId: string) {
+    public async getUsersProfile(userId: string, authUserId: string) {
         const userId2 = parseInt(userId, 10);
     
         const user = await this.databaseService.users.findFirst({
@@ -40,7 +40,9 @@ export class UserService {
             id_follower: userId2,
           },
         });
-        console.log(user.rol);
+
+        const isFollowing = await this.isUserFollowing(userId,authUserId);
+        console.log(user.rol,authUserId,userId);
         if (user.rol === 1) {
           const articlesByUser = await this.databaseService.article.findMany({
             where: {
@@ -57,6 +59,7 @@ export class UserService {
             ...user,
             followersCount,
             followingsCount,
+            isFollowing,
             articlesByUser,
           };
         }
@@ -65,6 +68,7 @@ export class UserService {
           ...user,
           followersCount,
           followingsCount,
+          isFollowing,
         };
       }
 
