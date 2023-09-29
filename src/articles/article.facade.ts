@@ -230,4 +230,10 @@ export class ArticleFacade {
 		//@ts-ignore
         return await this.articleService.getSavedArticles(decryptedToken.userId);
     }
+
+    public async getArticlesByCategory(req: Request) {
+        const { categoryId } = req.params;
+        const articles = await this.articleService.getArticlesByCategory(categoryId);
+        return articles;
+      }
 }

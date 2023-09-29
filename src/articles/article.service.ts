@@ -374,5 +374,24 @@ export class ArticleService {
       
         return allRelatedArticles;
     }
+    
+    public async getArticlesByCategory(categoryId: string) {
+        const categoryIdNumber = parseInt(categoryId,10);
+        try {
+          const articles = await this.databaseService.article.findMany({
+            where: {
+              article_has_categories: {
+                some: {
+                  categories_id_categories: categoryIdNumber,
+                },
+              },
+            }
+          });
+          return articles;
+        } catch (error) {
+          throw new Error('Error al buscar artículos por categoría');
+        }
+    }
+      
 }
 

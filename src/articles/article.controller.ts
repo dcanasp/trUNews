@@ -120,5 +120,14 @@ export class ArticleController {
         res.status(400).json(err);
       });
     } 
-
+    
+    public async getArticlesByCategory(req: Request, res: Response) {
+      try {
+        const articles = await this.articleFacade.getArticlesByCategory(req);
+        res.json(articles);
+      } catch (error) {
+        res.status(500).json({ error: 'Error al buscar artículos por categoría' });
+      }
+  }
+  
  }

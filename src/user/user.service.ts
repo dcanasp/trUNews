@@ -40,8 +40,8 @@ export class UserService {
             id_follower: userId2,
           },
         });
-    
-        if (user.rol === 2) {
+        console.log(user.rol);
+        if (user.rol === 1) {
           const articlesByUser = await this.databaseService.article.findMany({
             where: {
               id_writer: userId2,
