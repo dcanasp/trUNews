@@ -127,7 +127,7 @@ async function crearSaved(databaseService: PrismaClient) {
     const id_user = allUserIds[Math.floor(Math.random() * allUserIds.length)].id_user;
     const id_article = allArticleIds[Math.floor(Math.random() * allArticleIds.length)].id_article;
     // const date = faker.date.recent({ days: 10 });
-    const date = faker.date.recent().toISOString().split('T')[0]; 
+    const date = faker.date.recent({days:10}).toISOString().split('T')[0]; 
 
     await databaseService.saved.create({
       data: {
@@ -183,3 +183,117 @@ async function crearArticleHasCategories(databaseService: PrismaClient) {
     };
   };
 }
+
+async function crearComunidades(databaseService: PrismaClient) {
+    
+    const numberOfEntries = 50;
+  const allUserIds = await databaseService.users.findMany({
+    select: {
+      id_user: true
+    }
+  });
+
+  for (let i = 0; i < numberOfEntries; i++) {
+        const creator = allUserIds[Math.floor(Math.random() * allUserIds.length)].id_user;
+        const nombre = faker.commerce.department(); 
+        const descripcion = faker.commerce.productDescription();
+        const date = faker.date.recent({days:10}).toISOString().split('T')[0]; 
+
+    await databaseService.community.create({
+      data: {
+        name: nombre,
+        description: descripcion,
+        creator_id: creator,
+        date: date,
+        
+      }
+        }).catch((err) => {
+  
+        console.error("Error creating saved: ", err);
+      });
+    };
+  }
+
+async function crearCommunityHasArticle(databaseService: PrismaClient) {
+    const numberOfEntries = 100
+    const allCommunitysId = await databaseService.community.findMany({
+      select: {
+        id_community: true
+      }
+    });
+  
+    const allArticleIds = await databaseService.article.findMany({
+      select: {
+        id_article: true
+      }
+    });
+
+  for (let i = 0; i < numberOfEntries; i++) {
+        const id_article = allArticleIds[Math.floor(Math.random() * allArticleIds.length)].id_article
+        const id_community = allCommunitysId[Math.floor(Math.random() * allCommunitysId.length)].id_community
+        await databaseService.community_has_articles.create({
+          data: {
+            article_id_community: id_article,
+            community_id_community: id_community
+          }
+        }).catch((err) => {
+          console.error("Error creating saved: ", err);//falla cuando por suerte un articulo queda con 2 veces la misma categoria
+        });
+      };
+};
+
+async function crearCommunityHasCategorys(databaseService: PrismaClient) {
+    const numberOfEntries = 100
+    const allCommunitysId = await databaseService.community.findMany({
+      select: {
+        id_community: true
+      }
+    });
+  
+    const allCategoriesId = await databaseService.categories.findMany({
+      select: {
+        id_category: true
+      }
+    });
+
+  for (let i = 0; i < numberOfEntries; i++) {
+        const id_category = allCategoriesId[Math.floor(Math.random() * allCategoriesId.length)].id_category
+        const id_community = allCommunitysId[Math.floor(Math.random() * allCommunitysId.length)].id_community
+        await databaseService.community_has_categories.create({
+          data: {
+            categories_id_community: id_category,
+            community_id_community: id_community
+          }
+        }).catch((err) => {
+          console.error("Error creating saved: ", err);//falla cuando por suerte un articulo queda con 2 veces la misma categoria
+        });
+      };
+    };
+
+async function crearCommunityHasParticipants(databaseService: PrismaClient) {
+    const allCommunitysId = await databaseService.community.findMany({
+        select: {
+        id_community: true
+        }
+    });
+    
+    const allUserIds = await databaseService.users.findMany({
+        select: {
+        id_user: true
+        }
+    });
+
+    for (let i = 0; i < numberOfEntries; i++) {
+        const id_user = allUserIds[Math.floor(Math.random() * allUserIds.length)].id_user
+        const id_community = allCommunitysId[Math.floor(Math.random() * allCommunitysId.length)].id_community
+        await databaseService.community_has_participants.create({
+            data: {
+            participants_id_community: id_user,
+            community_id_community: id_community
+            }
+        }).catch((err) => {
+            console.error("Error creating saved: ", err);//falla cuando por suerte un articulo queda con 2 veces la misma categoria
+        });
+        };
+    };
+

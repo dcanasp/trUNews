@@ -7,9 +7,8 @@ import { decryptToken } from "../auth/jwtServices";
 
 @injectable()
 export class ArticleFacade {
-    private articleService;
-    constructor(@inject(ArticleService)articleService : ArticleService) {
-        this.articleService = articleService
+    constructor(@inject(ArticleService)private articleService : ArticleService) {
+
     }
 
     public async getArticles(req : Request) {
