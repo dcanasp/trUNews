@@ -92,7 +92,8 @@ export class ArticleFacade {
                 views: article.views,
                 image_url: article.image_url,
                 username: article.writer.username,
-                name: article.writer.name
+                name: article.writer.name,
+				category: article.article_has_categories
             })
 
         }
@@ -160,7 +161,6 @@ export class ArticleFacade {
 		if(!decryptedToken){
 			return {"err": 'token invalido'};
 		}
-		console.log(decryptedToken)
 		//@ts-ignore
 		const feed = await this.articleService.feed(decryptedToken.userId);
 		if (! feed || !feed[0]) {
@@ -168,6 +168,16 @@ export class ArticleFacade {
 		}
 		return this.shuffleArray(feed);
     }
+
+	public async related(req : Request) {
+		const articleId = req.params.id
+		const related = await this.articleService.related(parseInt(articleId));
+		if (! related || !related[0]) {
+		    return {"err": 'no se pudieron sacar relacionados'};
+		}
+		return this.shuffleArray(related);
+    }
+
 
 	private async shuffleArray(array: any[]){
 		for (let i = array.length - 1; i > 0; i--) {

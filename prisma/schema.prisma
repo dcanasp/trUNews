@@ -17,12 +17,15 @@ model article {
   text       String
   writer     users    @relation(fields: [id_writer], references: [id_user], onDelete: Cascade)
   saved      saved[]
+  article_has_categories article_has_categories[]
+
 }
 
 model article_has_categories {
   articles_id_article      Int
   categories_id_categories Int
   category  categories @relation(fields: [categories_id_categories],references: [id_category],onDelete: Cascade)
+  article  article @relation(fields: [articles_id_article],references: [id_article],onDelete: Cascade)
   @@id([articles_id_article, categories_id_categories])
 }
 

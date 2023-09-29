@@ -24,7 +24,7 @@ export class ArticleController {
       });
   }
 
-  public createArticle(req: Request, res: Response, next: NextFunction) {
+  public createArticle(req: Request, res: Response) {
     this.articleFacade.createArticle(req)
       .then(article => {
         // res.locals.newArticle = article; //???? 
@@ -91,11 +91,7 @@ export class ArticleController {
 
   public async saveArticle(req: Request, res: Response) {
     this.articleFacade.saveArticle(req)
-      .then((response) => res.json(response))
-      .catch(err => {
-        res.status(400).json(err);
-      });
-    } 
+  }
 
   public async unsaveArticle(req: Request, res: Response) {
     this.articleFacade.unsaveArticle(req)
@@ -112,5 +108,13 @@ export class ArticleController {
           res.status(400).json(err);
         });
   }
+
+  public related(req: Request, res: Response) {
+    this.articleFacade.related(req)
+      .then((response) => res.json(response))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+    } 
 
  }

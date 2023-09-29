@@ -18,4 +18,4 @@ const endpointsFiles = ['./src/routes/user.routes.ts' ];
 
 // PARA ACTUALIZAR SWAGGER quitar comentario abajo
 // ACTIVAR SWAGGER
-swaggerAutogen(outputFile, endpointsFiles, doc);
+// swaggerAutogen(outputFile, endpointsFiles, doc);

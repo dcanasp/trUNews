@@ -33,7 +33,7 @@ export class ArticleRouter {
       validatePost(createArticleSchema),
       verifyJwtPost('id_writer'),  
       (req: Request, res: Response, next: NextFunction) =>
-        this.articleController.createArticle(req, res, next),
+        this.articleController.createArticle(req, res),
     );
 
     this.router.get('/latest/:quantity([0-9]+)', (req:Request, res:Response) => {
@@ -57,6 +57,9 @@ export class ArticleRouter {
 
     this.router.get('/feed/',
     (req:Request, res:Response) => this.articleController.feed(req, res));
+
+    this.router.get('/related/:id([0-9]+)',
+    (req:Request, res:Response) => this.articleController.related(req, res));
 
     this.router.get('/:id([0-9]+)', (req:Request, res:Response) => {
           this.articleController.getArticleById(req, res)

@@ -50,11 +50,12 @@ export class UserController {
             res.status(400).json(err);
         });
     }
+    //TODO: pasar a perfil
 
     public updatePassword = async (req: Request, res: Response) => {
         try {
             const userId = req.params.id;
-            const { username, currentPassword, newPassword } = req.body;
+            const { username, currentPassword, newPassword } = req.body; //mal uso de facada
             const result = await this.userFacade.updatePassword(userId, username, currentPassword, newPassword);
             res.json(result);
         } catch (error) {
@@ -74,6 +75,21 @@ export class UserController {
             res.status(500).json({ error: 'Error al actualizar el perfil del usuario' });
         }
     };
+
+    public tryImage = async (req: Request, res: Response) => {
+        try {
+
+            const resizedImage = await this.userFacade.tryImage(req.body);
+            res.status(200).json(resizedImage);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error imagenes' });
+        }
+    };
+
+    
+    //TODO: pasar a perfil fin
+
 
     public findAllUser(req:Request,res:Response){
         this.userFacade.findAllUser().then(response => res.json(response)).catch(err => {

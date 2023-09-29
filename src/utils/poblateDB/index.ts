@@ -46,7 +46,7 @@ async function crearUsuarios(databaseService: PrismaClient) {
 
 
 async function crearArticulos(databaseService: PrismaClient) {
-
+  const numberOfEntriesArticle = numberOfEntries*3;  
   const allUserIds = await databaseService.users.findMany({
     where:{
       rol:1
@@ -56,12 +56,12 @@ async function crearArticulos(databaseService: PrismaClient) {
     }
   });
   
-  for (let i = 0; i < numberOfEntries; i++) {
+  for (let i = 0; i < numberOfEntriesArticle; i++) {
     const randomIndex = Math.floor(Math.random() * allUserIds.length);
     const id_writer = allUserIds[randomIndex].id_user;
 
     const title = faker.lorem.sentence();
-    const date = faker.date.recent({ days: 30 });
+    const date = faker.date.recent({ days: 60 });
     const views = Math.floor(Math.random()*1000);
     const text = `<div><h1>${faker.lorem.words()}</h1><p>${faker.lorem.paragraph()}</p><ul><li>${faker.lorem.word()}</li><li>${faker.lorem.word()}</li></ul><p>${faker.lorem.paragraph()}</p></div>`;
     const image_url = faker.image.url();
@@ -83,7 +83,7 @@ async function crearArticulos(databaseService: PrismaClient) {
 
 
 async function crearFollowers(databaseService: PrismaClient) {
-
+  const numberOfEntries = 500;
   const allUserIds = await databaseService.users.findMany({
     select: {
       id_user: true

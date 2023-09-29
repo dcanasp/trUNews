@@ -24,6 +24,10 @@ export class ArticleService {
         return await this.databaseService.article.findFirst({
             where: {
                 id_article: articleId
+            },
+            include:{article_has_categories:{
+                select:{category:{select:{cat_name:true}}}
+            },  
             }
         });
     }
@@ -76,7 +80,7 @@ export class ArticleService {
         }
     }
 
-    public async addImage(contenido : any, extension:string = '.png',ancho:number=200,ratio:string='1:2') {
+    public async addImage(contenido: string, extension:string,ancho:number,ratio:string) {
         try {
             const ultimo = await this.databaseService.article.findMany({
                 orderBy: {
@@ -114,8 +118,8 @@ export class ArticleService {
             const articles = await this.databaseService.article.findMany({
                 take: quantity,
                 orderBy: {
-                  date: 'desc'
-                }
+                    date: 'desc'
+                },
               });
             if (! articles) {
                 throw new DatabaseErrors('no se encontraron ultimos articulos');
@@ -151,7 +155,10 @@ export class ArticleService {
                         mode: 'insensitive',
                     }                    
                 },
-                include:{ writer:true},
+                include:{
+                    writer:true,
+                    article_has_categories:{select:{category:{select:{cat_name:true}}}},
+                },
                 orderBy:{
                         date:'desc'
                     }
@@ -315,6 +322,57 @@ export class ArticleService {
         } catch (error) {
             throw new DatabaseErrors('Error al obtener los artículos guardados');
         }
+    }
+    
+    public async related (articleId:number){
+        let relatedByWriter: Partial<createArticleType>[] = [];
+        let relatedByCategory: Partial<createArticleType>[] = [];
+      
+        const article = await this.databaseService.article.findUnique({
+          where: { id_article: articleId },
+          select: { id_writer: true },
+        });
+      
+        if (!article) {
+          throw new Error("Article not found");
+        }
+      
+        //traer del escritor
+        relatedByWriter = await this.databaseService.article.findMany({
+          where: {
+            id_writer: article.id_writer,
+            id_article: { not: articleId },
+          },
+          take: 5,
+          orderBy: { date: "desc" },
+        });
+      
+        // traiga categorias 
+        const articleCategories = await this.databaseService.article_has_categories.findMany({
+            where: { articles_id_article: articleId },
+            select: { categories_id_categories: true },
+          });
+
+        for (const { categories_id_categories } of articleCategories) {
+        const articlesInCategory = await this.databaseService.article.findMany({
+            where: {
+            article_has_categories: {
+                some: {
+                categories_id_categories,
+                },
+            },
+            id_article: { not: articleId },
+            },
+            take: 5,
+            orderBy: { date: "desc" },
+        });
+    
+        relatedByCategory = [...relatedByCategory, ...articlesInCategory];
+        } 
+        // Combine the two arrays and randomize
+        const allRelatedArticles = [...relatedByWriter, ...relatedByCategory];
+      
+        return allRelatedArticles;
     }
 }
 
