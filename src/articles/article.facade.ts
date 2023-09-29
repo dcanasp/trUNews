@@ -55,7 +55,10 @@ export class ArticleFacade {
             return {"err": 'no se encontraron articulos'}
         }
 
+        // let formated_find:  Partial<typeof allArticles> &{ id_article: number,id_writer: number } [] = [];
         let formated_find: any[] = [];
+
+
         for (let article of allArticles) {
 
             formated_find.push({
