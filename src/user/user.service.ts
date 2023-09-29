@@ -40,6 +40,28 @@ export class UserService {
             id_follower: userId2,
           },
         });
+        const savedArticles = await this.databaseService.saved.findMany({
+            where: {
+                id_user: userId2,
+            },
+            select: {
+                article: {
+                    select: {
+                        id_article: true,
+                        title: true,
+                        date: true,
+                        image_url: true,
+                        text: true,
+                        writer: {
+                            select: {
+                                id_user: true,
+                                username: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
 
         const isFollowing = await this.isUserFollowing(userId,authUserId);
         if (user.rol === 1) {
@@ -60,6 +82,7 @@ export class UserService {
             followingsCount,
             isFollowing,
             articlesByUser,
+            savedArticles
           };
         }
     
@@ -68,6 +91,7 @@ export class UserService {
           followersCount,
           followingsCount,
           isFollowing,
+          savedArticles
         };
       }
 

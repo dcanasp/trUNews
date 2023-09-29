@@ -78,7 +78,7 @@ export class ArticleRouter {
     this.router.post('/unsave/:articleId',
     (req: Request, res: Response) => this.articleController.unsaveArticle(req, res));
   
-    this.router.get('/savedArticles', 
+    this.router.get('/savedArticles/:userId', 
       (req:Request, res:Response) => this.articleController.getSavedArticles(req, res));
 
     this.router.get('/category/:categoryId', 

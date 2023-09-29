@@ -218,17 +218,9 @@ export class ArticleFacade {
       }
       
     public async getSavedArticles(req: Request) {
-        if(!req.headers['authorization']){
-			return {"err": 'no hay token para el feed'};
-		}
-
-		const decryptedToken = decryptToken(req.headers['authorization'])
-		if(!decryptedToken){
-			return {"err": 'token invalido'};
-		}
-		console.log(decryptedToken);
-		//@ts-ignore
-        return await this.articleService.getSavedArticles(decryptedToken.userId);
+        const userId = req.params.userId;
+        console.log(userId);
+        return await this.articleService.getSavedArticles(parseInt(userId,10));
     }
 
     public async getArticlesByCategory(req: Request) {
