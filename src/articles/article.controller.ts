@@ -91,6 +91,10 @@ export class ArticleController {
 
   public async saveArticle(req: Request, res: Response) {
     this.articleFacade.saveArticle(req)
+      .then((response) => res.json(response))
+      .catch(err => {
+        res.status(400).json(err);
+      });
   }
 
   public async unsaveArticle(req: Request, res: Response) {

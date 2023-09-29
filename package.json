@@ -33,7 +33,7 @@
     "@aws-sdk/client-s3": "^3.405.0",
     "@aws-sdk/lib-storage": "^3.405.0",
     "@prisma/client": "^5.2.0",
-    "argon2": "^0.31.0",
+    "argon2": "^0.31.1",
     "aws-sdk": "^2.1452.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",

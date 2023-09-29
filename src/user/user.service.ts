@@ -16,15 +16,57 @@ export class UserService {
         this.databaseService = databaseService.getClient()
     }
 
-    public async getUsersProfile(userId : string) {
-        let userId2 = parseInt(userId, 10);
+    public async getUsersProfile(userId: string) {
+        const userId2 = parseInt(userId, 10);
+    
         const user = await this.databaseService.users.findFirst({
+          where: {
+            id_user: userId2,
+          },
+        });
+    
+        if (!user) {
+          throw new Error('Usuario no encontrado');
+        }
+    
+        const followersCount = await this.databaseService.follower.count({
+          where: {
+            id_following: userId2,
+          },
+        });
+    
+        const followingsCount = await this.databaseService.follower.count({
+          where: {
+            id_follower: userId2,
+          },
+        });
+    
+        if (user.rol === 2) {
+          const articlesByUser = await this.databaseService.article.findMany({
             where: {
-                id_user: userId2
-            }
-        })
-        return user
-    }
+              id_writer: userId2,
+            },
+            select: {
+              id_article: true,
+              title: true,
+              image_url: true,
+            },
+          });
+    
+          return {
+            ...user,
+            followersCount,
+            followingsCount,
+            articlesByUser,
+          };
+        }
+    
+        return {
+          ...user,
+          followersCount,
+          followingsCount,
+        };
+      }
 
     public async deleteUsers(userId : number) {
 

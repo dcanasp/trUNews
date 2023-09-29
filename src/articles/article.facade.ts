@@ -199,7 +199,7 @@ export class ArticleFacade {
         
         const { articleId } = req.params;
 		//@ts-ignore
-        await this.articleService.saveArticle(decryptedToken.userId, parseInt(articleId, 10));
+        return await this.articleService.saveArticle(decryptedToken.userId, parseInt(articleId, 10));
     }
 
     public async unsaveArticle(req: Request) {
@@ -214,7 +214,7 @@ export class ArticleFacade {
       
         const { articleId } = req.params;
         //@ts-ignore
-        await this.articleService.unsaveArticle(decryptedToken.userId, parseInt(articleId, 10));
+        return await this.articleService.unsaveArticle(decryptedToken.userId, parseInt(articleId, 10));
       }
       
     public async getSavedArticles(req: Request) {

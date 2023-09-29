@@ -93,12 +93,10 @@ export class UserRouter {
                 verifyJwt(),
                 (req:Request, res:Response) =>  this.userController.unfollowUser(req, res));
 
-            this.router.get('/:id/followers/:userId', 
-                verifyJwt(),
+            this.router.get('/followers/:userId', 
                 (req:Request, res:Response) =>  this.userController.getFollowers(req, res));
             
-            this.router.get('/:id/following/:userId', 
-                verifyJwt(), 
+            this.router.get('/following/:userId', 
                 (req:Request, res:Response) =>  this.userController.getFollowing(req, res));
 
             return this.router
