@@ -18,7 +18,7 @@ model article {
   writer     users    @relation(fields: [id_writer], references: [id_user], onDelete: Cascade)
   saved      saved[]
   article_has_categories article_has_categories[]
-
+  community_has_articles community_has_articles[]
 }
 
 model article_has_categories {
@@ -34,6 +34,7 @@ model categories {
   cat_name    String @unique @db.VarChar(45)
 
   article_has_categories article_has_categories[]
+  community_has_categories community_has_categories[]
 }
 
 model follower {
@@ -89,4 +90,46 @@ model users {
   followers   follower[] @relation("FollowerToUser")
   followings  follower[] @relation("FollowingToUser")
   saved       saved[]
+  community_has_users community_has_users[]
+  community community[]
+}
+
+model community {
+  id_community    Int     @id @default(autoincrement())
+  name            String  
+  description     String?
+  creator_id      Int
+  date            String
+
+  users users @relation(fields: [creator_id],references: [id_user],onDelete: Cascade)
+  community_has_categories  community_has_categories[]
+  community_has_users community_has_users[]
+  community_has_articles community_has_articles[]
+}
+
+
+model community_has_articles {
+  article_id_community           Int
+  community_id_community          Int
+
+  article article @relation(fields: [article_id_community],references: [id_article],onDelete: Cascade)
+  community community @relation(fields: [community_id_community],references: [id_community],onDelete: Cascade)
+  @@id([community_id_community, article_id_community])
+}
+
+
+model community_has_users {
+  users_id_community        Int
+  community_id_community       Int
+  users users @relation(fields: [users_id_community],references: [id_user],onDelete: Cascade)
+  community community @relation(fields: [community_id_community],references: [id_community],onDelete: Cascade)
+  @@id([community_id_community, users_id_community])
+}
+
+model community_has_categories {
+  categories_id_community        Int
+  community_id_community        Int
+  category  categories @relation(fields: [categories_id_community],references: [id_category],onDelete: Cascade)
+  community community @relation(fields: [community_id_community],references: [id_community],onDelete: Cascade)
+  @@id([categories_id_community, community_id_community])
 }
