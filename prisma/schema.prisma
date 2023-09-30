@@ -100,7 +100,8 @@ model community {
   description     String?
   creator_id      Int
   date            String
-
+  avatar_url      String
+  banner_url      String
   users users @relation(fields: [creator_id],references: [id_user],onDelete: Cascade)
   community_has_categories  community_has_categories[]
   community_has_users community_has_users[]
