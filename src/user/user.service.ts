@@ -491,6 +491,9 @@ public async updatePassword(userId: string, newPassword: string) {
                         select: {
                             id_user: true,
                             username: true,
+                            name: true,
+                            lastname: true,
+                            rol: true,
                             image_url: true,
                         },
                     },
@@ -515,6 +518,9 @@ public async updatePassword(userId: string, newPassword: string) {
                         select: {
                             id_user: true,
                             username: true,
+                            name: true,
+                            lastname: true,
+                            rol: true,
                             image_url: true,
                         },
                     },
