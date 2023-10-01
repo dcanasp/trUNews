@@ -6,8 +6,14 @@ export type chechPasswordType = z.infer<typeof checkPasswordSchema>
 
 export interface redoTokenType {
     userId:number,
-    hash:string,
     rol:number
 }
 
 export type decryptJWT = z.infer<typeof decryptJWTSchema>
+
+export interface imageType{
+    contenido:string,
+    extension:string,
+    width:number,
+    ratio:string
+}

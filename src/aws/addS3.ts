@@ -7,6 +7,7 @@ const bucket = process.env.S3_BUCKET;
 
 export const uploadToS3 = async (fileName: string, fileContent: Buffer,folder:string) => {
   const fullkey = `${folder}/${fileName}`
+  console.log(fullkey);
   const command = new PutObjectCommand({
     Bucket: bucket,
     Key: fullkey,
