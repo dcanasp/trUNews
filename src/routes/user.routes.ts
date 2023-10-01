@@ -43,6 +43,20 @@ export class UserRouter {
 			validatePost(decryptJWTSchema),
 			(req:Request,res:Response) => {this.userController.decryptJWT(req,res)});
 
+            this.router.get('/find/',
+            (req:Request, res:Response) => this.userController.findAllUser(req, res));
+            
+            
+            this.router.get('/find/:nombre',
+            (req:Request, res:Response) => this.userController.findUser(req, res));
+            
+            this.router.get('/trending/', (req:Request, res:Response) => {
+                this.userController.allTrending(req,res);
+              });
+            this.router.get('/trending/:quantity([0-9]+)', (req:Request, res:Response) => {
+            this.userController.trending(req,res);
+            });
+          
             //TODO: pasar a perfil
             this.router.put('/:id([0-9]+/updateProfile)',
                 verifyJwt(),
@@ -60,20 +74,6 @@ export class UserRouter {
 
             //TODO: pasar a perfil fin
 
-            this.router.get('/find/',
-            (req:Request, res:Response) => this.userController.findAllUser(req, res));
-            
-            
-            this.router.get('/find/:nombre',
-            (req:Request, res:Response) => this.userController.findUser(req, res));
-            
-            this.router.get('/trending/', (req:Request, res:Response) => {
-                this.userController.allTrending(req,res);
-              });
-            this.router.get('/trending/:quantity([0-9]+)', (req:Request, res:Response) => {
-            this.userController.trending(req,res);
-            });
-          
             this.router.get('/:id([0-9]+)/profile',
                 (req:Request, res:Response) => this.userController.getUsersProfile(req, res));
 
