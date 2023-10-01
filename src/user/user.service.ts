@@ -125,7 +125,6 @@ export class UserService {
                 throw new DatabaseErrors('no hay usuarios');
             }
 
-            
             return {"usuario": usuario, "follower": sumaFollowers};
         } catch {
             return;
