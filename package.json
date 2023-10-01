@@ -11,6 +11,8 @@
     "build": "tsc",
     "start": "build/server.js",
     "production": "tsc && node build/server.js",
+    "createImage": "docker build -t trunews -f DockerFile .",
+    "dockerRun": "docker run -d -p 3007:3005 trunews --name trunews",
     "migratePrisma": "npx prisma migrate dev && npx prisma migrate deploy",
     "nodemon": "nodemon",
     "connectServer": "ssh -i ./trunews.pem ec2-user@ec2-35-175-244-104.compute-1.amazonaws.com",

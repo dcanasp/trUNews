@@ -27,16 +27,17 @@ async function crearUsuarios(databaseService: PrismaClient) {
     const rol = Math.floor(Math.random() * 3);
     const profession = Math.random() < 0.5 ? faker.person.jobTitle() : null; // 50% que sea nulo
     const description = Math.random() < 0.5 ? faker.lorem.sentence() : null; // 50% que sea nulo
-    
+    const image_url = 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg';
     await databaseService.users.create({
       data: {
-        name: firstName,
-        lastname: lastName,
-        username,
-        hash,
-        rol,
-        profession,
-        description
+          name: firstName,
+          lastname: lastName,
+          username,
+          hash,
+          rol,
+          profession,
+          description,
+          image_url
       }
     }).catch((err) => {
       console.error("Error creating user: ", err);

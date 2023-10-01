@@ -63,20 +63,72 @@ export class UserFacade {
 
 
     public async findAllUser() {
-        const allUser = await this.userService.findAllUser();
-		if(! allUser ){
+        const temp = await this.userService.findAllUser();
+		if(! temp ){
 			return {"err":'no se encontraron usuarios'}
 		}
-		return {allUser}
+        const allUser = temp.usuario;
+        const sumaFollowers = temp.follower;
+        const result = allUser.map((user) => {
+            const followerCount = sumaFollowers.filter(
+              (agg) => agg.id_follower === user.id_user
+            ).length;
+            const followingCount = sumaFollowers.filter(
+              (agg) => agg.id_following === user.id_user
+            ).length;
+      
+            return {
+            
+                id_user: user.id_user,
+                username: user.username,
+                name: user.name,
+                lastname: user.lastname,
+                rol: user.rol,
+                profession: user.profession,
+                description: user.description,
+                image_url: user.image_url,
+                followersCount: followerCount,
+                followingsCount: followingCount,
+            };
+          });
+
+		return result
 
     }
 
     public async findUser(req: Request) {
-        const users = await this.userService.findUser(req.params.nombre);
-		if(! users ){
+        const temp =  await this.userService.findUser(req.params.nombre);
+		if(! temp ){
 			return {"err":'no hay usuarios con ese nombre'}
 		}
-		return {users}
+
+
+        const allUser = temp.usuario;
+        const sumaFollowers = temp.follower;
+        const result = allUser.map((user) => {
+            const followerCount = sumaFollowers.filter(
+              (agg) => agg.id_follower === user.id_user
+            ).length;
+            const followingCount = sumaFollowers.filter(
+              (agg) => agg.id_following === user.id_user
+            ).length;
+      
+            return {
+            
+                id_user: user.id_user,
+                username: user.username,
+                name: user.name,
+                lastname: user.lastname,
+                rol: user.rol,
+                profession: user.profession,
+                description: user.description,
+                image_url: user.image_url,
+                followersCount: followerCount,
+                followingsCount: followingCount,
+            };
+          });
+
+		return result
 
     }
 
@@ -115,7 +167,7 @@ export class UserFacade {
             password: currentPassword,
         });
         if (!checkPasswordResult) {
-            return { error: 'Contraseña actual incorrecta' };
+            return { "err": 'Contraseña actual incorrecta' };
         }
 
         const updatedUser = await this.userService.updatePassword(userId, newPassword);

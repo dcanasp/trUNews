@@ -110,12 +110,23 @@ export class UserService {
 
     public async findAllUser(){
         try {
-            
-            const usuario = await this.databaseService.users.findMany({});
-            if (! usuario) {
+            const usuario = await this.databaseService.users.findMany({
+                include:{followers:true,followings:true}
+            });
+            const sumaFollowers = await this.databaseService.follower.groupBy({
+                by: ['id_follower', 'id_following'],
+                _count: {
+                  id_follower: true,
+                  id_following: true,
+                },
+              });
+
+            if (! usuario || !sumaFollowers) {
                 throw new DatabaseErrors('no hay usuarios');
             }
-            return usuario;
+
+            
+            return {"usuario": usuario, "follower": sumaFollowers};
         } catch {
             return;
         }}
@@ -145,21 +156,24 @@ export class UserService {
                       }
                   ]
                 },
-                select: {
-                  id_user: true,
-                  name: true,
-                  lastname: true,
-                  username: true,
-                  rol: true,
-                },
-                orderBy:{
+                include:{followers:true,followings:true}
+                ,orderBy:{
                         rol:'asc'
                     }
               });
-            if (! usuario || !usuario[0]) {
+            
+              const sumaFollowers = await this.databaseService.follower.groupBy({
+                by: ['id_follower', 'id_following'],
+                _count: {
+                  id_follower: true,
+                  id_following: true,
+                },
+              });
+
+            if (! usuario || !usuario[0] || !sumaFollowers) {
                 throw new DatabaseErrors('no hay usuarios con ese nombre');
             }
-            return usuario;
+            return {"usuario": usuario, "follower": sumaFollowers};
         }catch{
             return;
         }
