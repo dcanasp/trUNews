@@ -5,6 +5,8 @@ import {createUserType, chechPasswordType, decryptJWT,imageType} from '../dto/us
 import { DatabaseErrors } from '../errors/database.errors';
 import {injectable,inject} from 'tsyringe'
 import { UserService } from './user.service'
+import { decryptToken } from "../auth/jwtServices";
+import { de } from "@faker-js/faker";
 
 @injectable()
 export class UserFacade {
@@ -12,9 +14,19 @@ export class UserFacade {
     }
 
     public async getUsersProfile(req : Request) {
+        if(!req.headers['authorization']){
+			return {"err": 'no hay token'};
+		}
 
+		const decryptedToken = decryptToken(req.headers['authorization'])
+		if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}        
         const userId = req.params.id;
-        const user = await this.userService.getUsersProfile(userId)
+		//@ts-ignore
+        const user = await this.userService.getUsersProfile(userId,decryptedToken.userId)
+		//@ts-ignore
+        console.log(decryptedToken.userId);
 		if (!user){
             return false
 		}
@@ -137,7 +149,7 @@ export class UserFacade {
     public async updateProfile(req: Request, body: createUserType) {
         const userId = req.params.id;
         
-        const existingUser = await this.userService.getUsersProfile(userId);
+        const existingUser = await this.userService.getUsersProfile(userId,userId);
 
         if (!existingUser) {
             return { error: 'El usuario no existe' };

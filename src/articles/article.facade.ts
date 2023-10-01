@@ -189,4 +189,46 @@ export class ArticleFacade {
 		}
 		return array;
 	  }
+    
+    public async saveArticle(req: Request) {
+        if(!req.headers['authorization']){
+			return {"err": 'no hay token'};
+		}
+
+		const decryptedToken = decryptToken(req.headers['authorization'])
+		if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+        
+        const { articleId } = req.params;
+		//@ts-ignore
+        return await this.articleService.saveArticle(decryptedToken.userId, parseInt(articleId, 10));
+    }
+
+    public async unsaveArticle(req: Request) {
+        if (!req.headers['authorization']) {
+          return { "err": 'no hay token' };
+        }
+      
+        const decryptedToken = decryptToken(req.headers['authorization']);
+        if (!decryptedToken) {
+          return { "err": 'token invalido' };
+        }
+      
+        const { articleId } = req.params;
+        //@ts-ignore
+        return await this.articleService.unsaveArticle(decryptedToken.userId, parseInt(articleId, 10));
+      }
+      
+    public async getSavedArticles(req: Request) {
+        const userId = req.params.userId;
+        console.log(userId);
+        return await this.articleService.getSavedArticles(parseInt(userId,10));
+    }
+
+    public async getArticlesByCategory(req: Request) {
+        const { categoryId } = req.params;
+        const articles = await this.articleService.getArticlesByCategory(categoryId);
+        return articles;
+      }
 }

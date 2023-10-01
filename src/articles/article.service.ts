@@ -243,6 +243,87 @@ export class ArticleService {
         return combinedArticles;
     }
 
+    public async saveArticle(userId: number, articleId: number) {
+        try {
+            const existingSave = await this.databaseService.saved.findFirst({
+                where: {
+                    id_user: userId,
+                    id_article: articleId,
+                },
+            });
+
+            if (existingSave) {
+                throw new Error('El artículo ya está guardado');
+            }
+
+            return await this.databaseService.saved.create({
+                data: {
+                    id_user: userId,
+                    id_article: articleId,
+                    date: new Date().toISOString(),
+                },
+            });
+        } catch (error) {
+            throw new DatabaseErrors('Error al guardar el artículo');
+        }
+    }
+
+    public async unsaveArticle(userId: number, articleId: number) {
+        try {
+          const existingSave = await this.databaseService.saved.findFirst({
+            where: {
+              id_user: userId,
+              id_article: articleId,
+            },
+          });
+      
+          if (!existingSave) {
+            throw new Error('El artículo no está guardado, no se puede eliminar');
+          }
+      
+          return await this.databaseService.saved.deleteMany({
+            where: {
+              id_user: userId,
+              id_article: articleId,
+            },
+          });
+      
+        } catch (error) {
+          throw new DatabaseErrors('Error al eliminar el artículo de guardados');
+        }
+      }
+      
+    public async getSavedArticles(userId: number) {
+        try {
+            const savedArticles = await this.databaseService.saved.findMany({
+                where: {
+                    id_user: userId,
+                },
+                select: {
+                    article: {
+                        select: {
+                            id_article: true,
+                            title: true,
+                            date: true,
+                            image_url: true,
+                            text: true,
+                            writer: {
+                                select: {
+                                    id_user: true,
+                                    username: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+
+            return savedArticles.map((save) => save.article);
+        } catch (error) {
+            throw new DatabaseErrors('Error al obtener los artículos guardados');
+        }
+    }
+    
     public async related (articleId:number){
         let relatedByWriter: Partial<createArticleType>[] = [];
         let relatedByCategory: Partial<createArticleType>[] = [];
@@ -293,5 +374,24 @@ export class ArticleService {
       
         return allRelatedArticles;
     }
+    
+    public async getArticlesByCategory(categoryId: string) {
+        const categoryIdNumber = parseInt(categoryId,10);
+        try {
+          const articles = await this.databaseService.article.findMany({
+            where: {
+              article_has_categories: {
+                some: {
+                  categories_id_categories: categoryIdNumber,
+                },
+              },
+            }
+          });
+          return articles;
+        } catch (error) {
+          throw new Error('Error al buscar artículos por categoría');
+        }
+    }
+      
 }
 
