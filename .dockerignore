@@ -1,0 +1,5 @@
+trunews.pem
+node_modules/
+build/
+logs/
+.git/
