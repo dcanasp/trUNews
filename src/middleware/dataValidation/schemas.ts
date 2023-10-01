@@ -7,8 +7,9 @@ export const createUserSchema = z.object({
     lastname: z.string({ required_error: "Debe haber lastname"}),
     rol: z.number().refine(value => value === 0 ||  value === 1 || value===2, {message: "Debe ser 1 o 2"}),
     profession: z.string().optional(),
-    description: z.string().optional()
-
+    description: z.string().optional(),
+    image_url: z.string().optional(),
+    image_extension: z.string().optional().default('.png'),
 }).strict();
 
 
@@ -32,7 +33,10 @@ export const createArticleSchema = z.object({
     views: z.number().optional(),
     id_writer: z.number(),
     text: z.string({ required_error: "Debe haber un texto" }),
-    image_url: z.any({}).refine((val: any) => val !== undefined) 
+    image_url: z.any({}).refine((val: any) => val !== undefined),
+    image_extension: z.string(),
+    ancho: z.number(),
+    image_ratio: z.string()
     // z.number({ required_error: "Debe haber ua imagen" }),
 }).strict();
 
