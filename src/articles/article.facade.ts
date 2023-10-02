@@ -128,7 +128,7 @@ export class ArticleFacade {
                     Math.floor(ageInDays)
                 } days ago`;
             }; 
-			formated_latest.push({date: formated_date, image_url: article.image_url, title: article.title});
+			formated_latest.push({article_id:article.id_article,date: formated_date, image_url: article.image_url, title: article.title});
 		
         }
 
