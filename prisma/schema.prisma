@@ -1,4 +1,5 @@
 generator client {
+  // provider = "prisma-dbml-generator"//para sacar el sql de prisma
   provider = "prisma-client-js"
 }
 
