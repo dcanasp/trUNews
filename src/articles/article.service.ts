@@ -27,7 +27,7 @@ export class ArticleService {
             },
             include:{article_has_categories:{
                 select:{category:{select:{cat_name:true}}}
-            },  
+            },writer:{select:{name:true,username:true,}}
             }
         });
     }
