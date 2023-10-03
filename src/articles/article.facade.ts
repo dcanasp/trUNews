@@ -167,8 +167,12 @@ export class ArticleFacade {
 		//@ts-ignore
 		const feed = await this.articleService.feed(decryptedToken.userId);
 		if (! feed || !feed[0]) {
-		    return {"err": 'no hay feed'};
-		}
+            const latest = await this.articleService.getLatest(10);
+
+            if (! latest){
+                return {"err": 'no hay feed'};
+            }
+        }
 		return this.shuffleArray(feed);
     }
 

@@ -54,15 +54,15 @@ export class ArticleService {
                     image_url: url
                 }
             })
-       
+
             if (!articleCreated){
-                throw new DatabaseErrors('no se pudo crear el articulo')    
-            }     
+                throw new DatabaseErrors('no se pudo crear el articulo')
+            }
             return articleCreated
         }
         catch{
             return ;
-        }           
+        }
     }
 
     public async deleteArticle(articleId : number) {
@@ -99,7 +99,7 @@ export class ArticleService {
 
             const link = process.env.S3_url
             const file_name = (ultimo_usuario + extension)
-            
+
             const resizedImageBuffer = await resizeImages(imageBuffer,ancho,ratio);
 
             const url = await uploadToS3(file_name, resizedImageBuffer,folder) // body.contenido);
@@ -134,7 +134,7 @@ export class ArticleService {
 
     public async findAllArticle(){
         try {
-            
+
             const article = await this.databaseService.article.findMany({
                 include:{ writer:true}
             });
@@ -153,7 +153,7 @@ export class ArticleService {
                     title: {
                         contains: nombre,
                         mode: 'insensitive',
-                    }                    
+                    }
                 },
                 include:{
                     writer:true,
@@ -213,8 +213,8 @@ export class ArticleService {
 
     public async feed (user_id:number){
         let weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        
+        weekAgo.setDate(weekAgo.getDate() - 4);
+
         const articlesFromFollowedUsers = await this.databaseService.follower.findMany({
             where: {
               id_follower: user_id,
@@ -223,24 +223,79 @@ export class ArticleService {
               following: {
                 select: {
                   article: {
+                    include:{article_has_categories:{select:{categories_id_categories:true}}},
                     where: {
                       date: {
                         gte: weekAgo,
                       },
                     },
-                               
+
                   },
                 },
               },
             },
           });
-          
-        const flatArticles = articlesFromFollowedUsers.flatMap(follower => follower.following.article);
-        const latestArticles = await this.getLatest(10) || [];
 
-        const combinedArticles = [...flatArticles, ...latestArticles];
-      
-        return combinedArticles;
+        const flatArticles = articlesFromFollowedUsers.flatMap(follower => follower.following.article);
+        const categoriesOfArticles = flatArticles.flatMap(follower => follower.article_has_categories);
+
+        let articlesBycategory = flatArticles.length;
+        if(flatArticles.length<6){
+            articlesBycategory = articlesBycategory*2            
+        }
+        
+        const categoriesId = this.softmaxForFeed(categoriesOfArticles);
+        categoriesId
+
+        //y sacarle nombre a followers
+
+        //si menos de 5 articulos mandar 7 de cada articulo 
+
+        //y los de guardados
+
+
+
+// --select count(*), id_following from follower group by id_following order by count(*) desc
+// select * from article where id_writer=244;
+
+// --select * from follower where id_following =244;
+
+// --select username from users where id_user= 144;
+        // const combinedArticles = [...flatArticles, ...latestArticles];
+        console.log(categoriesId)
+        return flatArticles;
+    }
+
+    private async softmaxForFeed(categoriesOfArticles: {categories_id_categories: number;}[]) {
+        
+        const sumaCategorias:Record<number,number> = {};
+
+        let categoriasTotal=0;
+        categoriesOfArticles.forEach(element => {
+            categoriasTotal +=1;
+            if(sumaCategorias[element.categories_id_categories]){
+                sumaCategorias[element.categories_id_categories] += 1;
+            }
+            else{
+                sumaCategorias[element.categories_id_categories] = 1;
+            }
+        });
+        const pesosCategorias : { category_id: number; weight: number }[]= []
+        let softmaxDivision = 0;
+        for (const key in sumaCategorias){
+            softmaxDivision += Math.exp(sumaCategorias[key])
+        }
+
+        for (const key in sumaCategorias){
+            const tempCategorias:{category_id:number,weight:number} = {'category_id':0,weight:0};
+            tempCategorias['category_id']=parseInt(key);
+            tempCategorias['weight'] = Math.exp(sumaCategorias[key])/softmaxDivision ;
+            pesosCategorias.push(tempCategorias)
+        }
+        
+        return pesosCategorias.sort((a, b) => b.weight - a.weight);
+        
+   
     }
 
     public async saveArticle(userId: number, articleId: number) {
@@ -276,23 +331,23 @@ export class ArticleService {
               id_article: articleId,
             },
           });
-      
+
           if (!existingSave) {
             throw new Error('El artículo no está guardado, no se puede eliminar');
           }
-      
+
           return await this.databaseService.saved.deleteMany({
             where: {
               id_user: userId,
               id_article: articleId,
             },
           });
-      
+
         } catch (error) {
           throw new DatabaseErrors('Error al eliminar el artículo de guardados');
         }
       }
-      
+
     public async getSavedArticles(userId: number) {
         try {
             const savedArticles = await this.databaseService.saved.findMany({
@@ -323,20 +378,20 @@ export class ArticleService {
             throw new DatabaseErrors('Error al obtener los artículos guardados');
         }
     }
-    
+
     public async related (articleId:number){
         let relatedByWriter: Partial<createArticleType>[] = [];
         let relatedByCategory: Partial<createArticleType>[] = [];
-      
+
         const article = await this.databaseService.article.findUnique({
           where: { id_article: articleId },
           select: { id_writer: true },
         });
-      
+
         if (!article) {
           throw new Error("Article not found");
         }
-      
+
         //traer del escritor
         relatedByWriter = await this.databaseService.article.findMany({
           where: {
@@ -346,8 +401,8 @@ export class ArticleService {
           take: 5,
           orderBy: { date: "desc" },
         });
-      
-        // traiga categorias 
+
+        // traiga categorias
         const articleCategories = await this.databaseService.article_has_categories.findMany({
             where: { articles_id_article: articleId },
             select: { categories_id_categories: true },
@@ -366,15 +421,15 @@ export class ArticleService {
             take: 5,
             orderBy: { date: "desc" },
         });
-    
+
         relatedByCategory = [...relatedByCategory, ...articlesInCategory];
-        } 
+        }
         // Combine the two arrays and randomize
         const allRelatedArticles = [...relatedByWriter, ...relatedByCategory];
-      
+
         return allRelatedArticles;
     }
-    
+
     public async getArticlesByCategory(categoryId: string) {
         const categoryIdNumber = parseInt(categoryId,10);
         try {
@@ -392,6 +447,6 @@ export class ArticleService {
           throw new Error('Error al buscar artículos por categoría');
         }
     }
-      
+
 }
 
