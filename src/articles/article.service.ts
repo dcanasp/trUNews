@@ -8,6 +8,7 @@ import {DatabaseErrors} from '../errors/database.errors';
 import {UserService} from '../user/user.service';
 import {Roles} from '../utils/roleDefinition';
 import {resizeImages} from '../utils/resizeImages';
+import {returnArticles} from '../dto/article';
 
 @injectable()
 export class ArticleService {
@@ -213,57 +214,87 @@ export class ArticleService {
 
     public async feed (user_id:number){
         let weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 4);
-
+        weekAgo.setDate(weekAgo.getDate() - 5);
         const articlesFromFollowedUsers = await this.databaseService.follower.findMany({
             where: {
               id_follower: user_id,
             },
             select: {
+                
               following: {
                 select: {
-                  article: {
-                    include:{article_has_categories:{select:{categories_id_categories:true}}},
-                    where: {
-                      date: {
-                        gte: weekAgo,
-                      },
-                    },
+                    username:true,
+                    name:true,
+                    lastname:true,
+                    article: {
+                        include:{article_has_categories:{select:{categories_id_categories:true}}},
+                        where: {
+                        date: {
+                            gte: weekAgo,
+                        },
+                        },
 
-                  },
+                    },
                 },
               },
             },
           });
 
-        const flatArticles = articlesFromFollowedUsers.flatMap(follower => follower.following.article);
+        const flatArticles = articlesFromFollowedUsers.flatMap(follower => 
+        follower.following.article.map(article => ({
+            ...article,
+            username: follower.following.username,
+            name: follower.following.name,
+            lastname: follower.following.lastname
+        }))
+        );
+        const modifiedFlatArticles = flatArticles.map(({ article_has_categories, ...rest }) => rest);
         const categoriesOfArticles = flatArticles.flatMap(follower => follower.article_has_categories);
-
-        let articlesBycategory = flatArticles.length;
+          
+        let articlesForCategory = flatArticles.length;
         if(flatArticles.length<6){
-            articlesBycategory = articlesBycategory*2            
+            articlesForCategory = 15            
         }
-        
-        const categoriesId = this.softmaxForFeed(categoriesOfArticles);
-        categoriesId
-
-        //y sacarle nombre a followers
-
-        //si menos de 5 articulos mandar 7 de cada articulo 
-
+        else{
+            articlesForCategory = articlesForCategory * 3;
+        }
+        const categoriesId = await this.softmaxForFeed(categoriesOfArticles);
         //y los de guardados
+        const articlesByCategory:returnArticles[] = [];
+        let counter = 0
+        for (const categoryId of categoriesId){
+            const id_eachCategory = categoryId.category_id;
+            const weight = categoryId.weight;
+            let articlesToFetchForThisCategory = Math.ceil(weight * articlesForCategory);
 
+            counter += articlesToFetchForThisCategory;
+            const getArticlesByCategory = await this.databaseService.article_has_categories.findMany({
+                where: {
+                    categories_id_categories: id_eachCategory,
+                },
+                include:{
+                    article:{
+                        include:{
 
+                        writer:{select:{
+                            username:true,
+                            name:true,
+                            lastname:true,
+                            }}
+                        },
+                    },
+                },
+                take:articlesToFetchForThisCategory,
+            })
+            getArticlesByCategory.flatMap(temporal => {                 
+                const { writer, ...articleWithoutWriter } = temporal.article;
+                articlesByCategory.push({ ...articleWithoutWriter, ...writer });              
+            })
+            
 
-// --select count(*), id_following from follower group by id_following order by count(*) desc
-// select * from article where id_writer=244;
-
-// --select * from follower where id_following =244;
-
-// --select username from users where id_user= 144;
-        // const combinedArticles = [...flatArticles, ...latestArticles];
-        console.log(categoriesId)
-        return flatArticles;
+        }
+        const combinedArticles = [...modifiedFlatArticles, ...articlesByCategory];
+        return combinedArticles;
     }
 
     private async softmaxForFeed(categoriesOfArticles: {categories_id_categories: number;}[]) {
@@ -424,7 +455,7 @@ export class ArticleService {
 
         relatedByCategory = [...relatedByCategory, ...articlesInCategory];
         }
-        // Combine the two arrays and randomize
+
         const allRelatedArticles = [...relatedByWriter, ...relatedByCategory];
 
         return allRelatedArticles;

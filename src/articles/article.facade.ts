@@ -86,7 +86,7 @@ export class ArticleFacade {
 
         let formated_find: any[] = [];
         for (let article of articles) {
-
+//todo: cambiar esto a el typo
             formated_find.push({
                 id_article: article.id_article,
                 id_writer: article.id_writer,
@@ -167,13 +167,14 @@ export class ArticleFacade {
 		//@ts-ignore
 		const feed = await this.articleService.feed(decryptedToken.userId);
 		if (! feed || !feed[0]) {
-            const latest = await this.articleService.getLatest(10);
-
+            const latest = await this.articleService.getLatest(15);
             if (! latest){
-                return {"err": 'no hay feed'};
+                return {"err": 'no hay feed ni articulos nuevos'};
             }
+            return this.shuffleArray(latest);
         }
-		return this.shuffleArray(feed);
+
+        return this.shuffleArray(feed);
     }
 
 	public async related(req : Request) {
