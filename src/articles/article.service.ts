@@ -293,7 +293,32 @@ export class ArticleService {
             
 
         }
-        const combinedArticles = [...modifiedFlatArticles, ...articlesByCategory];
+        
+        //saved
+        const getArticlesBySaved = await this.databaseService.saved.findMany({
+            where: {
+                id_user: user_id,
+            },
+            include:{
+                article:{
+                    include:{
+
+                    writer:{select:{
+                        username:true,
+                        name:true,
+                        lastname:true,
+                        }}
+                    },
+                },
+            },
+        })
+        
+        const flatArticlesSaved = getArticlesBySaved.flatMap(temporal => {                 
+            const { writer, ...articleWithoutWriter } = temporal.article;
+            return { ...writer, ...articleWithoutWriter }
+        })
+        
+        const combinedArticles = [...modifiedFlatArticles, ...articlesByCategory, ...flatArticlesSaved];
         return combinedArticles;
     }
 
