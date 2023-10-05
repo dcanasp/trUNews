@@ -199,7 +199,7 @@ async function crearArticleHasCategories(databaseService : PrismaClient) {
 
 async function crearComunidades(databaseService : PrismaClient) {
 
-    const numberOfEntries = 50;
+    const numberOfEntries = 20;
     const allUserIds = await databaseService.users.findMany({
         select: {
             id_user: true

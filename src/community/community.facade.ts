@@ -5,6 +5,9 @@ import {CommunityService} from './community.service';
 import {DatabaseErrors} from '../errors/database.errors';
 import { decryptToken } from "../auth/jwtServices";
 import {communityType} from '../dto/community';
+import {works} from '../utils/works';
+import {returnArticles} from '../dto/article';
+
 
 
 @injectable()
@@ -20,7 +23,12 @@ export class CommunityFacade {
 			return {"err":'no hay comunidades'}
 		}
 
-        return communities;
+        const communitiesWithUsersCount = await this.communityService.getUsersCountFromCommunities(communities);
+        if(! communities ){
+			return {"err":'no se puso sacar conteo de participantes'}
+		}
+        return communitiesWithUsersCount;
+
 
     }
 
@@ -39,8 +47,25 @@ export class CommunityFacade {
 
 
     public async related(req : Request) {
-        const articles = await this.communityService.related();
-        return articles;
+        let weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 5);
+        //@ts-ignore
+        const relatedArticlesByWritter = await this.communityService.relatedWritter(parseInt(req.query.articleId),parseInt(req.query.communityId),weekAgo);
+        //@ts-ignore
+        const relatedArticlesByCategories = await this.communityService.relatedCategories(parseInt(req.query.articleId),parseInt(req.query.communityId),weekAgo);
+
+        if (!works(relatedArticlesByWritter) || !relatedArticlesByWritter){
+            if(!works(relatedArticlesByCategories) || !relatedArticlesByCategories){
+                return {"err":'no se puso sacar conteo de participantes'}
+            }
+            return relatedArticlesByCategories;
+        }
+        if (!works(relatedArticlesByCategories) || !relatedArticlesByCategories){
+            return relatedArticlesByWritter;
+        }
+        
+        return [...relatedArticlesByWritter,...relatedArticlesByCategories];
+
 
     }
 
