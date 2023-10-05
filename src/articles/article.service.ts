@@ -9,6 +9,7 @@ import {UserService} from '../user/user.service';
 import {Roles} from '../utils/roleDefinition';
 import {resizeImages} from '../utils/resizeImages';
 import {returnArticles} from '../dto/article';
+import {sanitizeHtml} from '../utils/sanitizeHtml';
 
 @injectable()
 export class ArticleService {
@@ -44,7 +45,7 @@ export class ArticleService {
         if (! url) {
             throw new DatabaseErrors('no se pudo crear en s3')
         }
-
+            const sanitizedText = sanitizeHtml(body.text)
             const articleCreated = await this.databaseService.article.create({
                 data: {
                     title: body.title,
@@ -52,6 +53,7 @@ export class ArticleService {
                     views: 0,
                     id_writer: body.id_writer,
                     text: body.text,
+                    sanitizedText,
                     image_url: url
                 }
             })

@@ -1,9 +1,10 @@
 import "reflect-metadata";
 import {container} from 'tsyringe';
-import {DatabaseService} from '../../db/databaseService';
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
-import {hashPassword} from '../createHash'
+import {DatabaseService} from '../../db/databaseService';
+import {hashPassword} from '../createHash';
+import {sanitizeHtml} from '../sanitizeHtml';
 
 
 const database = container.resolve(DatabaseService).getClient();
@@ -64,8 +65,9 @@ async function crearArticulos(databaseService: PrismaClient) {
     const title = faker.lorem.sentence();
     const date = faker.date.recent({ days: 60 });
     const views = Math.floor(Math.random()*1000);
-    const text = `<div><h1>${faker.lorem.words()}</h1><p>${faker.lorem.paragraph()}</p><ul><li>${faker.lorem.word()}</li><li>${faker.lorem.word()}</li></ul><p>${faker.lorem.paragraph()}</p></div>`;
+    const text = `<div><h1>${faker.lorem.words()}</h1><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><ul><li>${faker.lorem.word()}</li><li>${faker.lorem.word()}</li></ul><p>${faker.lorem.paragraph()}</p></div>`;
     const image_url = faker.image.url();
+    const sanitizedText = sanitizeHtml(text);
 
     await databaseService.article.create({
       data: {
@@ -74,6 +76,7 @@ async function crearArticulos(databaseService: PrismaClient) {
         date,
         views,
         text,
+        sanitizedText,
         image_url
       }
     }).catch((err) => {

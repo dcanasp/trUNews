@@ -9,16 +9,17 @@ datasource db {
 }
 
 model article {
-  id_article Int      @id @default(autoincrement())
-  id_writer  Int
-  title      String   @db.VarChar(250)
-  date       DateTime @db.Date
-  views      Int
-  image_url  String
-  text       String
-  writer     users    @relation(fields: [id_writer], references: [id_user], onDelete: Cascade)
-  saved      saved[]
-  article_has_categories article_has_categories[]
+  id_article                Int      @id @default(autoincrement())
+  id_writer                 Int
+  title                     String   @db.VarChar(250)
+  date                      DateTime @db.Date
+  views                     Int
+  image_url                 String
+  text                      String
+  sanitizedText             String?
+  writer                    users    @relation(fields: [id_writer], references: [id_user], onDelete: Cascade)
+  saved                     saved[]
+  article_has_categories    article_has_categories[]
 
 }
 
