@@ -121,6 +121,7 @@ export class ArticleService {
                 orderBy: {
                     date: 'desc'
                 },
+                include:{writer:true}
               });
             if (! articles) {
                 throw new DatabaseErrors('no se encontraron ultimos articulos');
@@ -250,7 +251,6 @@ export class ArticleService {
         );
         const modifiedFlatArticles = flatArticles.map(({ article_has_categories, ...rest }) => rest);
         const categoriesOfArticles = flatArticles.flatMap(follower => follower.article_has_categories);
-          
         let articlesForCategory = flatArticles.length;
         if(flatArticles.length<6){
             articlesForCategory = 15            
