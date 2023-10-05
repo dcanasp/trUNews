@@ -43,6 +43,20 @@ export class UserRouter {
 			validatePost(decryptJWTSchema),
 			(req:Request,res:Response) => {this.userController.decryptJWT(req,res)});
 
+            this.router.get('/find/',
+            (req:Request, res:Response) => this.userController.findAllUser(req, res));
+            
+            
+            this.router.get('/find/:nombre',
+            (req:Request, res:Response) => this.userController.findUser(req, res));
+            
+            this.router.get('/trending/', (req:Request, res:Response) => {
+                this.userController.allTrending(req,res);
+              });
+            this.router.get('/trending/:quantity([0-9]+)', (req:Request, res:Response) => {
+            this.userController.trending(req,res);
+            });
+          
             //TODO: pasar a perfil
             this.router.put('/:id([0-9]+/updateProfile)',
                 verifyJwt(),
@@ -60,20 +74,6 @@ export class UserRouter {
 
             //TODO: pasar a perfil fin
 
-            this.router.get('/find/',
-            (req:Request, res:Response) => this.userController.findAllUser(req, res));
-            
-            
-            this.router.get('/find/:nombre',
-            (req:Request, res:Response) => this.userController.findUser(req, res));
-            
-            this.router.get('/trending/', (req:Request, res:Response) => {
-                this.userController.allTrending(req,res);
-              });
-            this.router.get('/trending/:quantity([0-9]+)', (req:Request, res:Response) => {
-            this.userController.trending(req,res);
-            });
-          
             this.router.get('/:id([0-9]+)/profile',
                 (req:Request, res:Response) => this.userController.getUsersProfile(req, res));
 
@@ -93,12 +93,10 @@ export class UserRouter {
                 verifyJwt(),
                 (req:Request, res:Response) =>  this.userController.unfollowUser(req, res));
 
-            this.router.get('/:id/followers/:userId', 
-                verifyJwt(),
+            this.router.get('/followers/:userId', 
                 (req:Request, res:Response) =>  this.userController.getFollowers(req, res));
             
-            this.router.get('/:id/following/:userId', 
-                verifyJwt(), 
+            this.router.get('/following/:userId', 
                 (req:Request, res:Response) =>  this.userController.getFollowing(req, res));
 
             return this.router

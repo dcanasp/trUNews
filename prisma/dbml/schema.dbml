@@ -8,14 +8,18 @@ Table article {
   title String [not null]
   date DateTime [not null]
   views Int [not null]
-  text String [not null]
   image_url String [not null]
+  text String [not null]
   writer users [not null]
+  saved saved [not null]
+  article_has_categories article_has_categories [not null]
 }
 
 Table article_has_categories {
   articles_id_article Int [not null]
   categories_id_categories Int [not null]
+  category categories [not null]
+  article article [not null]
 
   indexes {
     (articles_id_article, categories_id_categories) [pk]
@@ -25,11 +29,14 @@ Table article_has_categories {
 Table categories {
   id_category Int [pk, increment]
   cat_name String [unique, not null]
+  article_has_categories article_has_categories [not null]
 }
 
 Table follower {
   id_follower Int [not null]
   id_following Int [not null]
+  follower users [not null]
+  following users [not null]
 
   indexes {
     (id_follower, id_following) [pk]
@@ -40,6 +47,8 @@ Table saved {
   id_user Int [not null]
   id_article Int [not null]
   date String [not null]
+  user users [not null]
+  article article [not null]
 
   indexes {
     (id_user, id_article) [pk]
@@ -49,9 +58,12 @@ Table saved {
 Table trend_article {
   articles_id_article Int [pk]
   title String [not null]
-  base String [not null]
   date DateTime [not null]
   author String [not null]
+  image_url String [not null]
+  views Int [not null]
+  text String [not null]
+  weight Decimal [not null]
 }
 
 Table trend_author {
@@ -60,6 +72,7 @@ Table trend_author {
   name String [not null]
   lastname String [not null]
   profession String [not null]
+  weight Decimal [not null]
 }
 
 Table users {
@@ -71,7 +84,23 @@ Table users {
   rol Int [not null]
   profession String
   description String
+  image_url String
   article article [not null]
+  followers follower [not null]
+  followings follower [not null]
+  saved saved [not null]
 }
 
 Ref: article.id_writer > users.id_user [delete: Cascade]
+
+Ref: article_has_categories.categories_id_categories > categories.id_category [delete: Cascade]
+
+Ref: article_has_categories.articles_id_article > article.id_article [delete: Cascade]
+
+Ref: follower.id_follower > users.id_user
+
+Ref: follower.id_following > users.id_user
+
+Ref: saved.id_user > users.id_user
+
+Ref: saved.id_article > article.id_article

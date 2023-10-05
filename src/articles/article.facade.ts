@@ -4,6 +4,7 @@ import {injectable, inject} from 'tsyringe'
 import {ArticleService} from './article.service';
 import {DatabaseErrors} from '../errors/database.errors';
 import { decryptToken } from "../auth/jwtServices";
+import {returnArticles} from '../dto/article';
 
 @injectable()
 export class ArticleFacade {
@@ -54,25 +55,14 @@ export class ArticleFacade {
             return {"err": 'no se encontraron articulos'}
         }
 
-        // let formated_find:  Partial<typeof allArticles> &{ id_article: number,id_writer: number } [] = [];
-        let formated_find: any[] = [];
+        const formattedFind: returnArticles[] = allArticles.map(({ writer, ...article }) => ({
+            ...article,
+            username: writer.username,
+            name: writer.name,
+            lastname: writer.lastname
+          }));
 
-
-        for (let article of allArticles) {
-
-            formated_find.push({
-                id_article: article.id_article,
-                id_writer: article.id_writer,
-                title: article.title,
-                date: article.date,
-                views: article.views,
-                image_url: article.image_url,
-                username: article.writer.username,
-                name: article.writer.name
-            })
-
-        }
-        return formated_find
+        return formattedFind;
 
 
     }
@@ -85,7 +75,7 @@ export class ArticleFacade {
 
         let formated_find: any[] = [];
         for (let article of articles) {
-
+//todo: cambiar esto a el typo
             formated_find.push({
                 id_article: article.id_article,
                 id_writer: article.id_writer,
@@ -127,7 +117,7 @@ export class ArticleFacade {
                     Math.floor(ageInDays)
                 } days ago`;
             }; 
-			formated_latest.push({date: formated_date, image_url: article.image_url, title: article.title});
+			formated_latest.push({article_id:article.id_article,date: formated_date, image_url: article.image_url, title: article.title});
 		
         }
 
@@ -165,10 +155,23 @@ export class ArticleFacade {
 		}
 		//@ts-ignore
 		const feed = await this.articleService.feed(decryptedToken.userId);
-		if (! feed || !feed[0]) {
-		    return {"err": 'no hay feed'};
-		}
-		return this.shuffleArray(feed);
+		if (! feed || feed.length<=10) {
+            const latest = await this.articleService.getLatest(15);
+            if (! latest){
+                return {"err": 'no hay feed ni articulos nuevos'};
+            }
+            
+            const formattedLatest: returnArticles[] = latest.map(({writer,...article}) => ({
+                ...article,
+                 username: writer.username,
+                 name: writer.name,
+                 lastname: writer.lastname,
+             }));
+     
+            return this.shuffleArray([...feed,...formattedLatest]);
+        }
+
+        return this.shuffleArray(feed);
     }
 
 	public async related(req : Request) {
@@ -188,4 +191,46 @@ export class ArticleFacade {
 		}
 		return array;
 	  }
+    
+    public async saveArticle(req: Request) {
+        if(!req.headers['authorization']){
+			return {"err": 'no hay token'};
+		}
+
+		const decryptedToken = decryptToken(req.headers['authorization'])
+		if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+        
+        const { articleId } = req.params;
+		//@ts-ignore
+        return await this.articleService.saveArticle(decryptedToken.userId, parseInt(articleId, 10));
+    }
+
+    public async unsaveArticle(req: Request) {
+        if (!req.headers['authorization']) {
+          return { "err": 'no hay token' };
+        }
+      
+        const decryptedToken = decryptToken(req.headers['authorization']);
+        if (!decryptedToken) {
+          return { "err": 'token invalido' };
+        }
+      
+        const { articleId } = req.params;
+        //@ts-ignore
+        return await this.articleService.unsaveArticle(decryptedToken.userId, parseInt(articleId, 10));
+      }
+      
+    public async getSavedArticles(req: Request) {
+        const userId = req.params.userId;
+        console.log(userId);
+        return await this.articleService.getSavedArticles(parseInt(userId,10));
+    }
+
+    public async getArticlesByCategory(req: Request) {
+        const { categoryId } = req.params;
+        const articles = await this.articleService.getArticlesByCategory(categoryId);
+        return articles;
+      }
 }

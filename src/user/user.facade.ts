@@ -5,6 +5,8 @@ import {createUserType, chechPasswordType, decryptJWT,imageType} from '../dto/us
 import { DatabaseErrors } from '../errors/database.errors';
 import {injectable,inject} from 'tsyringe'
 import { UserService } from './user.service'
+import { decryptToken } from "../auth/jwtServices";
+import { de } from "@faker-js/faker";
 
 @injectable()
 export class UserFacade {
@@ -12,9 +14,19 @@ export class UserFacade {
     }
 
     public async getUsersProfile(req : Request) {
+        if(!req.headers['authorization']){
+			return {"err": 'no hay token'};
+		}
 
+		const decryptedToken = decryptToken(req.headers['authorization'])
+		if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}        
         const userId = req.params.id;
-        const user = await this.userService.getUsersProfile(userId)
+		//@ts-ignore
+        const user = await this.userService.getUsersProfile(userId,decryptedToken.userId)
+		//@ts-ignore
+        console.log(decryptedToken.userId);
 		if (!user){
             return false
 		}
@@ -63,20 +75,72 @@ export class UserFacade {
 
 
     public async findAllUser() {
-        const allUser = await this.userService.findAllUser();
-		if(! allUser ){
+        const temp = await this.userService.findAllUser();
+		if(! temp ){
 			return {"err":'no se encontraron usuarios'}
 		}
-		return {allUser}
+        const allUser = temp.usuario;
+        const sumaFollowers = temp.follower;
+        const result = allUser.map((user) => {
+            const followerCount = sumaFollowers.filter(
+              (agg) => agg.id_follower === user.id_user
+            ).length;
+            const followingCount = sumaFollowers.filter(
+              (agg) => agg.id_following === user.id_user
+            ).length;
+      
+            return {
+            
+                id_user: user.id_user,
+                username: user.username,
+                name: user.name,
+                lastname: user.lastname,
+                rol: user.rol,
+                profession: user.profession,
+                description: user.description,
+                image_url: user.image_url,
+                followersCount: followerCount,
+                followingsCount: followingCount,
+            };
+          });
+
+		return result
 
     }
 
     public async findUser(req: Request) {
-        const users = await this.userService.findUser(req.params.nombre);
-		if(! users ){
+        const temp =  await this.userService.findUser(req.params.nombre);
+		if(! temp ){
 			return {"err":'no hay usuarios con ese nombre'}
 		}
-		return {users}
+
+
+        const allUser = temp.usuario;
+        const sumaFollowers = temp.follower;
+        const result = allUser.map((user) => {
+            const followerCount = sumaFollowers.filter(
+              (agg) => agg.id_follower === user.id_user
+            ).length;
+            const followingCount = sumaFollowers.filter(
+              (agg) => agg.id_following === user.id_user
+            ).length;
+      
+            return {
+            
+                id_user: user.id_user,
+                username: user.username,
+                name: user.name,
+                lastname: user.lastname,
+                rol: user.rol,
+                profession: user.profession,
+                description: user.description,
+                image_url: user.image_url,
+                followersCount: followerCount,
+                followingsCount: followingCount,
+            };
+          });
+
+		return result
 
     }
 
@@ -85,7 +149,7 @@ export class UserFacade {
     public async updateProfile(req: Request, body: createUserType) {
         const userId = req.params.id;
         
-        const existingUser = await this.userService.getUsersProfile(userId);
+        const existingUser = await this.userService.getUsersProfile(userId,userId);
 
         if (!existingUser) {
             return { error: 'El usuario no existe' };
@@ -115,7 +179,7 @@ export class UserFacade {
             password: currentPassword,
         });
         if (!checkPasswordResult) {
-            return { error: 'Contraseña actual incorrecta' };
+            return { "err": 'Contraseña actual incorrecta' };
         }
 
         const updatedUser = await this.userService.updatePassword(userId, newPassword);

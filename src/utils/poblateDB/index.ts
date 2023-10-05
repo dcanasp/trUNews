@@ -1,13 +1,14 @@
 import "reflect-metadata";
 import {container} from 'tsyringe';
+import { PrismaClient } from '@prisma/client';
+import { faker } from '@faker-js/faker';
 import {DatabaseService} from '../../db/databaseService';
-import {PrismaClient} from '@prisma/client';
-import {faker} from '@faker-js/faker';
-import {hashPassword} from '../createHash'
+import {hashPassword} from '../createHash';
+import {sanitizeHtml} from '../sanitizeHtml';
 
 
 const database = container.resolve(DatabaseService).getClient();
-const numberOfEntries = 300;
+const numberOfEntries = 10;
 main()
 async function main() {
     await crearUsuarios(database);
@@ -21,79 +22,71 @@ async function main() {
 	await crearCommunityHasCategorys(database);
 	await crearCommunityHasUsers(database);
 }
-async function crearUsuarios(databaseService : PrismaClient) {
-    for (let i = 0; i < numberOfEntries; i++) {
-        const firstName = faker.person.firstName();
-        const lastName = faker.person.lastName();
-        const username = faker.internet.displayName({firstName, lastName});
-        const hash = await hashPassword("password");
+async function crearUsuarios(databaseService: PrismaClient) {
+  for (let i = 0; i < numberOfEntries; i++) {
+    const firstName = faker.person.firstName();
+    const lastName = faker.person.lastName();
+    const username = faker.internet.displayName({ firstName, lastName });
+    const hash = await hashPassword("password");
 
-        const rol = Math.floor(Math.random() * 3);
-        const profession = Math.random() < 0.5 ? faker.person.jobTitle() : null; // 50% que sea nulo
-        const description = Math.random() < 0.5 ? faker.lorem.sentence() : null; // 50% que sea nulo
-
-        await databaseService.users.create({
-            data: {
-                name: firstName,
-                lastname: lastName,
-                username,
-                hash,
-                rol,
-                profession,
-                description
-            }
-        }).catch((err) => {
-            console.error("Error creating user: ", err);
-        });
-    }
-}
-
-
-async function crearArticulos(databaseService : PrismaClient) {
-    const numberOfEntriesArticle = numberOfEntries * 3;
-    const allUserIds = await databaseService.users.findMany({
-        where: {
-            rol: 1
-        },
-        select: {
-            id_user: true
-        }
+    const rol = Math.floor(Math.random() * 3);
+    const profession = Math.random() < 0.5 ? faker.person.jobTitle() : null; // 50% que sea nulo
+    const description = Math.random() < 0.5 ? faker.lorem.sentence() : null; // 50% que sea nulo
+    
+    await databaseService.users.create({
+      data: {
+        name: firstName,
+        lastname: lastName,
+        username,
+        hash,
+        rol,
+        profession,
+        description
+      }
+    }).catch((err) => {
+      console.error("Error creating user: ", err);
     });
-
-    for (let i = 0; i < numberOfEntriesArticle; i++) {
-        const randomIndex = Math.floor(Math.random() * allUserIds.length);
-        const id_writer = allUserIds[randomIndex].id_user;
-
-        const title = faker.lorem.sentence();
-        const date = faker.date.recent({days: 60});
-        const views = Math.floor(Math.random() * 1000);
-        const text = `<div><h1>${
-            faker.lorem.words()
-        }</h1><p>${
-            faker.lorem.paragraph()
-        }</p><ul><li>${
-            faker.lorem.word()
-        }</li><li>${
-            faker.lorem.word()
-        }</li></ul><p>${
-            faker.lorem.paragraph()
-        }</p></div>`;
-        const image_url = faker.image.url();
-
-        await databaseService.article.create({
-            data: {
-                id_writer,
-                title,
-                date,
-                views,
-                text,
-                image_url
-            }
-        }).catch((err) => {
-            console.error("Error creating article: ", err);
-        });
-    }
+  }
 }
+
+
+async function crearArticulos(databaseService: PrismaClient) {
+    const numberOfEntriesArticle = numberOfEntries*3;  
+    const allUserIds = await databaseService.users.findMany({
+      where:{
+        rol:1
+      },
+      select: {
+        id_user: true
+      }
+    });
+    
+    for (let i = 0; i < numberOfEntriesArticle; i++) {
+      const randomIndex = Math.floor(Math.random() * allUserIds.length);
+      const id_writer = allUserIds[randomIndex].id_user;
+  
+      const title = faker.lorem.sentence();
+      const date = faker.date.recent({ days: 60 });
+      const views = Math.floor(Math.random()*1000);
+      const text = `<div><h1>${faker.lorem.words()}</h1><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><ul><li>${faker.lorem.word()}</li><li>${faker.lorem.word()}</li></ul><p>${faker.lorem.paragraph()}</p></div>`;
+      const image_url = faker.image.url();
+      const sanitizedText = sanitizeHtml(text);
+  
+      await databaseService.article.create({
+        data: {
+          id_writer,
+          title,
+          date,
+          views,
+          text,
+          sanitizedText,
+          image_url
+        }
+      }).catch((err) => {
+        console.error("Error creating article: ", err);
+      });
+    }
+  }
 
 
 async function crearFollowers(databaseService : PrismaClient) {
@@ -156,39 +149,7 @@ async function crearSaved(databaseService : PrismaClient) {
 }
 
 async function crearCategories(databaseService : PrismaClient) {
-    const categories = [
-        'U.S. NEWS',
-        'COMEDY',
-        'PARENTING',
-        'WORLD NEWS',
-        'ARTS & CULTURE',
-        'TECH',
-        'SPORTS',
-        'ENTERTAINMENT',
-        'POLITICS',
-        'WEIRD NEWS',
-        'ENVIRONMENT',
-        'EDUCATION',
-        'CRIME',
-        'SCIENCE',
-        'WELLNESS',
-        'BUSINESS',
-        'STYLE & BEAUTY',
-        'FOOD & DRINK',
-        'MEDIA',
-        'QUEER VOICES',
-        'HOME & LIVING',
-        'WOMEN',
-        'BLACK VOICES',
-        'TRAVEL',
-        'MONEY',
-        'RELIGION',
-        'LATINO VOICES',
-        'IMPACT',
-        'WEDDINGS & DIVORCES',
-        'GOOD NEWS',
-        'FIFTY'
-    ]
+    const categories = ['U.S. NEWS','COMEDY','PARENTING','WORLD NEWS','ARTS & CULTURE','TECH','SPORTS','ENTERTAINMENT','POLITICS','WEIRD NEWS','ENVIRONMENT','EDUCATION','CRIME','SCIENCE','WELLNESS','BUSINESS','STYLE & BEAUTY','FOOD & DRINK','MEDIA','QUEER VOICES','HOME & LIVING','WOMEN','BLACK VOICES','TRAVEL','MONEY','RELIGION','LATINO VOICES','IMPACT','WEDDINGS & DIVORCES','GOOD NEWS','FIFTY']
 
     for (const cat of categories) {
         await databaseService.categories.create({
@@ -216,15 +177,21 @@ async function crearArticleHasCategories(databaseService : PrismaClient) {
     });
     for (const article of allArticleIds) {
         const cantidadCategorias = Math.ceil(Math.random() * 4);
+        const usedCategories:number[] = [];
         for (let i = 0; i < cantidadCategorias; i++) {
-            const id_category = allCategoriesId[Math.floor(Math.random() * allCategoriesId.length)].id_category;
+            let id_category = allCategoriesId[Math.floor(Math.random() * allCategoriesId.length)].id_category;
+        
+            while (usedCategories.includes(id_category)) {
+                id_category = allCategoriesId[Math.floor(Math.random() * allCategoriesId.length)].id_category;
+            }
+            usedCategories.push(id_category)
             await databaseService.article_has_categories.create({
                 data: {
                     articles_id_article: article.id_article,
                     categories_id_categories: id_category
                 }
             }).catch((err) => {
-                console.error("Error creating saved: ", err); // falla cuando por suerte un articulo queda con 2 veces la misma categoria
+                console.error("Error creating saved: ",err);// falla cuando por suerte un articulo queda con 2 veces la misma categoria de la que ya esta en la db
             });
         };
     };
@@ -244,14 +211,16 @@ async function crearComunidades(databaseService : PrismaClient) {
         const nombre = faker.commerce.department();
         const descripcion = Math.random() < 0.5 ? faker.commerce.productDescription() : null;
         const date = faker.date.recent({days: 10}).toISOString().split('T')[0];
-
+        const avatar = faker.image.avatar()
+        const banner = faker.image.url({height:500,width:1500})
         await databaseService.community.create({
             data: {
                 name: nombre,
                 description: descripcion,
                 creator_id: creator,
-                date: date
-
+                date: date,
+                avatar_url: avatar,
+                banner_url: banner,
             }
         }).catch((err) => {
 
@@ -303,8 +272,9 @@ async function crearCommunityHasCategorys(databaseService : PrismaClient) {
     });
 
     for (let i = 0; i < numberOfEntries; i++) {
-        const id_category = allCategoriesId[Math.floor(Math.random() * allCategoriesId.length)].id_category
+        let id_category = allCategoriesId[Math.floor(Math.random() * allCategoriesId.length)].id_category
         const id_community = allCommunitysId[Math.floor(Math.random() * allCommunitysId.length)].id_community
+       
         await databaseService.community_has_categories.create({
             data: {
                 categories_id_community: id_category,
@@ -330,8 +300,9 @@ async function crearCommunityHasUsers(databaseService : PrismaClient) {
     });
 
     for (let i = 0; i < numberOfEntries; i++) {
-        const id_user = allUserIds[Math.floor(Math.random() * allUserIds.length)].id_user
-        const id_community = allCommunitysId[Math.floor(Math.random() * allCommunitysId.length)].id_community
+        let id_user = allUserIds[Math.floor(Math.random() * allUserIds.length)].id_user;
+        const id_community = allCommunitysId[Math.floor(Math.random() * allCommunitysId.length)].id_community;
+        
         await databaseService.community_has_users.create({
             data: {
                 users_id_community: id_user,

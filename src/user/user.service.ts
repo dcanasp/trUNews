@@ -16,15 +16,84 @@ export class UserService {
         this.databaseService = databaseService.getClient()
     }
 
-    public async getUsersProfile(userId : string) {
-        let userId2 = parseInt(userId, 10);
+    public async getUsersProfile(userId: string, authUserId: string) {
+        const userId2 = parseInt(userId, 10);
+    
         const user = await this.databaseService.users.findFirst({
+          where: {
+            id_user: userId2,
+          },
+        });
+    
+        if (!user) {
+          throw new Error('Usuario no encontrado');
+        }
+    
+        const followersCount = await this.databaseService.follower.count({
+          where: {
+            id_following: userId2,
+          },
+        });
+    
+        const followingsCount = await this.databaseService.follower.count({
+          where: {
+            id_follower: userId2,
+          },
+        });
+        const savedArticles = await this.databaseService.saved.findMany({
             where: {
-                id_user: userId2
-            }
-        })
-        return user
-    }
+                id_user: userId2,
+            },
+            select: {
+                article: {
+                    select: {
+                        id_article: true,
+                        title: true,
+                        date: true,
+                        image_url: true,
+                        text: true,
+                        writer: {
+                            select: {
+                                id_user: true,
+                                username: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        const isFollowing = await this.isUserFollowing(userId,authUserId);
+        if (user.rol === 1) {
+          const articlesByUser = await this.databaseService.article.findMany({
+            where: {
+              id_writer: userId2,
+            },
+            select: {
+              id_article: true,
+              title: true,
+              image_url: true,
+            },
+          });
+    
+          return {
+            ...user,
+            followersCount,
+            followingsCount,
+            isFollowing,
+            articlesByUser,
+            savedArticles
+          };
+        }
+    
+        return {
+          ...user,
+          followersCount,
+          followingsCount,
+          isFollowing,
+          savedArticles
+        };
+      }
 
     public async deleteUsers(userId : number) {
 
@@ -110,12 +179,22 @@ export class UserService {
 
     public async findAllUser(){
         try {
-            
-            const usuario = await this.databaseService.users.findMany({});
-            if (! usuario) {
+            const usuario = await this.databaseService.users.findMany({
+                include:{followers:true,followings:true}
+            });
+            const sumaFollowers = await this.databaseService.follower.groupBy({
+                by: ['id_follower', 'id_following'],
+                _count: {
+                  id_follower: true,
+                  id_following: true,
+                },
+              });
+
+            if (! usuario || !sumaFollowers) {
                 throw new DatabaseErrors('no hay usuarios');
             }
-            return usuario;
+
+            return {"usuario": usuario, "follower": sumaFollowers};
         } catch {
             return;
         }}
@@ -145,21 +224,24 @@ export class UserService {
                       }
                   ]
                 },
-                select: {
-                  id_user: true,
-                  name: true,
-                  lastname: true,
-                  username: true,
-                  rol: true,
-                },
-                orderBy:{
+                include:{followers:true,followings:true}
+                ,orderBy:{
                         rol:'asc'
                     }
               });
-            if (! usuario || !usuario[0]) {
+            
+              const sumaFollowers = await this.databaseService.follower.groupBy({
+                by: ['id_follower', 'id_following'],
+                _count: {
+                  id_follower: true,
+                  id_following: true,
+                },
+              });
+
+            if (! usuario || !usuario[0] || !sumaFollowers) {
                 throw new DatabaseErrors('no hay usuarios con ese nombre');
             }
-            return usuario;
+            return {"usuario": usuario, "follower": sumaFollowers};
         }catch{
             return;
         }
@@ -180,7 +262,6 @@ export class UserService {
                 throw new DatabaseErrors('El usuario no existe');
             }
             
-            console.log(updatedProfileData);
             const updatedUser = await this.databaseService.users.update({
                 where: {
                     id_user: userId,
@@ -423,6 +504,9 @@ public async updatePassword(userId: string, newPassword: string) {
                         select: {
                             id_user: true,
                             username: true,
+                            name: true,
+                            lastname: true,
+                            rol: true,
                             image_url: true,
                         },
                     },
@@ -447,6 +531,9 @@ public async updatePassword(userId: string, newPassword: string) {
                         select: {
                             id_user: true,
                             username: true,
+                            name: true,
+                            lastname: true,
+                            rol: true,
                             image_url: true,
                         },
                     },
