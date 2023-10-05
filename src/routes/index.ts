@@ -13,4 +13,4 @@ const communityRouter = container.resolve(CommunityRouter);
 
 routes.use('/articles', articleRouter.routes())
 routes.use('/users', userRouter.routes());
-routes.use('/communitys', communityRouter.routes())
+routes.use('/communities', communityRouter.routes())

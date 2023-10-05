@@ -99,7 +99,7 @@ model users {
 
 model community {
   id_community    Int     @id @default(autoincrement())
-  name            String  
+  name            String  @unique 
   description     String?
   creator_id      Int
   date            String

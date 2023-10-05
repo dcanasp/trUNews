@@ -21,10 +21,19 @@ export class CommunityRouter {
 
     public routes(){
         
-        this.router.get('/`test`',
-        (req:Request, res:Response) => this.communityController.getArticles(req, res));
-            
+        this.router.get('/find',
+        (req:Request, res:Response) => this.communityController.findAll(req, res));
         
+        this.router.get('/find/:nombre',
+        (req:Request, res:Response) => this.communityController.find(req, res));
+        
+        this.router.get('/related',
+        (req:Request, res:Response) => this.communityController.related(req, res));
+            
+        this.router.get('/feed',
+        (req:Request, res:Response) => this.communityController.feed(req, res));
+        
+
         return this.router
 
             

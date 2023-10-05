@@ -8,7 +8,7 @@ import {sanitizeHtml} from '../sanitizeHtml';
 
 
 const database = container.resolve(DatabaseService).getClient();
-const numberOfEntries = 10;
+const numberOfEntries = 300;
 main()
 async function main() {
     await crearUsuarios(database);
@@ -205,16 +205,23 @@ async function crearComunidades(databaseService : PrismaClient) {
             id_user: true
         }
     });
-
+    const names:string[] = [];
     for (let i = 0; i < numberOfEntries; i++) {
+        let nombre = `${faker.commerce.department()}-${faker.commerce.productAdjective()}-${Math.random().toString(36).substring(2, 8)}`;
         const creator = allUserIds[Math.floor(Math.random() * allUserIds.length)].id_user;
-        const nombre = faker.commerce.department();
         const descripcion = Math.random() < 0.5 ? faker.commerce.productDescription() : null;
         const date = faker.date.recent({days: 10}).toISOString().split('T')[0];
         const avatar = faker.image.avatar()
         const banner = faker.image.url({height:500,width:1500})
-        await databaseService.community.create({
-            data: {
+        
+        while (names.includes(nombre)){
+            nombre = `${faker.commerce.department()}-${faker.commerce.productAdjective()}-${Math.random().toString(36).substring(2, 8)}`;
+        }
+        names.push(nombre);
+        try{
+
+            const comunidadCreada = await databaseService.community.create({
+                data: {
                 name: nombre,
                 description: descripcion,
                 creator_id: creator,
@@ -222,10 +229,22 @@ async function crearComunidades(databaseService : PrismaClient) {
                 avatar_url: avatar,
                 banner_url: banner,
             }
-        }).catch((err) => {
+        })
 
+        await databaseService.community_has_users.create({
+            data: {
+                users_id_community: creator,
+                community_id_community: comunidadCreada.id_community
+                
+            }
+        })
+        }
+        catch(err){
             console.error("Error creating saved: ", err);
-        });
+        }
+
+        
+
     };
 }
 
