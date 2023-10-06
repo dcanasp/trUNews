@@ -40,3 +40,21 @@ export const createArticleSchema = z.object({
     // z.number({ required_error: "Debe haber ua imagen" }),
 }).strict();
 
+export const createCommunitySchema = z.object({
+    name: z.string({ required_error: "Debe haber un nombre de comunidad" }),
+    description: z.string().optional(),
+    creator_id: z.number({ required_error: "Debe haber un ID de creador" }),
+    date: z.date({
+      invalid_type_error: "Debe ser una fecha válida",
+      required_error: "Debe haber una fecha",
+    }),
+    avatar_url: z.any({}).refine((val: any) => val !== undefined),
+    avatar_extension: z.string(),
+    avatar_ancho: z.number(),
+    avatar_ratio: z.string(),
+    banner_url: z.any({}).refine((val: any) => val !== undefined),
+    banner_extension: z.string(),
+    banner_ancho: z.number(),
+    banner_ratio: z.string()
+  }).strict();
+

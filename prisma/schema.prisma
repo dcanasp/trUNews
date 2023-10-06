@@ -102,7 +102,7 @@ model community {
   name            String  @unique 
   description     String?
   creator_id      Int
-  date            String
+  date            DateTime @db.Date
   avatar_url      String
   banner_url      String
   users users @relation(fields: [creator_id],references: [id_user],onDelete: Cascade)

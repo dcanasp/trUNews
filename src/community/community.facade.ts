@@ -80,4 +80,32 @@ export class CommunityFacade {
 
         }
 
+        
+    public async getCommunities(req : Request) {
+        try {
+            const articles = await this.communityService.getCommunities();
+            return articles;
+        } catch (error) {
+            throw new DatabaseErrors('Error al obtener las comunidades de la base de datos');
+        }
+    }
+
+    public async getCommunityById(req : Request) {
+        const articleId = req.params.id;
+        const article = await this.communityService.getCommunityById(parseInt(articleId, 10));
+        if (! article) {
+            return {"err": 'La comunidad no existe'};
+        }
+        return article;
+    }
+
+    public async createCommunity(req : Request) {
+        const communityCreated = await this.communityService.createCommunity(req.body);
+        if (! communityCreated) {
+            return {"err": "No se pudo crear la comunidad"}
+        }
+        return {communityId: communityCreated.id_community, name: communityCreated.name}
+    }
+
+
 }

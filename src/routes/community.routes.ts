@@ -5,8 +5,8 @@ import {logger,permaLogger} from '../utils/logger';
 // import { UserController } from '../user/user.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation'
 import { convertDateFields } from '../utils/convertDataTypes'
-import { checkPasswordSchema, createUserSchema, decryptJWTSchema } from '../middleware/dataValidation/schemas'
-import { generateJwt, verifyJwt } from '../auth/jwtServices'
+import { checkPasswordSchema, createCommunitySchema, createUserSchema, decryptJWTSchema } from '../middleware/dataValidation/schemas'
+import { generateJwt, verifyJwt, verifyJwtPost } from '../auth/jwtServices'
 import { Roles } from '../utils/roleDefinition'
 import { inject, injectable } from 'tsyringe'
 import { CommunityController } from '../community/community.controller'
@@ -33,7 +33,16 @@ export class CommunityRouter {
         this.router.get('/feed',
         (req:Request, res:Response) => this.communityController.feed(req, res));
         
+        this.router.post('/create',
+            convertDateFields(['date']),
+            validatePost(createCommunitySchema),
+            verifyJwtPost('creator_id'),  
+            (req: Request, res: Response, next: NextFunction) =>
+            this.communityController.createCommunity(req, res),
+        );
 
+        this.router.get('/:id([0-9]+)', (
+        req:Request, res:Response) => this.communityController.getCommunityById(req, res));
         return this.router
 
             

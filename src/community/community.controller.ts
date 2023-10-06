@@ -27,5 +27,30 @@ export class CommunityController {
       .catch(err => { res.status(400).json(err); });
   }
 
+  public createCommunity(req: Request, res: Response) {
+    this.communityFacade.createCommunity(req)
+      .then(community => {
+        res.json(community);
+      })
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
+  public async getCommunties(req: Request, res: Response) {
+    this.communityFacade.getCommunities(req)
+      .then(communities => res.json(communities))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
+  public getCommunityById(req: Request, res: Response) {
+    this.communityFacade.getCommunityById(req)
+      .then(communities => res.json(communities))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
 
  }
