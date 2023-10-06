@@ -213,20 +213,97 @@ export class CommunityService {
         }
     }
 
-  public async getCommunities() {
-      return await this.databaseService.community.findMany();
+  public async getCommunityById(communityId : number, userId : number) {
+    const community = await this.databaseService.community.findFirst({
+      where: {
+          id_community: communityId
+      },
+      include:{community_has_categories:{
+          select:{category:{select:{cat_name:true}}}
+      },
+      }
+    });
+
+    if (!community) {
+      return {"err": 'La comunidad no existe'};
+    }
+
+    const membersCount = await this.databaseService.community_has_users.count({
+      where: {
+        community_id_community: communityId,
+      },
+    });
+
+    const articlesCount = await this.databaseService.community_has_articles.count({
+      where: {
+        community_id_community: communityId,
+      },
+    });
+
+    const isCreator = community.creator_id == userId;
+    const isMember = await this.isMemberOfCommunity(userId, communityId);
+    if (isMember || isCreator) {
+      const articles = await this.databaseService.community_has_articles.findMany({
+        where: {
+            community_id_community: communityId,
+        },
+        select: {
+            article: {
+                select: {
+                    id_article: true,
+                    title: true,
+                    date: true,
+                    image_url: true,
+                    text: true,
+                    writer: {
+                        select: {
+                            id_user: true,
+                            username: true,
+                        },
+                    },
+                },
+            },
+        },
+        });
+
+        const members = await this.databaseService.community_has_users.findMany({
+            where: {
+                community_id_community: communityId,
+            },
+            select: {
+                users_id_community: true,
+            },
+        });
+
+
+        return {
+          ...community,
+          isCreator,
+          isMember,
+          membersCount,
+          articlesCount,
+          articles,
+        };
+    }
+
+    return {
+      ...community,
+      isCreator,
+      isMember,
+      membersCount,
+      articlesCount,
+    };
+
   }
 
-  public async getCommunityById(communityId : number) {
-      return await this.databaseService.community.findFirst({
-          where: {
-              id_community: communityId
-          },
-          include:{community_has_categories:{
-              select:{category:{select:{cat_name:true}}}
-          },
-          }
-      });
+  private async isMemberOfCommunity(userId: number, communityId: number) {
+    const userMember = await this.databaseService.community_has_users.findFirst({
+      where: {
+        users_id_community: userId,
+        community_id_community: communityId,
+      },
+    });
+    return !!userMember;
   }
 
   public async createCommunity(body : createCommunityType) {
@@ -256,7 +333,56 @@ export class CommunityService {
       if (!communityCreated){
           throw new DatabaseErrors('No se pudo crear la comunidad.')
       }
+      this.joinCommunity(communityCreated.id_community, body.creator_id);
       return communityCreated
+      }
+      catch{
+          return ;
+      }
+  }
+  
+  public async isCreator(communityId : number, userId : number) {
+        const community = await this.databaseService.community.findFirst({
+        where: {
+                id_community: communityId
+            },
+        });
+    
+        if (!community) {
+            return {"err": 'La comunidad no existe'};
+        }
+    
+        return community.creator_id == userId;
+    }
+
+  public async updateCommunity(communityId : number, body : Partial<createCommunityType>) {
+      try{
+        const existingCommunity = await this.databaseService.community.findFirst({
+          where: {
+              id_community: communityId
+          },
+      });
+
+      if (!existingCommunity) {
+          throw new DatabaseErrors('La comunidad no existe');
+      }
+      const communityUpdated = await this.databaseService.community.update({
+          where: {
+              id_community: communityId
+          },
+          data: {
+              name: body.name || existingCommunity.name,
+              description: body.description || existingCommunity.description,
+              creator_id: body.creator_id || existingCommunity.creator_id,
+              avatar_url: body.avatar_url || existingCommunity.avatar_url,
+              banner_url: body.banner_url || existingCommunity.banner_url,
+          }
+      })
+
+      if (!communityUpdated){
+          throw new DatabaseErrors('No se pudo actualizar la comunidad.')
+      }
+      return communityUpdated
       }
       catch{
           return ;
@@ -264,17 +390,74 @@ export class CommunityService {
   }
 
   public async deleteCommunity(communityId : number) {
-      try {
-          const result = await this.databaseService.community.delete({
-              where: {
-                  id_community: communityId
-              }
-          });
-          if (result) {
-              return {message: 'Comunidad eliminada exitosamente.'};
+      try{
+      const communityDeleted = await this.databaseService.community.delete({
+          where: {
+              id_community: communityId
           }
-      } catch (error) {
-          throw error;
+      })
+
+      if (!communityDeleted){
+          throw new DatabaseErrors('No se pudo eliminar la comunidad.')
+      }
+      return communityDeleted
+      }
+      catch{
+          return ;
+      }
+  }
+
+  public async getCommunityMembers(communityId : number) {
+      return await this.databaseService.community_has_users.findMany({
+          where: {
+              community_id_community: communityId
+          }
+      });
+  }
+
+  public async countMembers(communityId : number) {
+      return await this.databaseService.community_has_users.count({
+          where: {
+              community_id_community: communityId
+          }
+      });
+  }
+
+  public async joinCommunity(communityId : number, userId : number) {
+      try{
+      const communityJoined = await this.databaseService.community_has_users.create({
+          data: {
+              community_id_community: communityId,
+              users_id_community: userId
+          }
+      })
+
+      if (!communityJoined){
+          throw new DatabaseErrors('No se pudo unir al usuario a la comunidad.')
+      }
+      return communityJoined
+      }
+      catch{
+          return ;
+      }
+  }
+
+  public async leaveCommunity(communityId : number, userId : number) {
+      try{
+      const communityLeft = await this.databaseService.community_has_users.deleteMany({
+          where: {
+              community_id_community: communityId,
+              users_id_community: userId
+          }
+      })
+
+      if (!communityLeft){
+          throw new DatabaseErrors('No se pudo eliminar al usuario como miembro de la comunidad.')
+      }
+      return communityLeft
+      }
+      catch{
+          return ;
       }
   }
 

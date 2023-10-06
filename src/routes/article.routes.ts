@@ -64,6 +64,7 @@ export class ArticleRouter {
     this.router.get('/:id([0-9]+)', (req:Request, res:Response) => {
           this.articleController.getArticleById(req, res)
     });
+    
     this.router.delete(
       '/:id([0-9]+)',
       verifyJwt(),

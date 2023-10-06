@@ -80,19 +80,12 @@ export class CommunityFacade {
 
         }
 
-        
-    public async getCommunities(req : Request) {
-        try {
-            const articles = await this.communityService.getCommunities();
-            return articles;
-        } catch (error) {
-            throw new DatabaseErrors('Error al obtener las comunidades de la base de datos');
-        }
-    }
-
     public async getCommunityById(req : Request) {
         const articleId = req.params.id;
-        const article = await this.communityService.getCommunityById(parseInt(articleId, 10));
+		//@ts-ignore
+        const userId = decryptToken(req.headers['authorization']).userId;
+
+        const article = await this.communityService.getCommunityById(parseInt(articleId, 10), userId);
         if (! article) {
             return {"err": 'La comunidad no existe'};
         }
@@ -107,5 +100,65 @@ export class CommunityFacade {
         return {communityId: communityCreated.id_community, name: communityCreated.name}
     }
 
+    public async updateCommunity(req : Request) {
+        const communityId = req.params.idCommunity;
+		//@ts-ignore
+        const userId = decryptToken(req.headers['authorization']).userId;
+        if(! await this.communityService.isCreator(parseInt(communityId, 10), userId)){
+            return {"err": "No es el creador de la comunidad"}
+        }
+        const communityUpdated = await this.communityService.updateCommunity(parseInt(communityId, 10), req.body);
+        if (! communityUpdated) {
+            return {"err": "No se pudo actualizar la comunidad"}
+        }
+        return {communityId: communityUpdated.id_community, name: communityUpdated.name}
+    }
 
+    public async deleteCommunity(req : Request) {
+        const communityId = req.params.idCommunity;		//@ts-ignore
+        const userId = decryptToken(req.headers['authorization']).userId;
+        if(! await this.communityService.isCreator(parseInt(communityId, 10), userId)){
+            return {"err": "No es el creador de la comunidad"}
+        }
+        const communityDeleted = await this.communityService.deleteCommunity(parseInt(communityId, 10));
+        if (! communityDeleted) {
+            return {"err": "No se pudo eliminar la comunidad"}
+        }
+        return {communityId: communityDeleted.id_community, name: communityDeleted.name}
+    }
+
+    public async joinCommunity(req : Request) {
+        const communityId = req.params.idCommunity;
+        
+		//@ts-ignore
+        const userId = decryptToken(req.headers['authorization']).userId;
+        const communityJoined = await this.communityService.joinCommunity(parseInt(communityId, 10), userId);
+        if (! communityJoined) {
+            return {"err": "No se pudo unirse a la comunidad"}
+        }
+        return ;
+    }
+
+    public async leaveCommunity(req : Request) {
+        const communityId = req.params.idCommunity;
+        
+		//@ts-ignore
+        const userId = decryptToken(req.headers['authorization']).userId;
+        const communityLeft = await this.communityService.leaveCommunity(parseInt(communityId, 10), userId);
+        if (! communityLeft) {
+            return {"err": "No se pudo salir de la comunidad"}
+        }
+        return ;
+    }
+
+    public async getCommunityMembers(req : Request) {
+        const communityId = req.params.communityId;
+        const members = await this.communityService.getCommunityMembers(parseInt(communityId, 10));
+        if (! members) {
+            return {"err": "No se pudo obtener los miembros de la comunidad"}
+        }
+        return members;
+    }
+
+    
 }

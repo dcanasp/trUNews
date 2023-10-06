@@ -37,17 +37,49 @@ export class CommunityController {
       });
   }
 
-  public async getCommunties(req: Request, res: Response) {
-    this.communityFacade.getCommunities(req)
+  public getCommunityById(req: Request, res: Response) {
+    this.communityFacade.getCommunityById(req)
       .then(communities => res.json(communities))
       .catch(err => {
         res.status(400).json(err);
       });
   }
 
-  public getCommunityById(req: Request, res: Response) {
-    this.communityFacade.getCommunityById(req)
-      .then(communities => res.json(communities))
+  public async updateCommunity(req: Request, res: Response) {
+    this.communityFacade.updateCommunity(req)
+      .then(community => res.json(community))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
+  public deleteCommunity(req: Request, res: Response) {
+    this.communityFacade.deleteCommunity(req)
+      .then(community => res.json(community))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
+  public joinCommunity(req: Request, res: Response) {
+    this.communityFacade.joinCommunity(req)
+      .then(community => res.json(community))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
+  public leaveCommunity(req: Request, res: Response) {
+    this.communityFacade.leaveCommunity(req)
+      .then(community => res.json(community))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
+  public getMembers(req: Request, res: Response) {
+    this.communityFacade.getCommunityMembers(req)
+      .then(members => res.json(members))
       .catch(err => {
         res.status(400).json(err);
       });
