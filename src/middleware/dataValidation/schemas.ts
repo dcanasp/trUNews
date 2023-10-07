@@ -27,7 +27,7 @@ export const addCategoriesSchema = z.object({
     id_writer: z.number(),
     article: z.number(),
     categories: z.string().array()
-}).strict()
+})
 
 
 export const createArticleSchema = z.object({
