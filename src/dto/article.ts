@@ -1,7 +1,9 @@
 import { z } from 'zod';
-import { createArticleSchema } from '../middleware/dataValidation/schemas'; // Asegúrate de importar el esquema adecuado
+import { createArticleSchema,addCategoriesSchema } from '../middleware/dataValidation/schemas'; // Asegúrate de importar el esquema adecuado
+import {databaseUser} from './user'
 
 export type createArticleType = z.infer<typeof createArticleSchema>;
+export type addCategoriesType = z.infer<typeof addCategoriesSchema>;
 
 export interface articlesWriter {
   username: string;
@@ -25,6 +27,9 @@ export interface returnArticles extends articlesWriter {
     article_has_categories: article_has_categories[]
   }
 
+  export interface createArticleUserType extends returnArticles{
+    writer: databaseUser
+  }
   // export interface returnArticles {
   //   id_article: number;
   //   id_writer: number;

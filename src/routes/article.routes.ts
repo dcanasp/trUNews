@@ -4,7 +4,7 @@ import { injectable, inject } from 'tsyringe'
 import { ArticleController } from '../articles/article.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation';
 import { convertDateFields } from '../utils/convertDataTypes';
-import { createArticleSchema } from '../middleware/dataValidation/schemas';
+import { createArticleSchema,addCategoriesSchema } from '../middleware/dataValidation/schemas';
 import { verifyJwt, verifyJwtPost } from '../auth/jwtServices';
 
 
@@ -45,16 +45,12 @@ export class ArticleRouter {
     );
     
     this.router.post('/create/categories',
+    validatePost(addCategoriesSchema),
       verifyJwtPost('id_writer'),  
       (req: Request, res: Response, next: NextFunction) =>
         this.articleController.createArticleCategories(req, res),
     );
 
-    this.router.post('/create/categories',
-      verifyJwtPost('id_writer'),  
-      (req: Request, res: Response, next: NextFunction) =>
-        this.articleController.createArticleCategories(req, res),
-    );
 
     this.router.get('/latest/:quantity([0-9]+)', (req:Request, res:Response) => {
       this.articleController.getLatest(req,res);

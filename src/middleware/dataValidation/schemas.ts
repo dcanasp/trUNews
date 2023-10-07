@@ -23,6 +23,12 @@ export const decryptJWTSchema = z.object({
 
 })
 
+export const addCategoriesSchema = z.object({
+    id_writer: z.number(),
+    article: z.number(),
+    categories: z.string().array()
+}).strict()
+
 
 export const createArticleSchema = z.object({
     title: z.union([z.string(), z.null()]).optional(),

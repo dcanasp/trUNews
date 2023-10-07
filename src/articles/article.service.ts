@@ -2,13 +2,12 @@ import "reflect-metadata";
 import {injectable, inject} from 'tsyringe';
 import {DatabaseService} from '../db/databaseService';
 import {logger, permaLogger} from '../utils/logger';
-import {createArticleType} from '../dto/article';
 import {uploadToS3} from '../aws/addS3';
 import {DatabaseErrors} from '../errors/database.errors';
 import {UserService} from '../user/user.service';
 import {Roles} from '../utils/roleDefinition';
 import {resizeImages} from '../utils/resizeImages';
-import {returnArticles} from '../dto/article';
+import {returnArticles,createArticleType,createArticleUserType} from '../dto/article';
 import axios from 'axios';
 
 @injectable()
@@ -94,6 +93,51 @@ export class ArticleService {
             return ;
         }
     }
+
+    public async createCategories(writerId:number,articleId:number,categories:string[]) {
+        try{
+            const article = await this.databaseService.article.findUnique({
+                where:{
+                    id_article:articleId
+                }
+            });
+            if(!article){
+                throw new DatabaseErrors('no existe ese articulo');
+            }
+            if(article.id_writer!=writerId){
+                throw new DatabaseErrors('no tiene permiso para editar categorias');
+            }
+            for (const category of categories){
+                try{
+
+                const categoryId = await this.databaseService.categories.findUnique({
+                    where:{
+                        cat_name:category
+                    }
+                });
+                if(!categoryId){
+                    throw new DatabaseErrors('no existe esa categoria');
+                }
+                const articleCreated = await this.databaseService.article_has_categories.create({
+                    data: {
+                        articles_id_article:articleId,
+                        categories_id_categories:categoryId.id_category
+                    }
+                })
+
+                }catch(err){
+                    
+                    console.log(err);
+                };
+            }
+
+            return {succes:"true"}
+        }
+        catch{
+            return ;
+        }
+    }
+
 
     public async deleteArticle(articleId : number) {
         try {
@@ -465,54 +509,63 @@ export class ArticleService {
     }
 
     public async related (articleId:number){
-        let relatedByWriter: Partial<createArticleType>[] = [];
-        let relatedByCategory: Partial<createArticleType>[] = [];
 
-        const article = await this.databaseService.article.findUnique({
-          where: { id_article: articleId },
-          select: { id_writer: true },
-        });
-
-        if (!article) {
-          throw new Error("Article not found");
-        }
-
-        //traer del escritor
-        relatedByWriter = await this.databaseService.article.findMany({
-          where: {
-            id_writer: article.id_writer,
-            id_article: { not: articleId },
-          },
-          take: 5,
-          orderBy: { date: "desc" },
-        });
-
-        // traiga categorias
-        const articleCategories = await this.databaseService.article_has_categories.findMany({
-            where: { articles_id_article: articleId },
-            select: { categories_id_categories: true },
-          });
-
-        for (const { categories_id_categories } of articleCategories) {
-        const articlesInCategory = await this.databaseService.article.findMany({
+        try {
+            let relatedByWriter: Partial<createArticleUserType>[] = [];
+            let relatedByCategory: Partial<createArticleUserType>[] = [];
+        
+            const article = await this.databaseService.article.findUnique({
+            where: { id_article: articleId },
+            select: { id_writer: true },
+            });
+        
+            if (!article) {
+            throw new Error("Article not found");
+            }
+        
+            // Get related articles by the writer
+            relatedByWriter = await this.databaseService.article.findMany({
             where: {
-            article_has_categories: {
-                some: {
-                categories_id_categories,
-                },
-            },
-            id_article: { not: articleId },
+                id_writer: article.id_writer,
+                id_article: { not: articleId },
             },
             take: 5,
             orderBy: { date: "desc" },
-        });
-
-        relatedByCategory = [...relatedByCategory, ...articlesInCategory];
+            include: { writer: true }  // Include writer object along with all article fields
+            });
+        
+            // Get related articles by the categories
+            const articleCategories = await this.databaseService.article_has_categories.findMany({
+            where: { articles_id_article: articleId },
+            select: { categories_id_categories: true },
+            });
+        
+            for (const { categories_id_categories } of articleCategories) {
+            const articlesInCategory = await this.databaseService.article.findMany({
+                where: {
+                article_has_categories: {
+                    some: {
+                    categories_id_categories,
+                    },
+                },
+                id_article: { not: articleId },
+                },
+                take: 5,
+                orderBy: { date: "desc" },
+                include: { writer: true } // Include writer object along with all article fields
+            });
+        
+            relatedByCategory = [...relatedByCategory, ...articlesInCategory];
+            }
+        
+            const allRelatedArticles = [...relatedByWriter, ...relatedByCategory];
+        
+            return allRelatedArticles;
+        } catch (err) {
+            console.error(err); // You may want to handle this error more gracefully
+            return;
         }
-
-        const allRelatedArticles = [...relatedByWriter, ...relatedByCategory];
-
-        return allRelatedArticles;
+  
     }
 
     public async getArticlesByCategory(categoryId: string) {

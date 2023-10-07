@@ -4,7 +4,7 @@ import {injectable, inject} from 'tsyringe'
 import {ArticleService} from './article.service';
 import {DatabaseErrors} from '../errors/database.errors';
 import { decryptToken } from "../auth/jwtServices";
-import {returnArticles,returnArticlesCategory,createArticleType} from '../dto/article';
+import {returnArticles,returnArticlesCategory,createArticleType,addCategoriesType} from '../dto/article';
 import {sanitizeHtml} from '../utils/sanitizeHtml';
 
 @injectable()
@@ -62,25 +62,21 @@ export class ArticleFacade {
         return {articleId: articleCreated.id_article, title: articleCreated.title};
     }
 
-    public async createArticleCategories(req : Request) {
-        const body:createArticleType = req.body;
-        const sanitizedText = sanitizeHtml(body.text);
+    public async createArticleCategories(body : addCategoriesType) {
         
-        if (body.title===undefined||body.title===null){
-            const modelos = await this.articleService.fetchModels(sanitizedText);
-            if(!modelos){
-                return {err:true,titulos:['mejor titulo existente','segundo mejor titulo','tercero'],categorias:['EDUCATION','POLITICS']};
-            }
-            return modelos;
-
+        let categorias = body.categories; 
+        if (!categorias){
+            return {err:"No me envio categorias"};
         }
-
-        const articleCreated = await this.articleService.createArticle(body,sanitizedText);
-        if (! articleCreated) {
-            return {"err": "No se pudo crear el articulo"};
-            // throw new DatabaseErrors('No se pudo crear el articulo')
+        console.log(categorias[0]);
+        // categorias.replace('[','').replace(']','');
+        // const categoriesArray = categorias.split(','); 
+        // console.log(categoriesArray);
+        const categoriesCreated = await this.articleService.createCategories(body.id_writer,body.article,categorias);
+        if (! categoriesCreated) {
+            return {err: "No se pudo añadir las categorias"};
         }
-        return {articleId: articleCreated.id_article, title: articleCreated.title};
+        return {succes:"true"};
     }
 
     public async deleteArticle(req : Request) {
@@ -219,11 +215,20 @@ export class ArticleFacade {
 
 	public async related(req : Request) {
 		const articleId = req.params.id
+        //TODO: pasar a 2 funciones lo de abajo
 		const related = await this.articleService.related(parseInt(articleId));
 		if (! related || !related[0]) {
 		    return {"err": 'no se pudieron sacar relacionados'};
 		}
-		return this.shuffleArray(related);
+        const formattedrelated = related.map(({ writer, ...article }) => ({
+            ...article,
+            username: writer?.username,
+            name: writer?.name,
+            lastname: writer?.lastname,
+          })) as returnArticles[];
+          
+
+		return this.shuffleArray(formattedrelated);
     }
 
 

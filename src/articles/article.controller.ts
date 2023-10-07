@@ -44,7 +44,7 @@ export class ArticleController {
   }
 
   public createArticleCategories(req: Request, res: Response) {
-    this.articleFacade.createArticleCategories(req)
+    this.articleFacade.createArticleCategories(req.body)
       .then(article => {
         res.json(article);
       })
