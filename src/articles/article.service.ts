@@ -23,7 +23,7 @@ export class ArticleService {
     }
 
     public async getArticleById(articleId : number) {
-        return await this.databaseService.article.findFirst({
+        return await this.databaseService.article.findUnique({
             where: {
                 id_article: articleId
             },

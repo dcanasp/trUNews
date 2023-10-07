@@ -7,7 +7,6 @@ import { decryptToken } from "../auth/jwtServices";
 import {returnArticles,returnArticlesCategory,createArticleType} from '../dto/article';
 import {sanitizeHtml} from '../utils/sanitizeHtml';
 
-
 @injectable()
 export class ArticleFacade {
     private articleService;

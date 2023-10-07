@@ -50,6 +50,12 @@ export class ArticleRouter {
         this.articleController.createArticleCategories(req, res),
     );
 
+    this.router.post('/create/categories',
+      verifyJwtPost('id_writer'),  
+      (req: Request, res: Response, next: NextFunction) =>
+        this.articleController.createArticleCategories(req, res),
+    );
+
     this.router.get('/latest/:quantity([0-9]+)', (req:Request, res:Response) => {
       this.articleController.getLatest(req,res);
       
