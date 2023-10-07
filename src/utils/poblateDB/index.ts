@@ -66,7 +66,7 @@ async function crearArticulos(databaseService: PrismaClient) {
     const date = faker.date.recent({ days: 60 });
     const views = Math.floor(Math.random()*1000);
     const text = `<div><h1>${faker.lorem.words()}</h1><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><ul><li>${faker.lorem.word()}</li><li>${faker.lorem.word()}</li></ul><p>${faker.lorem.paragraph()}</p></div>`;
-    const image_url = faker.image.url();
+    const image_url = faker.image.url({height:1800,width:1920});
     const sanitizedText = sanitizeHtml(text);
 
     await databaseService.article.create({

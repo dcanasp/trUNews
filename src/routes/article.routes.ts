@@ -35,6 +35,20 @@ export class ArticleRouter {
       (req: Request, res: Response, next: NextFunction) =>
         this.articleController.createArticle(req, res),
     );
+    this.router.post(
+      '/aiModel',
+      convertDateFields(['date']),
+      validatePost(createArticleSchema),
+      verifyJwtPost('id_writer'),  
+      (req: Request, res: Response, next: NextFunction) =>
+        this.articleController.aiModel(req, res),
+    );
+    
+    this.router.post('/create/categories',
+      verifyJwtPost('id_writer'),  
+      (req: Request, res: Response, next: NextFunction) =>
+        this.articleController.createArticleCategories(req, res),
+    );
 
     this.router.get('/latest/:quantity([0-9]+)', (req:Request, res:Response) => {
       this.articleController.getLatest(req,res);

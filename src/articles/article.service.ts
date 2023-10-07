@@ -9,7 +9,7 @@ import {UserService} from '../user/user.service';
 import {Roles} from '../utils/roleDefinition';
 import {resizeImages} from '../utils/resizeImages';
 import {returnArticles} from '../dto/article';
-import {sanitizeHtml} from '../utils/sanitizeHtml';
+import axios from 'axios';
 
 @injectable()
 export class ArticleService {
@@ -29,12 +29,40 @@ export class ArticleService {
             },
             include:{article_has_categories:{
                 select:{category:{select:{cat_name:true}}}
-            },writer:{select:{name:true,username:true,}}
+            },writer:{select:{name:true,username:true,lastname:true}}
             }
         });
     }
 
-    public async createArticle(body : createArticleType) {
+    
+    public async fetchModels(sanitizedText: string) {
+        try {
+        const encodedText = encodeURIComponent(sanitizedText);
+        const titleUrl = `${process.env.Ai_model_title}${encodedText}`;
+        const categoriesUrl = `${process.env.Ai_model_categories}${encodedText}`;
+    
+        const [titleResponse, categoriesResponse] = await Promise.all([
+            axios.get(titleUrl),
+            axios.get(categoriesUrl),
+        ]);
+    
+        const titulos = titleResponse.data;
+        const categorias = categoriesResponse.data;
+
+        if (!titulos||!categorias){
+            throw new DatabaseErrors("no se pudieron cargar los modelos");
+        }
+        return {
+            titulos,
+            categorias,
+        };
+        } catch (error) {
+            console.error('no hay modelos');
+            return ;
+        }
+    }
+
+    public async createArticle(body : createArticleType,sanitizedText:string) {
         try{
         const user = await this.userService.getUserById(body.id_writer)
         if (! user || user.rol === Roles.lector) {
@@ -45,7 +73,6 @@ export class ArticleService {
         if (! url) {
             throw new DatabaseErrors('no se pudo crear en s3')
         }
-            const sanitizedText = sanitizeHtml(body.text)
             const articleCreated = await this.databaseService.article.create({
                 data: {
                     title: body.title,

@@ -11,7 +11,7 @@ datasource db {
 model article {
   id_article                Int      @id @default(autoincrement())
   id_writer                 Int
-  title                     String   @db.VarChar(250)
+  title                     String?   
   date                      DateTime @db.Date
   views                     Int
   image_url                 String
@@ -59,7 +59,7 @@ model saved {
 
 model trend_article {
   articles_id_article Int      @id
-  title               String   
+  title               String?   
   date                DateTime @db.Date
   author              String   
   image_url           String

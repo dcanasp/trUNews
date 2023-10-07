@@ -4,7 +4,9 @@ import {injectable, inject} from 'tsyringe'
 import {ArticleService} from './article.service';
 import {DatabaseErrors} from '../errors/database.errors';
 import { decryptToken } from "../auth/jwtServices";
-import {returnArticles} from '../dto/article';
+import {returnArticles,returnArticlesCategory,createArticleType} from '../dto/article';
+import {sanitizeHtml} from '../utils/sanitizeHtml';
+
 
 @injectable()
 export class ArticleFacade {
@@ -28,18 +30,59 @@ export class ArticleFacade {
         if (! article) {
             return {"err": 'El artículo no existe'};
         }
-        return article;
+
+        const formattedGet: returnArticlesCategory[] = [article].map(({ writer, ...article }) => ({
+            ...article,
+            username: writer.username,
+            name: writer.name,
+            lastname: writer.lastname
+          }));
+        return formattedGet;
     }
 
+    
+    public async aiModel(req : Request) {
+        const body:createArticleType = req.body;
+        const sanitizedText = sanitizeHtml(body.text);
+        const modelos = await this.articleService.fetchModels(sanitizedText);
+        if(!modelos){
+            return {err:true,titulos:['mejor titulo existente','segundo mejor titulo','tercero'],categorias:['EDUCATION','POLITICS']};
+        }
+        return modelos;
+        
+    }
     public async createArticle(req : Request) {
-        const articleCreated = await this.articleService.createArticle(req.body);
+        const body:createArticleType = req.body;
+        const sanitizedText = sanitizeHtml(body.text);
+
+        const articleCreated = await this.articleService.createArticle(body,sanitizedText);
         if (! articleCreated) {
-            return {"err": "No se pudo crear el articulo"}
+            return {"err": "No se pudo crear el articulo"};
             // throw new DatabaseErrors('No se pudo crear el articulo')
         }
-        return {articleId: articleCreated.id_article, title: articleCreated.title}
+        return {articleId: articleCreated.id_article, title: articleCreated.title};
     }
 
+    public async createArticleCategories(req : Request) {
+        const body:createArticleType = req.body;
+        const sanitizedText = sanitizeHtml(body.text);
+        
+        if (body.title===undefined||body.title===null){
+            const modelos = await this.articleService.fetchModels(sanitizedText);
+            if(!modelos){
+                return {err:true,titulos:['mejor titulo existente','segundo mejor titulo','tercero'],categorias:['EDUCATION','POLITICS']};
+            }
+            return modelos;
+
+        }
+
+        const articleCreated = await this.articleService.createArticle(body,sanitizedText);
+        if (! articleCreated) {
+            return {"err": "No se pudo crear el articulo"};
+            // throw new DatabaseErrors('No se pudo crear el articulo')
+        }
+        return {articleId: articleCreated.id_article, title: articleCreated.title};
+    }
 
     public async deleteArticle(req : Request) {
         const articleId = req.params.id;
@@ -225,7 +268,6 @@ export class ArticleFacade {
       
     public async getSavedArticles(req: Request) {
         const userId = req.params.userId;
-        console.log(userId);
         return await this.articleService.getSavedArticles(parseInt(userId,10));
     }
 
