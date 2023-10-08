@@ -45,7 +45,8 @@ export class ArticleFacade {
         const sanitizedText = sanitizeHtml(body.text);
         const modelos = await this.articleService.fetchModels(sanitizedText);
         if(!modelos){
-            return {err:true,titulos:['mejor titulo existente','segundo mejor titulo','tercero'],categorias:['EDUCATION','POLITICS']};
+            
+            return {err:true,titulos:['mejor titulo existente','segundo mejor titulo','tercero'],categorias:[{"label": "EDUCATION","score": 0.34894150495529175 },{"label": "BUSINESS","score": 0.3029727041721344},{"label": "POLITICS","score": 0.08930222690105438},]};
         }
         return modelos;
         
