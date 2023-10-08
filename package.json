@@ -10,7 +10,7 @@
     "singleChange": "ts-node src/app.ts",
     "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/server.ts",
     "build": "tsc",
-    "start": "build/server.js",
+    "start": "node build/server.js",
     "production": "tsc && node build/server.js",
     "Pm2Production": "tsc && pm2 start build/server.js --name trunews && pm2 startup && pm2 save",
     "restart": "pm2 restart my-app-name",

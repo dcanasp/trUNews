@@ -11,21 +11,24 @@ import app from "../server";
 import request from "supertest";
 import { application } from "express";
 
-const authorization = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI1OCwicm9sIjowLCJpYXQiOjE2OTY1MDk5OTgsImV4cCI6MTY5Njc2OTE5OH0.WzGSUm7BEJeVeIU3l9kVTLU4Vi58QzmVFluCv61N3xU";
+import {isUserfollowerSum} from '../test_helpers/user.helpers';
 
-
+const authorization = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbCI6MSwiaWF0IjoxNjk2NzcyNDY2LCJleHAiOjE2OTcwMzE2NjZ9.Qo6J-Xy8o368BUJLKE5GQbOvMn2BEEcNUX6-7injxS4";
+const pruebasUserId = 1
+const pruebasUsername = 'Fatima76'
 beforeAll((done) => {
     done();
   });
   
   afterAll((done) => {
     // Closing the DB connection allows Jest to exit successfully.
+    console.log('llega?');
     done();
   });
   
-  //!test download paths
-  describe("Test download paths", () => {
-    describe("dowload file link by ulid", () => {
+  describe("todos los get", () => {
+    
+    describe("GET /users/find", () => {
       test("GET /users/find", (done) => {
         request(app)
           .get('/users/find')
@@ -38,6 +41,13 @@ beforeAll((done) => {
               throw new Error("Error status code > 299");
             }
             expect(res.body).toBeDefined();
+            if (Array.isArray(res.body)) {
+              res.body.forEach((item) => {
+                expect(isUserfollowerSum(item)).toBeTruthy();
+              });
+            } else {
+              throw new Error("Response body is not an array of UserfollowerSum");
+            }
             // expect(res.body).toEqual();
           })
           .end((err, res) => {
@@ -46,7 +56,107 @@ beforeAll((done) => {
           });
       });
     });
+   
+   
+    describe("GET /users/:userId/me", () => {
+      test("should return user profile and articles", (done) => {
+        request(app)
+          .get(`/users/${pruebasUserId}/me`)
+          .set("Authorization", authorization)
+          .set("Accept", "application/json")
+          .expect("Content-Type", /json/)
+          .expect((res) => {
+            if (res.status > 299) {
+              throw new Error("Error status code > 299");
+            }
+            // Validate the shape of the response object
+            expect(res.body).toMatchObject({
+              id_user: expect.any(Number),
+              username: expect.any(String),
+              name: expect.any(String),
+              lastname: expect.any(String),
+              rol: expect.any(Number),
+              profession: expect.any(String),
+              description: expect.any(String),
+              profile_image: expect.any(String),
+              followersCount: expect.any(Number),
+              followingsCount: expect.any(Number),
+              isFollowing: expect.any(Boolean),
+              articlesByUser: expect.arrayContaining([expect.objectContaining({
+                id_article: expect.any(Number),
+                title: expect.any(String),
+                image_url: expect.any(String),
+              })]),
+              savedArticles: expect.arrayContaining([expect.objectContaining({
+                article: expect.objectContaining({
+                  id_article: expect.any(Number),
+                  title: expect.any(String),
+                  date: expect.any(String),
+                  image_url: expect.any(String),
+                  text: expect.any(String),
+                  writer: expect.objectContaining({
+                    id_user: expect.any(Number),
+                    username: expect.any(String),
+                  }),
+                }),
+              })]),
+            });
+          })
+          .end((err, res) => {
+            if (err) return done(err);
+            return done();
+          });
+      });
+    });
+   
+  });
   
+
+  describe("todos los post", () => {
+    
+    describe("get /users/find", () => {
+      test("GET /users/find", (done) => {
+        const uniqueUsername = "usuarioJest" + new Date().getTime();
+        request(app)
+          .post('/users/create').send({
+            username:uniqueUsername,lastname:"admin",name:"david",password:"1",rol:0
+          })
+          .set("Accept", "application/json")
+          .expect("Content-Type", /json/)
+          .expect((res) => {
+            if (res.status > 299) {
+              throw new Error("Error status code > 299");
+            }
+            expect(res.body).toBeDefined();
+            expect(res.body.token).toBeDefined();
+            expect(typeof res.body.token).toBe("string");
+            expect(res.body.token.split(".").length).toBe(3)
+            expect(res.body.user).toMatchObject({
+              userId: expect.any(Number),
+              rol: expect.any(Number),
+            });
+                        
+            // if (Array.isArray(res.body)) {
+            //   res.body.forEach((item) => {
+            //     expect(isUserfollowerSum(item)).toBeTruthy();
+            //   });
+            // } else {
+            //   throw new Error("Response body is not an array of UserfollowerSum");
+            // }
+            // expect(res.body).toEqual();
+          })
+          .end((err, res) => {
+            if (err) return done(err);
+            return done();
+          });
+      });
+    });
+   
+   
+   
+  });
+  
+    
 //     describe("dowload raw file in base 64 by ulid", () => {
 //       test("GET /download/ulidJsonDocument/:ulid", (done) => {
 //         request(App)
@@ -119,4 +229,4 @@ beforeAll((done) => {
 //           });
 //       });
 //     });
-  });
+// });
