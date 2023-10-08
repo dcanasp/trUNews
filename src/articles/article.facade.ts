@@ -205,6 +205,7 @@ export class ArticleFacade {
                  username: writer.username,
                  name: writer.name,
                  lastname: writer.lastname,
+                 profile_image: writer.profile_image,
              }));
      
             return this.shuffleArray([...feed,...formattedLatest]);
