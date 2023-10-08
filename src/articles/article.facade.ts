@@ -207,8 +207,10 @@ export class ArticleFacade {
                  lastname: writer.lastname,
                  profile_image: writer.profile_image,
              }));
-     
-            return this.shuffleArray([...feed,...formattedLatest]);
+            if(feed!=undefined){
+                return this.shuffleArray([...feed,...formattedLatest]);
+            }
+            return this.shuffleArray([formattedLatest]);
         }
 
         return this.shuffleArray(feed);

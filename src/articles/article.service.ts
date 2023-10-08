@@ -287,6 +287,7 @@ export class ArticleService {
 
 
     public async feed (user_id:number){
+        try{
         let weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 5);
         const articlesFromFollowedUsers = await this.databaseService.follower.findMany({
@@ -314,7 +315,6 @@ export class ArticleService {
               },
             },
           });
-
         const flatArticles = articlesFromFollowedUsers.flatMap(follower => 
         follower.following.article.map(article => ({
             ...article,
@@ -397,6 +397,12 @@ export class ArticleService {
         
         const combinedArticles = [...modifiedFlatArticles, ...articlesByCategory, ...flatArticlesSaved];
         return combinedArticles;
+    }
+    catch(err){
+        console.log(err);
+        permaLogger.log("err",err);
+        return ;
+    }
     }
 
     private async softmaxForFeed(categoriesOfArticles: {categories_id_categories: number;}[]) {

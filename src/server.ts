@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 const app = new App();
 
-app.listen(+process.env.PORT! || 3006);
+const appInstance = app.listen(+process.env.PORT! || 3006);
 
 
-export default app
+export default appInstance;
