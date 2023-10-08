@@ -33,6 +33,7 @@ export class App  {
     this.app.listen(port, () => {
       console.log(`Server running on port ${port}`);
     });
+    return this.app
   }
 
   public loggerMiddleware(){

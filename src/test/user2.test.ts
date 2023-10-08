@@ -28,7 +28,7 @@ beforeAll((done) => {
     describe("dowload file link by ulid", () => {
       test("GET /users/find", (done) => {
         request(app)
-          .get('users/find')
+          .get('/users/find')
           .set("Authorization", authorization)
           .set("Accept", "application/json")
           .expect("Content-Type", /json/)
