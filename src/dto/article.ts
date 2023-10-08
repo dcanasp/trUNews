@@ -10,6 +10,9 @@ export interface articlesWriter {
   name: string;
   lastname: string;
 }
+export interface returnArticlesImage extends returnArticles{
+  profile_image: string;
+}
 export interface returnArticles extends articlesWriter {
     id_article: number;
     id_writer: number;

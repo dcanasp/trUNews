@@ -18,6 +18,11 @@ export interface imageType{
     ratio:string
 }
 
+export interface UserfollowerSum extends databaseUser {
+    followersCount: number;
+    followingsCount: number;
+}
+
 export interface databaseUser {
         id_user: number;
         username: string;
@@ -29,3 +34,6 @@ export interface databaseUser {
         description?: string | null;
         image_url?: string | null;
 }
+
+
+

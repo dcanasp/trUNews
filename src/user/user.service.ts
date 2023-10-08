@@ -120,7 +120,8 @@ export class UserService {
                 lastname: body.lastname,
                 username: body.username,
                 hash: hash,
-                rol: body.rol
+                rol: body.rol,
+                profile_image: 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg'
             }
         }).catch((err) => {
             return;
@@ -273,7 +274,7 @@ export class UserService {
                     rol: updatedProfileData.rol || existingUser.rol,
                     profession: updatedProfileData.profession || existingUser.profession,
                     description: updatedProfileData.description || existingUser.description,
-                    image_url: updatedProfileData.image_url || existingUser.image_url,
+                    profile_image: updatedProfileData.image_url || existingUser.profile_image,
                 },
             });
     
@@ -507,7 +508,7 @@ public async updatePassword(userId: string, newPassword: string) {
                             name: true,
                             lastname: true,
                             rol: true,
-                            image_url: true,
+                            profile_image: true,
                         },
                     },
                 },
@@ -534,7 +535,7 @@ public async updatePassword(userId: string, newPassword: string) {
                             name: true,
                             lastname: true,
                             rol: true,
-                            image_url: true,
+                            profile_image: true,
                         },
                     },
                 },

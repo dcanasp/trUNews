@@ -7,7 +7,7 @@ import {DatabaseErrors} from '../errors/database.errors';
 import {UserService} from '../user/user.service';
 import {Roles} from '../utils/roleDefinition';
 import {resizeImages} from '../utils/resizeImages';
-import {returnArticles,createArticleType,createArticleUserType} from '../dto/article';
+import {returnArticles,createArticleType,createArticleUserType,returnArticlesImage} from '../dto/article';
 import axios from 'axios';
 
 @injectable()
@@ -300,6 +300,7 @@ export class ArticleService {
                     username:true,
                     name:true,
                     lastname:true,
+                    profile_image:true,
                     article: {
                         include:{article_has_categories:{select:{categories_id_categories:true}}},
                         where: {
@@ -319,7 +320,8 @@ export class ArticleService {
             ...article,
             username: follower.following.username,
             name: follower.following.name,
-            lastname: follower.following.lastname
+            lastname: follower.following.lastname,
+            profile_image: follower.following.profile_image,
         }))
         );
         const modifiedFlatArticles = flatArticles.map(({ article_has_categories, ...rest }) => rest);
@@ -333,7 +335,7 @@ export class ArticleService {
         }
         const categoriesId = await this.softmaxForFeed(categoriesOfArticles);
         //y los de guardados
-        const articlesByCategory:returnArticles[] = [];
+        const articlesByCategory:returnArticlesImage[] = [];
         let counter = 0
         for (const categoryId of categoriesId){
             const id_eachCategory = categoryId.category_id;
@@ -353,6 +355,7 @@ export class ArticleService {
                             username:true,
                             name:true,
                             lastname:true,
+                            profile_image:true,
                             }}
                         },
                     },
@@ -380,6 +383,7 @@ export class ArticleService {
                         username:true,
                         name:true,
                         lastname:true,
+                        profile_image:true,
                         }}
                     },
                 },
