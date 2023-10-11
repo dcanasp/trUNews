@@ -50,7 +50,7 @@ model follower {
 model saved {
   id_user    Int
   id_article Int
-  date       String @db.VarChar(45)
+  date       DateTime @db.Date 
   user       users   @relation(fields: [id_user], references: [id_user])
   article    article @relation(fields: [id_article], references: [id_article])
 

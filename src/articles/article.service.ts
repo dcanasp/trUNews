@@ -7,7 +7,7 @@ import {DatabaseErrors} from '../errors/database.errors';
 import {UserService} from '../user/user.service';
 import {Roles} from '../utils/roleDefinition';
 import {resizeImages} from '../utils/resizeImages';
-import {returnArticles,createArticleType,createArticleUserType,returnArticlesImage} from '../dto/article';
+import {returnArticles,createArticleType,createArticleUserType,returnArticlesFeed,returnArticlesCategory,returnArticlesCategory_id} from '../dto/article';
 import axios from 'axios';
 
 @injectable()
@@ -126,8 +126,8 @@ export class ArticleService {
                 })
 
                 }catch(err){
-                    
-                    console.log(err);
+                    permaLogger.log("err",err);
+                    return ;
                 };
             }
 
@@ -285,11 +285,9 @@ export class ArticleService {
 
     }
 
-
-    public async feed (user_id:number){
+    //!feed
+    public async articlesFromFollowed (user_id:number,weekAgo:Date){
         try{
-        let weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 5);
         const articlesFromFollowedUsers = await this.databaseService.follower.findMany({
             where: {
               id_follower: user_id,
@@ -314,7 +312,7 @@ export class ArticleService {
                 },
               },
             },
-          });
+        });
         const flatArticles = articlesFromFollowedUsers.flatMap(follower => 
         follower.following.article.map(article => ({
             ...article,
@@ -322,20 +320,42 @@ export class ArticleService {
             name: follower.following.name,
             lastname: follower.following.lastname,
             profile_image: follower.following.profile_image,
+            saved:false,
         }))
         );
-        const modifiedFlatArticles = flatArticles.map(({ article_has_categories, ...rest }) => rest);
+        return flatArticles;    
+    }
+        catch(err){
+            permaLogger.log("err",err);
+            return ;
+        }
+    }
+    
+    public async articlesFromCateogries (flatArticles:returnArticlesCategory_id[]){
+        try{
+        
+            if(!flatArticles){
+                return;
+            }
+        
         const categoriesOfArticles = flatArticles.flatMap(follower => follower.article_has_categories);
         let articlesForCategory = flatArticles.length;
+        
         if(flatArticles.length<6){
             articlesForCategory = 15            
         }
         else{
             articlesForCategory = articlesForCategory * 3;
         }
+
+        if (!categoriesOfArticles){
+            return ;
+        }
+
         const categoriesId = await this.softmaxForFeed(categoriesOfArticles);
+
         //y los de guardados
-        const articlesByCategory:returnArticlesImage[] = [];
+        const articlesByCategory:returnArticlesFeed[] = [];
         let counter = 0
         for (const categoryId of categoriesId){
             const id_eachCategory = categoryId.category_id;
@@ -362,44 +382,111 @@ export class ArticleService {
                 },
                 take:articlesToFetchForThisCategory,
             })
+
             getArticlesByCategory.flatMap(temporal => {                 
                 const { writer, ...articleWithoutWriter } = temporal.article;
-                articlesByCategory.push({ ...articleWithoutWriter, ...writer });              
+                articlesByCategory.push({ ...articleWithoutWriter, ...writer ,saved:false});              
             })
             
 
         }
         
-        //saved
-        const getArticlesBySaved = await this.databaseService.saved.findMany({
-            where: {
-                id_user: user_id,
-            },
-            include:{
-                article:{
-                    include:{
-
-                    writer:{select:{
-                        username:true,
-                        name:true,
-                        lastname:true,
-                        profile_image:true,
-                        }}
-                    },
-                },
-            },
-        })
-        
-        const flatArticlesSaved = getArticlesBySaved.flatMap(temporal => {                 
-            const { writer, ...articleWithoutWriter } = temporal.article;
-            return { ...writer, ...articleWithoutWriter }
-        })
-        
-        const combinedArticles = [...modifiedFlatArticles, ...articlesByCategory, ...flatArticlesSaved];
-        return combinedArticles;
+        return articlesByCategory;
     }
     catch(err){
-        console.log(err);
+        permaLogger.log("err",err);
+        return ;
+    }
+    }
+
+    public async articlesFromSaved (userId:number,weekAgo:Date){
+        try{
+            const followers= await this.databaseService.follower.findMany({
+                where:{
+                    id_follower:userId,
+                },
+                include:{
+                    following:{
+                        select:{
+                            username:true,
+                        }
+                    }
+                }
+            }) 
+        //saved de la gente a la que sigo,
+        const savedArticles = []; 
+        for(const currentFollower of followers){
+            
+            const getArticlesBySaved = await this.databaseService.saved.findMany({
+                where: {
+                    id_user: currentFollower.id_following,
+                    date:{
+                        gte:weekAgo
+                    }
+                },
+                include:{
+                    user:{
+                        select:{
+                            username:true,
+                        }
+                    }
+                    ,article:{
+                        include:{
+
+                            writer:{select:{
+                                username:true,
+                                name:true,
+                                lastname:true,
+                                profile_image:true,
+                            }}
+                        },
+                    },
+                },
+            })
+            // savedArticles.push(getArticlesBySaved);
+            // savedArticles.push({...getArticlesBySaved,saved:true,savedUsername:currentFollower.following.username,savedId:currentFollower.id_following})
+
+          
+          
+            const flatArticlesSaved = getArticlesBySaved.flatMap(temporal => {
+                // if (temporal) {
+                    // const articleData = temporal[Object.keys(temporal).find(key => !isNaN(Number(key)))];
+                // if (articleData) {
+                    // return temporal
+                    const { writer, ...articleWithoutWriter } = temporal.article;
+                    return {
+                    ...writer,
+                    ...articleWithoutWriter,
+                    saved: true,
+                    savedUsername: temporal.user.username,
+                    savedId: temporal.id_user
+                    };
+                // }
+                // }
+                // return [];
+            });
+            savedArticles.push(...flatArticlesSaved);
+            // const aa = savedArticles.flatMap((eachArticle) => ({
+            //     // const {article, ...rest} = eachArticle. ;
+                
+            //     eachArticle
+                
+            //     // return (eachArticle)
+            // }))
+            // console.log(aa);
+            
+            
+        }
+
+        return savedArticles
+        // const flatArticlesSaved = getArticlesBySaved.flatMap(temporal => {                 
+        //     const { writer, ...articleWithoutWriter } = temporal.article;
+        //     return { ...writer, ...articleWithoutWriter }
+        // })
+        
+        // return flatArticlesSaved;
+    }
+    catch(err){
         permaLogger.log("err",err);
         return ;
     }
@@ -436,6 +523,8 @@ export class ArticleService {
         
    
     }
+    //!feed
+
 
     public async saveArticle(userId: number, articleId: number) {
         try {
@@ -562,7 +651,7 @@ export class ArticleService {
                 },
                 take: 5,
                 orderBy: { date: "desc" },
-                include: { writer: true } // Include writer object along with all article fields
+                include: { writer: true } 
             });
         
             relatedByCategory = [...relatedByCategory, ...articlesInCategory];
@@ -572,7 +661,6 @@ export class ArticleService {
         
             return allRelatedArticles;
         } catch (err) {
-            console.error(err); // You may want to handle this error more gracefully
             return;
         }
   

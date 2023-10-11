@@ -23,9 +23,25 @@ export interface returnArticles extends articlesWriter {
     text: string;
   }
 
+  export interface returnArticlesFeed extends returnArticles {
+    saved:boolean;
+    savedUsername?: string|undefined;
+    savedId?: number|undefined;
+  }
+
+
+
   export interface article_has_categories {
     category: {cat_name:string};
   }
+  export interface article_has_categories_id{
+    categories_id_categories: number;
+  }
+  
+  export interface returnArticlesCategory_id extends returnArticles {
+    article_has_categories: article_has_categories_id[];
+  }
+
   export interface returnArticlesCategory extends returnArticles {
     article_has_categories: article_has_categories[]
   }

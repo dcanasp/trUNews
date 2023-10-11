@@ -35,5 +35,13 @@ export interface databaseUser {
         image_url?: string | null;
 }
 
-
+export interface followerType {
+    id_user: number;
+    username: string;
+    name: string;
+    lastname: string;
+    rol: number;
+    profile_image: string;
+  }
+  
 

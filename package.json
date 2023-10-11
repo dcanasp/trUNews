@@ -4,8 +4,8 @@
   "description": "Ingesoft 2 unal",
   "main": "index.js",
   "scripts": {
-    "test": "npm run build && jest --coverage --setupFiles dotenv/config",
-    "testNoCoverage": "npm run build && jest --setupFiles dotenv/config",
+    "test": "npm run build && jest --coverage --maxWorkers=1 --setupFiles dotenv/config",
+    "testNoCoverage": "npm run build && jest --maxWorkers=1 --setupFiles dotenv/config",
     "init": "npm i && npx prisma generate",
     "singleChange": "ts-node src/app.ts",
     "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/server.ts",

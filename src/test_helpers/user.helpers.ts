@@ -1,4 +1,6 @@
 import {UserfollowerSum} from '../dto/user'
+import { expect } from '@jest/globals';
+
 export function isUserfollowerSum(obj: any): obj is UserfollowerSum {
     return (
       typeof obj.id_user === 'number' &&
@@ -11,3 +13,12 @@ export function isUserfollowerSum(obj: any): obj is UserfollowerSum {
 
       );
   }
+
+  export function anythingOrNullOrUndefined(received:any){
+        const pass = received !== null || received !== undefined;
+        return {
+          message: () => `expected null or undefined or something but got ${received}`,
+          pass: pass
+        };
+      }
+
