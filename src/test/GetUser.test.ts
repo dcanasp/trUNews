@@ -15,9 +15,9 @@ import { number } from 'zod';
 
 
 
-const authorization = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbCI6MCwiaWF0IjoxNjk3MDM4NzI3LCJleHAiOjE2OTcyOTc5Mjd9.s3dPZyP6BWA3ombXL-fpr6liCKqu-ZowQKMLMTnsY4s";
+const authorization = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbCI6MSwiaWF0IjoxNjk3MDYzMTM1LCJleHAiOjE2OTczMjIzMzV9.lzerOc7RunM2czPZVk_0yn7er23MO6P8aGXfjztZFp8";
 const pruebasUserId = 1
-const pruebasUsername = 'Jaeden46'
+const pruebasUsername = 'Michaela.Herzog29'
 
 // let server:any;
 // beforeAll((done) => {
@@ -52,35 +52,34 @@ beforeAll((done) => {
         });
     });
   
-      //muy pesado
-              // describe("GET /users/find", () => {
-              //   test("GET /users/find", (done) => {
-              //     request(app)
-              //       .get('/users/find')
-              //       .set("Authorization", authorization)
-              //       .set("Accept", "application/json")
-              //       .expect("Content-Type", /json/)
-              //       //.expect(200)
-              //       .expect((res) => {
-              //         if (res.status > 299) {
-              //           throw new Error("Error status code > 299");
-              //         }
-              //         expect(res.body).toBeDefined();
-              //         if (Array.isArray(res.body)) {
-              //           res.body.forEach((item) => {
-              //             expect(isUserfollowerSum(item)).toBeTruthy();
-              //           });
-              //         } else {
-              //           throw new Error("Response body is not an array of UserfollowerSum");
-              //         }
-              //         // expect(res.body).toEqual();
-              //       })
-              //       .end((err, res) => {
-              //         if (err) return done(err);
-              //         return done();
-              //       });
-              //   });
-              // });
+    describe("GET /users/find", () => {
+      test("GET /users/find", (done) => {
+        request(app)
+          .get('/users/find')
+          .set("Authorization", authorization)
+          .set("Accept", "application/json")
+          .expect("Content-Type", /json/)
+          //.expect(200)
+          .expect((res) => {
+            if (res.status > 299) {
+              throw new Error("Error status code > 299");
+            }
+            expect(res.body).toBeDefined();
+            if (Array.isArray(res.body)) {
+              res.body.forEach((item) => {
+                expect(isUserfollowerSum(item)).toBeTruthy();
+              });
+            } else {
+              throw new Error("Response body is not an array of UserfollowerSum");
+            }
+            // expect(res.body).toEqual();
+          })
+          .end((err, res) => {
+            if (err) return done(err);
+            return done();
+          });
+      });
+    });
             
 
     describe("GET /users/find/jo", () => {
@@ -144,105 +143,7 @@ beforeAll((done) => {
           });
       });
     });
-   
-  //     describe("GET /users/:userId/me", () => {
-  //       test("should return user profile and articles", (done) => {
-  //         request(app)
-  //           .get(`/users/${pruebasUserId}/me`)
-  //           .set("Authorization", authorization)
-  //           .set("Accept", "application/json")
-  //           .expect("Content-Type", /json/)
-  //           .expect((res) => {
-  //             if (res.status > 299) {
-  //               throw new Error("Error status code > 299");
-  //             }
-
-  //             expect.extend({
-  //               anythingOrNullOrUndefined(received) {
-  //                 const pass = received !== null || received !== undefined;
-  //                 return {
-  //                   message: () => `expected null or undefined or something but got ${received}`,
-  //                   pass: pass
-  //                 };
-  //               }
-  //             });
-
-  //             // Validate the shape of each object in the response array
-              
-  // //!
-
-  // // expect(res.body).toMatchObject({
-  //               const expectedObject: Record<string, any> = {
-  //               id_user: expect.any(Number),
-  //               username: expect.any(String),
-  //               name: expect.any(String),
-  //               lastname: expect.any(String),
-  //               rol: expect.any(Number),
-  //               profession: expect.any(String),
-  //               description: expect.any(String),
-  //               profile_image: expect.any(String),
-  //               followersCount: expect.any(Number),
-  //               followingsCount: expect.any(Number),
-  //               isFollowing: expect.any(Boolean),
-  //               articlesByUser: expect.arrayContaining([expect.objectContaining({
-  //                 id_article: expect.any(Number),
-  //                 title: expect.any(String),
-  //                 image_url: expect.any(String),
-  //               })]),
-  //               savedArticles: expect.arrayContaining(
-  //                 [
-  //                 expect.objectContaining({
-  //                 article: expect.objectContaining({
-  //                   id_article: expect.any(Number),
-  //                   title: expect.any(String),
-  //                   date: expect.any(String),
-  //                   image_url: expect.any(String),
-  //                   text: expect.any(String),
-  //                   writer: expect.objectContaining({
-  //                     id_user: expect.any(Number),
-  //                     username: expect.any(String),
-  //                   }),
-  //                 }),
-  //               })]
-                
-  //               ),
-  //             }
-
-  // //!
-  //               if(expectedObject.articlesByUser!==null){
-  //                   expectedObject.articlesByUser = expect.anything();
-  //               }
-  //               else {
-  //                 expectedObject.articlesByUser = expect.anything();
-  //               }
-  //               if(expectedObject.savedArticles!==null){
-  //                 expectedObject.savedArticles = expect.anything();
-  //               }
-  //               else {
-  //                 expectedObject.savedArticles = null
-  //               }
-  //               if (expectedObject.profession !== null) {
-  //                 expectedObject.profession = expect.anything();
-  //               } else {
-  //                 expectedObject.profession = null;
-  //               }
-              
-  //               if (expectedObject.description !== null) {
-  //                 expectedObject.description = expect.anything();
-  //               } else {
-  //                 expectedObject.description = null;
-  //               }
-              
-  //               expect(res.body).toMatchObject(expectedObject);
-  //             })
-
-  //             // Validate the shape of the response object
-  //           .end((err, res) => {
-  //             if (err) return done(err);
-  //             return done();
-  //           });
-  //       });
-  //     });
+ 
 
   describe("GET /users/:userId/me", () => {
     test("should return user profile and possibly articles", async () => {
@@ -271,15 +172,31 @@ beforeAll((done) => {
       }
       if ('savedArticles' in res.body) {
         const article = expect.anything();
-          // expect.objectContaining({
-          //   id_article: expect.any(Number),
-          //   title: expect.any(String),
-          //   image_url: expect.any(String),
-          // }),
+        //   savedArticles: expect.arrayContaining(
+        //   [
+        //   expect.objectContaining({
+        //   article: expect.objectContaining({
+        //     id_article: expect.any(Number),
+        //     title: expect.any(String),
+        //     date: expect.any(String),
+        //     image_url: expect.any(String),
+        //     text: expect.any(String),
+        //     writer: expect.objectContaining({
+        //       id_user: expect.any(Number),
+        //       username: expect.any(String),
+        //     }),
+        //   }),
+        // })]
         
         expect(res.body.savedArticles).toMatchObject(article);
       
         delete res.body.savedArticles;
+      }
+      if (res.body.profession == null){
+        delete res.body.profession;
+      }
+      if (res.body.description == null){
+        delete res.body.description;
       }
 
       const expectedObject = {
@@ -288,8 +205,6 @@ beforeAll((done) => {
         name: expect.any(String),
         lastname: expect.any(String),
         rol: expect.any(Number),
-        profession: expect.anything(),
-        description: expect.anything(),
         profile_image: expect.any(String),
         followersCount: expect.any(Number),
         followingsCount: expect.any(Number),
@@ -469,9 +384,9 @@ beforeAll((done) => {
       test("should return success with a valid token", (done) => {
         request(app)
           .post('/users/checkPassword')
-          //!si cambio base de datos cambio esto
+
           .send({
-            username: "Jaeden46", 
+            username: pruebasUsername, 
             password: "password",
           })
           .set("Accept", "application/json")

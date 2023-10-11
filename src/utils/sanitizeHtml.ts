@@ -68,8 +68,8 @@ export function sanitizeHtml(input: string): string {
     }
   }
 
-  // Append any remaining text
   output += textBuffer;
 
+  output = output.replace('&nbsp', ' ');
   return output.trim();
 }
