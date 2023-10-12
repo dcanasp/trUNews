@@ -91,14 +91,14 @@ async function crearArticulos(databaseService: PrismaClient) {
 
 
 async function crearFollowers(databaseService : PrismaClient) {
-    const numberOfEntries = 500;
+    const localNumberOfEntries = numberOfEntries*2;
     const allUserIds = await databaseService.users.findMany({
         select: {
             id_user: true
         }
     });
 
-    for (let i = 0; i < numberOfEntries; i++) {
+    for (let i = 0; i < localNumberOfEntries; i++) {
         const id_follower = allUserIds[Math.floor(Math.random() * allUserIds.length)].id_user;
         let id_following = allUserIds[Math.floor(Math.random() * allUserIds.length)].id_user;
 
@@ -135,7 +135,7 @@ async function crearSaved(databaseService : PrismaClient) {
         const id_user = allUserIds[Math.floor(Math.random() * allUserIds.length)].id_user;
         const id_article = allArticleIds[Math.floor(Math.random() * allArticleIds.length)].id_article;
         // const date = faker.date.recent({ days: 10 });
-        const date = faker.date.recent({days: 10}).toISOString().split('T')[0];
+        const date = faker.date.recent({days: 10});
 
         await databaseService.saved.create({
             data: {
@@ -211,7 +211,7 @@ async function crearComunidades(databaseService : PrismaClient) {
         let nombre = `${faker.commerce.department()}-${faker.commerce.productAdjective()}-${Math.random().toString(36).substring(2, 8)}`;
         const creator = allUserIds[Math.floor(Math.random() * allUserIds.length)].id_user;
         const descripcion = Math.random() < 0.5 ? faker.commerce.productDescription() : null;
-        const date = faker.date.recent({days: 10}).toISOString().split('T')[0];
+        const date = faker.date.recent({days: 10});
         const avatar = faker.image.avatar()
         const banner = faker.image.url({height:500,width:1500})
         
