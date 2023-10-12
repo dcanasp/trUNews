@@ -184,7 +184,10 @@ export class UserFacade {
 
         const updatedUser = await this.userService.updatePassword(userId, newPassword);
 
-        return { success: 'Contraseña actualizada correctamente', user: updatedUser };
+        const returnableUser:Partial<typeof updatedUser> = updatedUser; 
+		delete returnableUser.hash
+        
+        return { success: 'Contraseña actualizada correctamente', user: returnableUser };
 
     }
 

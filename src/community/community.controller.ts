@@ -17,6 +17,7 @@ export class CommunityController {
     this.communityFacade.find(req) .then(articles => res.json(articles)) 
     .catch(err => { res.status(400).json(err); });
   }
+
   public async related(req: Request, res: Response) {
       this.communityFacade.related(req) .then(articles => res.json(articles)) 
       .catch(err => { res.status(400).json(err); });

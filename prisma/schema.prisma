@@ -76,6 +76,7 @@ model trend_author {
   username      String @unique 
   name          String @db.VarChar(45)
   lastname      String @db.VarChar(45)
+  profile_image String 
   profession    String 
   weight        Decimal
 }

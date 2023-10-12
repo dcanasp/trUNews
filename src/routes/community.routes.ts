@@ -27,6 +27,7 @@ export class CommunityRouter {
         this.router.get('/find/:nombre',
         (req:Request, res:Response) => this.communityController.find(req, res));
         
+        //necestia ?articleId,communityId
         this.router.get('/related',
         (req:Request, res:Response) => this.communityController.related(req, res));
             

@@ -204,9 +204,44 @@ export class CommunityService {
     }
     
     }
-    public async feed() {
+    public async feed(communityId:number,weekAgo:Date) {
         try{
-            return await this.databaseService.article.findMany();
+            const idArticulosDeComunidad = await this.databaseService.community_has_articles.findMany({
+                where:{
+                    community_id_community: communityId,
+                }
+            });
+
+            const articles:returnArticles[] = [];
+            for (const article of idArticulosDeComunidad){
+
+                const articulosComunidad = await this.databaseService.article.findMany({
+                    where:{
+                        id_article:article.article_id_community,
+                        date:{
+                            gte:weekAgo,
+                        }
+                    },
+                    include:{
+                        writer: {
+                            select: { name: true, lastname: true, username: true },
+                          },
+                    }
+
+                }) 
+                if (!articulosComunidad){
+                    continue;
+                }
+                const flatArticle = articulosComunidad.map((article)=>{
+                    const {writer,...rest} = article;
+
+                    articles.push({...rest,...writer});
+                })
+
+            }
+
+            return articles 
+
         }
         catch{
             return ;

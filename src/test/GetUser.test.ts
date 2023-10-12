@@ -502,7 +502,6 @@ describe("todos los PUT", () => {
             id_user: expect.any(Number),
             username: expect.any(String),
             name: expect.any(String),
-            hash: expect.any(String),
             lastname: expect.any(String),
             rol: expect.any(Number),
             profession: expect.any(String),

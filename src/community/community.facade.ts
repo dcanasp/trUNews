@@ -56,7 +56,7 @@ export class CommunityFacade {
 
         if (!works(relatedArticlesByWritter) || !relatedArticlesByWritter){
             if(!works(relatedArticlesByCategories) || !relatedArticlesByCategories){
-                return {"err":'no se puso sacar conteo de participantes'}
+                return {"err":'no se pudo encontrar los articulos de la comunidad'}
             }
             return relatedArticlesByCategories;
         }
@@ -71,9 +71,13 @@ export class CommunityFacade {
 
 
     public async feed(req : Request) {
-        const communities = await this.communityService.feed();
+        let weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 10);
+        //@ts-ignore
+        const communities = await this.communityService.feed(parseInt(req.query.communityId),weekAgo);
+
         if(! communities ){
-			return {"err":'no hay usuarios con ese nombre'}
+			return {"err":'no hay feed de esta comunidad'}
 		}
 
         return communities;
