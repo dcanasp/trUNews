@@ -196,7 +196,7 @@ export class ArticleService {
                 },
                 include:{writer:true}
               });
-            if (! articles) {
+            if (!articles || articles.length==0) {
                 throw new DatabaseErrors('no se encontraron ultimos articulos');
             }
               return articles;
@@ -213,7 +213,7 @@ export class ArticleService {
             const article = await this.databaseService.article.findMany({
                 include:{ writer:true}
             });
-            if (! article) {
+            if (!article || article.length==0) {
                 throw new DatabaseErrors('no hay articulos');
             }
             return article;
@@ -255,7 +255,7 @@ export class ArticleService {
                   weight: 'desc'
                 },
             });
-            if (! articles) {
+            if (!articles || articles.length==0) {
                 throw new DatabaseErrors('no se encontraron articlos tendencia');
             }
               return articles;
@@ -274,7 +274,7 @@ export class ArticleService {
                   weight: 'desc'
                 },
               });
-            if (! articles) {
+            if (! articles || articles.length==0) {
                 throw new DatabaseErrors('no se encontraron articulos tendencia de cantidad dada');
             }
               return articles;
@@ -442,17 +442,9 @@ export class ArticleService {
                         },
                     },
                 },
-            })
-            // savedArticles.push(getArticlesBySaved);
-            // savedArticles.push({...getArticlesBySaved,saved:true,savedUsername:currentFollower.following.username,savedId:currentFollower.id_following})
-
-          
+            })   
           
             const flatArticlesSaved = getArticlesBySaved.flatMap(temporal => {
-                // if (temporal) {
-                    // const articleData = temporal[Object.keys(temporal).find(key => !isNaN(Number(key)))];
-                // if (articleData) {
-                    // return temporal
                     const { writer, ...articleWithoutWriter } = temporal.article;
                     return {
                     ...writer,
@@ -461,21 +453,9 @@ export class ArticleService {
                     savedUsername: temporal.user.username,
                     savedId: temporal.id_user
                     };
-                // }
-                // }
-                // return [];
             });
             savedArticles.push(...flatArticlesSaved);
-            // const aa = savedArticles.flatMap((eachArticle) => ({
-            //     // const {article, ...rest} = eachArticle. ;
-                
-            //     eachArticle
-                
-            //     // return (eachArticle)
-            // }))
-            // console.log(aa);
-            
-            
+
         }
 
         return savedArticles
@@ -525,6 +505,24 @@ export class ArticleService {
     }
     //!feed
 
+    public async isSaved(userId: number, articleId: number) {
+        try {
+            const isSaved = await this.databaseService.saved.findFirst({
+                where: {
+                    id_user: userId,
+                    id_article: articleId,
+                },
+            });
+
+            if (!isSaved) {
+                throw new Error('no hay articulo guardado ');
+            }
+
+            return true
+        } catch (error) {
+            return ;
+        }
+    }
 
     public async saveArticle(userId: number, articleId: number) {
         try {

@@ -191,7 +191,7 @@ export class UserService {
                 },
               });
 
-            if (! usuario || !sumaFollowers) {
+            if (! usuario || !sumaFollowers || usuario.length==0 || sumaFollowers.length==0) {
                 throw new DatabaseErrors('no hay usuarios');
             }
 
@@ -239,7 +239,7 @@ export class UserService {
                 },
               });
 
-            if (! usuario || !usuario[0] || !sumaFollowers) {
+            if (! usuario || usuario.length==0 || !sumaFollowers) {
                 throw new DatabaseErrors('no hay usuarios con ese nombre');
             }
             return {"usuario": usuario, "follower": sumaFollowers};
@@ -376,7 +376,7 @@ public async updatePassword(userId: string, newPassword: string) {
                   weight: 'desc'
                 },
             });
-            if (! trendUsers) {
+            if (! trendUsers || trendUsers.length==0) {
                 throw new DatabaseErrors('no se encontraron usuarios tendencia');
             }
               return trendUsers;
@@ -395,7 +395,7 @@ public async updatePassword(userId: string, newPassword: string) {
                   weight: 'desc'
                 },
               });
-            if (! trendUsers) {
+            if (! trendUsers || trendUsers.length==0) {
                 throw new DatabaseErrors('no se encontraron articulos tendencia de cantidad dada');
             }
               return trendUsers;

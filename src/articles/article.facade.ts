@@ -271,7 +271,26 @@ export class ArticleFacade {
 		}
 		return array;
 	  }
-    
+    public async isSaved(req: Request) {
+        if(!req.headers['authorization']){
+			return {"err": 'no hay token'};
+		}
+		const decryptedToken = decryptToken(req.headers['authorization'])
+		if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+        
+        const { articleId } = req.params;
+		//@ts-ignore
+        const isSaved = await this.articleService.isSaved(decryptedToken.userId, parseInt(articleId, 10));
+        
+        if(!isSaved){
+            return false;
+        }
+        return isSaved;
+    }
+
+
     public async saveArticle(req: Request) {
         if(!req.headers['authorization']){
 			return {"err": 'no hay token'};

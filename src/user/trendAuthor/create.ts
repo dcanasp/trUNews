@@ -41,7 +41,8 @@ export class trendAuthor {
                         name:userWeighted.name,
                         lastname:userWeighted.lastname,
                         profession: userWeighted.profession ??='',
-                        username:userWeighted.username,
+                        username: userWeighted.username,
+                        profile_image: userWeighted.profile_image,
                         weight: weight
                     }
                     

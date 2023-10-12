@@ -106,6 +106,14 @@ export class ArticleController {
       });
   }
 
+  public async isSaved(req: Request, res: Response) {
+    this.articleFacade.isSaved(req)
+      .then((response) => res.json(response))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
   public async saveArticle(req: Request, res: Response) {
     this.articleFacade.saveArticle(req)
       .then((response) => res.json(response))
