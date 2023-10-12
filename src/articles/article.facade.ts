@@ -4,7 +4,8 @@ import {injectable, inject} from 'tsyringe'
 import {ArticleService} from './article.service';
 import {DatabaseErrors} from '../errors/database.errors';
 import { decryptToken } from "../auth/jwtServices";
-import {returnArticles} from '../dto/article';
+import {returnArticles,returnArticlesCategory,returnArticlesFeed,returnArticlesCategory_id,createArticleType,addCategoriesType} from '../dto/article';
+import {sanitizeHtml} from '../utils/sanitizeHtml';
 
 @injectable()
 export class ArticleFacade {
@@ -27,18 +28,54 @@ export class ArticleFacade {
         if (! article) {
             return {"err": 'El artículo no existe'};
         }
-        return article;
+
+        const formattedGet: returnArticlesCategory[] = [article].map(({ writer, ...article }) => ({
+            ...article,
+            username: writer.username,
+            name: writer.name,
+            lastname: writer.lastname
+          }));
+        return formattedGet;
     }
 
+    
+    public async aiModel(req : Request) {
+        const body:createArticleType = req.body;
+        const sanitizedText = sanitizeHtml(body.text);
+        const modelos = await this.articleService.fetchModels(sanitizedText);
+        if(!modelos){
+            
+            return {err:true,titulos:['mejor titulo existente','segundo mejor titulo','tercero'],categorias:[{"label": "EDUCATION","score": 0.34894150495529175 },{"label": "BUSINESS","score": 0.3029727041721344},{"label": "POLITICS","score": 0.08930222690105438},]};
+        }
+        return modelos;
+        
+    }
     public async createArticle(req : Request) {
-        const articleCreated = await this.articleService.createArticle(req.body);
+        const body:createArticleType = req.body;
+        const sanitizedText = sanitizeHtml(body.text);
+
+        const articleCreated = await this.articleService.createArticle(body,sanitizedText);
         if (! articleCreated) {
-            return {"err": "No se pudo crear el articulo"}
+            return {"err": "No se pudo crear el articulo"};
             // throw new DatabaseErrors('No se pudo crear el articulo')
         }
-        return {articleId: articleCreated.id_article, title: articleCreated.title}
+        return {articleId: articleCreated.id_article, title: articleCreated.title};
     }
 
+    public async createArticleCategories(body : addCategoriesType) {
+        
+        let categorias = body.categories; 
+        if (!categorias){
+            return {err:"No me envio categorias"};
+        }
+        
+        
+        const categoriesCreated = await this.articleService.createCategories(body.id_writer,body.article,categorias);
+        if (! categoriesCreated) {
+            return {err: "No se pudo añadir las categorias"};
+        }
+        return {succes:"true"};
+    }
 
     public async deleteArticle(req : Request) {
         const articleId = req.params.id;
@@ -154,8 +191,38 @@ export class ArticleFacade {
 			return {"err": 'token invalido'};
 		}
 		//@ts-ignore
-		const feed = await this.articleService.feed(decryptedToken.userId);
-		if (! feed || feed.length<=10) {
+        const userId = decryptedToken.userId;
+        let weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 5);
+
+        
+        const articlesFromFollowed = await this.articleService.articlesFromFollowed(userId,weekAgo);
+        let flatArticlesFromFollower:returnArticlesFeed[] =[];
+        
+        if(articlesFromFollowed){  
+            flatArticlesFromFollower = articlesFromFollowed.map(({ article_has_categories, ...rest }) => rest);
+        }
+
+        let flatArticlesFromCateogries:returnArticlesFeed[] =[];
+        let flatArticlesFromSaved:returnArticlesFeed[] =[];
+        
+        if(articlesFromFollowed!=undefined){
+            const articlesFromCateogries  = await this.articleService.articlesFromCateogries(articlesFromFollowed);
+            if (articlesFromCateogries){
+                flatArticlesFromCateogries = articlesFromCateogries;
+            }
+            //este tendra un nuevo tipo de dato, toca crearlo
+            const articlesFromSaved = await this.articleService.articlesFromSaved(userId,weekAgo);
+            if(articlesFromSaved){
+                flatArticlesFromSaved = articlesFromSaved;
+            }
+        }
+        		
+        const feed = [...flatArticlesFromFollower, ...flatArticlesFromCateogries, ...flatArticlesFromSaved];
+
+        // const feed:any[] = []
+
+        if (! feed || feed.length<=10) {
             const latest = await this.articleService.getLatest(15);
             if (! latest){
                 return {"err": 'no hay feed ni articulos nuevos'};
@@ -166,9 +233,13 @@ export class ArticleFacade {
                  username: writer.username,
                  name: writer.name,
                  lastname: writer.lastname,
+                 profile_image: writer.profile_image,
+                 saved:false
              }));
-     
-            return this.shuffleArray([...feed,...formattedLatest]);
+            if(feed!=undefined){
+                return this.shuffleArray([...feed,...formattedLatest]);
+            }
+            return this.shuffleArray([formattedLatest]);
         }
 
         return this.shuffleArray(feed);
@@ -176,11 +247,20 @@ export class ArticleFacade {
 
 	public async related(req : Request) {
 		const articleId = req.params.id
+        //TODO: pasar a 2 funciones lo de abajo
 		const related = await this.articleService.related(parseInt(articleId));
 		if (! related || !related[0]) {
 		    return {"err": 'no se pudieron sacar relacionados'};
 		}
-		return this.shuffleArray(related);
+        const formattedrelated = related.map(({ writer, ...article }) => ({
+            ...article,
+            username: writer?.username,
+            name: writer?.name,
+            lastname: writer?.lastname,
+          })) as returnArticles[];
+          
+
+		return this.shuffleArray(formattedrelated);
     }
 
 
@@ -224,7 +304,6 @@ export class ArticleFacade {
       
     public async getSavedArticles(req: Request) {
         const userId = req.params.userId;
-        console.log(userId);
         return await this.articleService.getSavedArticles(parseInt(userId,10));
     }
 

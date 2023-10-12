@@ -3,6 +3,7 @@ import {container,injectable,inject} from 'tsyringe';
 import {DatabaseService} from '../../db/databaseService';
 import { DatabaseErrors } from "../../errors/database.errors";
 import { permaLogger } from "../../utils/logger";
+import {sanitizeHtml} from '../../utils/sanitizeHtml';
 
 @injectable()
 export class trendArticle {
@@ -58,6 +59,7 @@ export class trendArticle {
                         views: article.views,
                         title: article.title,
                         text: article.text,
+                        sanitizedText: sanitizeHtml(article.text),
                         weight: weight
                     }
                 });

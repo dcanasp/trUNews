@@ -23,11 +23,19 @@ export class ArticleController {
         res.status(400).json(err);
       });
   }
-
+  
+  public aiModel(req: Request, res: Response) {
+    this.articleFacade.aiModel(req)
+      .then(article => {
+        res.json(article);
+      })
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
   public createArticle(req: Request, res: Response) {
     this.articleFacade.createArticle(req)
       .then(article => {
-        // res.locals.newArticle = article; //???? 
         res.json(article);
       })
       .catch(err => {
@@ -35,6 +43,15 @@ export class ArticleController {
       });
   }
 
+  public createArticleCategories(req: Request, res: Response) {
+    this.articleFacade.createArticleCategories(req.body)
+      .then(article => {
+        res.json(article);
+      })
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
   public deleteArticle(req: Request, res: Response) {
     this.articleFacade.deleteArticle(req)
       .then((response) => res.json(response))

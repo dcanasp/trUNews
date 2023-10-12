@@ -23,9 +23,15 @@ export const decryptJWTSchema = z.object({
 
 })
 
+export const addCategoriesSchema = z.object({
+    id_writer: z.number(),
+    article: z.number(),
+    categories: z.string().array()
+})
+
 
 export const createArticleSchema = z.object({
-    title: z.string({ required_error: "Debe haber un título" }),
+    title: z.union([z.string(), z.null()]).optional(),
     date: z.date({
         invalid_type_error: "Debe ser una fecha",
         required_error: "Debe haber una fecha"

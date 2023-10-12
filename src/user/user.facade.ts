@@ -98,7 +98,7 @@ export class UserFacade {
                 rol: user.rol,
                 profession: user.profession,
                 description: user.description,
-                image_url: user.image_url,
+                image_url: user.profile_image,
                 followersCount: followerCount,
                 followingsCount: followingCount,
             };
@@ -134,7 +134,7 @@ export class UserFacade {
                 rol: user.rol,
                 profession: user.profession,
                 description: user.description,
-                image_url: user.image_url,
+                image_url: user.profile_image,
                 followersCount: followerCount,
                 followingsCount: followingCount,
             };
@@ -152,7 +152,7 @@ export class UserFacade {
         const existingUser = await this.userService.getUsersProfile(userId,userId);
 
         if (!existingUser) {
-            return { error: 'El usuario no existe' };
+            return { err: 'El usuario no existe' };
         }
         let new_image_url;
         if(body.image_url!="" && body.image_url!==undefined  ){
@@ -192,7 +192,7 @@ export class UserFacade {
 
         const newImage = await this.userService.tryImage(body);
         if (!newImage) {
-            return { error: 'no se pudo cortar la imagen' };
+            return { err: 'no se pudo cortar la imagen' };
         }
 
 

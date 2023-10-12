@@ -32,16 +32,17 @@ async function crearUsuarios(databaseService: PrismaClient) {
     const rol = Math.floor(Math.random() * 3);
     const profession = Math.random() < 0.5 ? faker.person.jobTitle() : null; // 50% que sea nulo
     const description = Math.random() < 0.5 ? faker.lorem.sentence() : null; // 50% que sea nulo
-    
+    const profile_image = 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg';
     await databaseService.users.create({
       data: {
-        name: firstName,
-        lastname: lastName,
-        username,
-        hash,
-        rol,
-        profession,
-        description
+          name: firstName,
+          lastname: lastName,
+          username,
+          hash,
+          rol,
+          profession,
+          description,
+          profile_image
       }
     }).catch((err) => {
       console.error("Error creating user: ", err);
@@ -69,7 +70,7 @@ async function crearArticulos(databaseService: PrismaClient) {
       const date = faker.date.recent({ days: 60 });
       const views = Math.floor(Math.random()*1000);
       const text = `<div><h1>${faker.lorem.words()}</h1><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><ul><li>${faker.lorem.word()}</li><li>${faker.lorem.word()}</li></ul><p>${faker.lorem.paragraph()}</p></div>`;
-      const image_url = faker.image.url();
+      const image_url = faker.image.url({height:1800,width:1920});
       const sanitizedText = sanitizeHtml(text);
   
       await databaseService.article.create({
