@@ -24,11 +24,12 @@ export interface returnArticles extends articlesWriter {
   }
 
   export interface returnArticlesFeed extends returnArticles {
+    article_has_categories: article_has_categories[];
     saved:boolean;
     savedUsername?: string|undefined;
     savedId?: number|undefined;
+    
   }
-
 
 
   export interface article_has_categories {

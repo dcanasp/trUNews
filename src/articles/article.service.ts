@@ -301,7 +301,10 @@ export class ArticleService {
                     lastname:true,
                     profile_image:true,
                     article: {
-                        include:{article_has_categories:{select:{categories_id_categories:true}}},
+                        include:{article_has_categories:{select:{categories_id_categories:true,
+                            category:{select:{cat_name:true}}
+                        
+                        }}},
                         where: {
                         date: {
                             gte: weekAgo,
@@ -337,7 +340,6 @@ export class ArticleService {
             if(!flatArticles){
                 return;
             }
-        
         const categoriesOfArticles = flatArticles.flatMap(follower => follower.article_has_categories);
         let articlesForCategory = flatArticles.length;
         
@@ -376,7 +378,12 @@ export class ArticleService {
                             name:true,
                             lastname:true,
                             profile_image:true,
-                            }}
+                            }},
+                        article_has_categories:{
+                            select:{categories_id_categories:true,
+                                category:{select:{cat_name:true}  } }
+                        }
+
                         },
                     },
                 },
@@ -438,18 +445,24 @@ export class ArticleService {
                                 name:true,
                                 lastname:true,
                                 profile_image:true,
-                            }}
+                            }},
+                            article_has_categories:{
+                                select:{categories_id_categories:true,
+                                    category:{select:{cat_name:true}  } }
+                            }
+
                         },
                     },
                 },
             })   
           
             const flatArticlesSaved = getArticlesBySaved.flatMap(temporal => {
-                    const { writer, ...articleWithoutWriter } = temporal.article;
+                    const { writer, article_has_categories,...articleWithoutWriter } = temporal.article;
                     return {
                     ...writer,
                     ...articleWithoutWriter,
                     saved: true,
+                    article_has_categories: article_has_categories,
                     savedUsername: temporal.user.username,
                     savedId: temporal.id_user
                     };
@@ -502,6 +515,32 @@ export class ArticleService {
         return pesosCategorias.sort((a, b) => b.weight - a.weight);
         
    
+    }
+
+
+    public async getLatestFeed(quantity:number){
+        try {
+            const articles = await this.databaseService.article.findMany({
+                take: quantity,
+                orderBy: {
+                    date: 'desc'
+                },
+                include:{writer:true,
+                    article_has_categories:{
+                    select:{categories_id_categories:true,
+                        category:{select:{cat_name:true}  } }
+                    }
+                }
+              });
+            if (!articles || articles.length==0) {
+                throw new DatabaseErrors('no se encontraron ultimos articulos');
+            }
+              return articles;
+
+        } catch (error) {
+            return ;
+        }
+
     }
     //!feed
 

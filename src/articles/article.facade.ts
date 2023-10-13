@@ -193,14 +193,18 @@ export class ArticleFacade {
 		//@ts-ignore
         const userId = decryptedToken.userId;
         let weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 5);
+        weekAgo.setDate(weekAgo.getDate() - 20);
 
         
         const articlesFromFollowed = await this.articleService.articlesFromFollowed(userId,weekAgo);
+        // console.log(articlesFromFollowed[0].article_has_categories[0].category);
         let flatArticlesFromFollower:returnArticlesFeed[] =[];
-        
         if(articlesFromFollowed){  
-            flatArticlesFromFollower = articlesFromFollowed.map(({ article_has_categories, ...rest }) => rest);
+            flatArticlesFromFollower = articlesFromFollowed.map(({ article_has_categories, ...rest }) => ({
+                ...rest,
+                article_has_categories: article_has_categories,
+            }));
+            // flatArticlesFromFollower = articlesFromFollowed;
         }
 
         let flatArticlesFromCateogries:returnArticlesFeed[] =[];
@@ -209,7 +213,10 @@ export class ArticleFacade {
         if(articlesFromFollowed!=undefined){
             const articlesFromCateogries  = await this.articleService.articlesFromCateogries(articlesFromFollowed);
             if (articlesFromCateogries){
-                flatArticlesFromCateogries = articlesFromCateogries;
+                flatArticlesFromCateogries = articlesFromCateogries.map(({ article_has_categories, ...rest }) => ({
+                    ...rest,
+                    article_has_categories: article_has_categories,
+                }));;
             }
             //este tendra un nuevo tipo de dato, toca crearlo
             const articlesFromSaved = await this.articleService.articlesFromSaved(userId,weekAgo);
@@ -220,21 +227,20 @@ export class ArticleFacade {
         		
         const feed = [...flatArticlesFromFollower, ...flatArticlesFromCateogries, ...flatArticlesFromSaved];
 
-        // const feed:any[] = []
-
         if (! feed || feed.length<=10) {
-            const latest = await this.articleService.getLatest(15);
+            const latest = await this.articleService.getLatestFeed(15);
             if (! latest){
                 return {"err": 'no hay feed ni articulos nuevos'};
             }
             
-            const formattedLatest: returnArticles[] = latest.map(({writer,...article}) => ({
+            const formattedLatest: returnArticlesFeed[] = latest.map(({writer,...article}) => ({
                 ...article,
                  username: writer.username,
                  name: writer.name,
                  lastname: writer.lastname,
                  profile_image: writer.profile_image,
-                 saved:false
+                 saved:false,
+                 article_has_categories: article.article_has_categories
              }));
             if(feed!=undefined){
                 return this.shuffleArray([...feed,...formattedLatest]);
