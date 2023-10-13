@@ -682,5 +682,29 @@ export class ArticleService {
         }
     }
 
+
+    public async getCategories() {
+        try {
+          const categories = await this.databaseService.categories.findMany();
+          return categories;
+        } catch (error) {
+          throw new Error('Error al buscar categorías');
+        }
+    }
+
+    public async getCategoryById(categoryId: string) {
+        const categoryIdNumber = parseInt(categoryId,10);
+        try {
+          const category = await this.databaseService.categories.findUnique({
+            where: {
+              id_category: categoryIdNumber,
+            },
+          });
+          return category;
+        } catch (error) {
+          throw new Error('Error al buscar categoría');
+        }
+    }
+
 }
 

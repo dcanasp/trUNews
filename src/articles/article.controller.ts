@@ -146,13 +146,30 @@ export class ArticleController {
       });
     } 
     
-    public async getArticlesByCategory(req: Request, res: Response) {
-      try {
-        const articles = await this.articleFacade.getArticlesByCategory(req);
-        res.json(articles);
-      } catch (error) {
-        res.status(500).json({ error: 'Error al buscar artículos por categoría' });
-      }
+  public async getArticlesByCategory(req: Request, res: Response) {
+    try {
+      const articles = await this.articleFacade.getArticlesByCategory(req);
+      res.json(articles);
+    } catch (error) {
+      res.status(500).json({ error: 'Error al buscar artículos por categoría' });
+    }
   }
-  
+
+  public async getCategories(req: Request, res: Response) {
+    try {
+      const categories = await this.articleFacade.getCategories(req);
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ error: 'Error al buscar categorías' });
+    }
+  }
+
+  public async getCategoryById(req: Request, res: Response) {
+    try {
+      const categories = await this.articleFacade.getCategoryById(req);
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ error: 'Error al buscar categoría por Id' });
+    }
+  }
  }

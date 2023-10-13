@@ -301,16 +301,6 @@ export class CommunityService {
         },
         });
 
-        const members = await this.databaseService.community_has_users.findMany({
-            where: {
-                community_id_community: communityId,
-            },
-            select: {
-                users_id_community: true,
-            },
-        });
-
-
         return {
           ...community,
           isCreator,
@@ -343,31 +333,26 @@ export class CommunityService {
 
   public async createCommunity(body : createCommunityType) {
       try{
-      /*const urlAvatar = await this.addImage(body.avatar_url,body.avatar_extension,body.avatar_ancho,body.avatar_ratio)
-      if (! urlAvatar) {
-          throw new DatabaseErrors('No se pudo crear avatar en s3.')
-      }
-      const urlBanner = await this.addImage(body.banner_url,body.banner_extension,body.banner_ancho,body.banner_ratio)
-      if (! urlBanner) {
-          throw new DatabaseErrors('No se pudo crear banner en s3.')
-      }
-      console.log(body);
-      console.log(urlAvatar);
-      console.log(urlBanner);*/
       const communityCreated = await this.databaseService.community.create({
           data: {
               name: body.name,
               description: body.description,
               creator_id: body.creator_id,
               date: body.date,
-              avatar_url: body.avatar_url,//urlAvatar
-              banner_url: body.banner_url,//urlBanner
+              avatar_url: 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg',//urlAvatar
+              banner_url: 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg',//urlBanner
           }
       })
 
-      if (!communityCreated){
-          throw new DatabaseErrors('No se pudo crear la comunidad.')
-      }
+    if (body.id_categories) {
+        for (const category of body.id_categories) {
+            await this.addCategoryToCommunity(communityCreated.id_community, category);
+        }
+    }
+
+    if (!communityCreated){
+        throw new DatabaseErrors('No se pudo crear la comunidad.')
+    }
       this.joinCommunity(communityCreated.id_community, body.creator_id);
       return communityCreated
       }
@@ -401,6 +386,18 @@ export class CommunityService {
       if (!existingCommunity) {
           throw new DatabaseErrors('La comunidad no existe');
       }
+
+      /*
+      const urlAvatar = await this.addImage(body.avatar_url,body.avatar_extension,body.avatar_ancho,body.avatar_ratio)
+      if (! urlAvatar) {
+          throw new DatabaseErrors('No se pudo crear avatar en s3.')
+      }
+      const urlBanner = await this.addImage(body.banner_url,body.banner_extension,body.banner_ancho,body.banner_ratio)
+      if (! urlBanner) {
+          throw new DatabaseErrors('No se pudo crear banner en s3.')
+      }
+      */
+
       const communityUpdated = await this.databaseService.community.update({
           where: {
               id_community: communityId
@@ -496,37 +493,86 @@ export class CommunityService {
       }
   }
 
-  public async addImage(contenido: string, extension:string,ancho:number,ratio:string) {
-      try {
-          const ultimo = await this.databaseService.community.findMany({
-              orderBy: {
-                  id_community: 'desc'
-              },
-              take: 1
-          });
-          const folder = 'image';
-          // const imageBuffer = contenido;
-          const imageBuffer = Buffer.from(contenido.split(',')[1], 'base64');
-          // debe ser un buffer el contenido
-          let ultimo_usuario = (1).toString()
-          if (ultimo[0]) {
-              ultimo_usuario = (ultimo[0].id_community + 1).toString()
-          }
+    public async addImage(contenido: string, extension:string,ancho:number,ratio:string) {
+        try {
+            const ultimo = await this.databaseService.community.findMany({
+                orderBy: {
+                    id_community: 'desc'
+                },
+                take: 1
+            });
+            const folder = 'community';
+            // const imageBuffer = contenido;
+            const imageBuffer = Buffer.from(contenido.split(',')[1], 'base64');
+            // debe ser un buffer el contenido
+            let ultimo_usuario = (1).toString()
+            if (ultimo[0]) {
+                ultimo_usuario = (ultimo[0].id_community + 1).toString()
+            }
 
-          const link = process.env.S3_url
-          const file_name = (ultimo_usuario + extension)
+            const link = process.env.S3_url
+            const file_name = (ultimo_usuario + extension)
+            console.log(file_name);
+            const resizedImageBuffer = await resizeImages(imageBuffer,ancho,ratio);
+            console.log("Img resized");
+            const url = await uploadToS3(file_name, resizedImageBuffer,folder) // body.contenido);
+            if (! url) {
+                throw new DatabaseErrors('no se pudo subir a s3');
+            }
+            // crear nuevo registro
+            return `${link}${folder}/${file_name}`;
+        } catch (error) {
+            return;
+        }
+    }
 
-          const resizedImageBuffer = await resizeImages(imageBuffer,ancho,ratio);
+    public async getCommunityCategories(communityId : number) {
+        try{
+        const communityCategories = await this.databaseService.community_has_categories.findMany({
+            where: {
+                community_id_community: communityId
+            },
+            select: {
+                categories_id_community: true
+            }
+        });
 
-          const url = await uploadToS3(file_name, resizedImageBuffer,folder) // body.contenido);
-          if (! url) {
-              throw new DatabaseErrors('no se pudo subir a s3');
-          }
-          // crear nuevo registro
-          return `${link}${folder}/${file_name}`;
-      } catch (error) {
-          return;
-      }
-  }
+        if (!communityCategories){
+            throw new DatabaseErrors('No se pudo encontrar las categorias de la comunidad.')
+        }
+        return communityCategories
+        }
+        catch{
+            return ;
+        }
+    }
+
+    public addArticleToCommunity(communityId : number, articleId : number) {
+        return this.databaseService.community_has_articles.create({
+            data: {
+                community_id_community: communityId,
+                article_id_community: articleId
+            }
+        });
+    }
+
+    public async addCategoryToCommunity(communityId : number, categoryId : number) {
+        try{
+        const communityCategory = await this.databaseService.community_has_categories.create({
+            data: {
+                community_id_community: communityId,
+                categories_id_community: categoryId
+            }
+        });
+
+        if (!communityCategory){
+            throw new DatabaseErrors('No se pudo agregar la categoria a la comunidad.')
+        }
+        return communityCategory
+        }
+        catch{
+            return ;
+        }
+    }
 }
 

@@ -105,6 +105,12 @@ export class ArticleRouter {
     this.router.get('/category/:categoryId', 
     (req:Request, res:Response) => this.articleController.getArticlesByCategory(req, res));
 
+    this.router.get('/categories',
+    (req:Request, res:Response) => this.articleController.getCategories(req, res));
+
+    this.router.get('/categoryById/:categoryId',
+    (req:Request, res:Response) => this.articleController.getCategoryById(req, res));
+    
     return this.router;
   }
 

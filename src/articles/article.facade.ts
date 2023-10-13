@@ -330,5 +330,16 @@ export class ArticleFacade {
         const { categoryId } = req.params;
         const articles = await this.articleService.getArticlesByCategory(categoryId);
         return articles;
-      }
+    }
+    
+    public async getCategories(req: Request) {
+        const categories = await this.articleService.getCategories();
+        return categories;
+    }
+
+    public async getCategoryById(req: Request) {
+        const { categoryId } = req.params;
+        const category = await this.articleService.getCategoryById(categoryId);
+        return category;
+    }
 }

@@ -164,5 +164,15 @@ export class CommunityFacade {
         return members;
     }
 
+    public async addArticle(req : Request) {
+        const communityId = req.params.communityId;
+        const articleId = req.params.idArticle;
+        const articleAdded = await this.communityService.addArticleToCommunity(parseInt(communityId, 10), parseInt(articleId, 10));
+        if (! articleAdded) {
+            return {"err": "No se pudo agregar el articulo a la comunidad"}
+        }
+        return ;
+    }
+
     
 }

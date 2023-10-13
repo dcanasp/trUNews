@@ -67,6 +67,10 @@ export class CommunityRouter {
         this.router.get('/:communityId/members', 
             (req:Request, res:Response) =>  this.communityController.getMembers(req, res));
 
+        this.router.post('/:communityId/addArticle/:idArticle([0-9]+)',
+            verifyJwt(),
+            (req:Request, res:Response) =>  this.communityController.addArticle(req, res));
+        
         return this.router
 
     }
