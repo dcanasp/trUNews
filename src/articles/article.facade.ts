@@ -337,4 +337,16 @@ export class ArticleFacade {
         const articles = await this.articleService.getArticlesByCategory(categoryId);
         return articles;
       }
+
+    public async getQr(req: Request) {
+        const url  = req.query.url;
+        //@ts-ignore
+        const qrCode = await this.articleService.getQr(url);
+        if(!qrCode){
+            return {"err":"no se pudo crear el codigo Qr"};
+        }
+        return {"qr":qrCode};
+    }
+
+
 }

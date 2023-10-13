@@ -151,8 +151,20 @@ export class ArticleController {
         const articles = await this.articleFacade.getArticlesByCategory(req);
         res.json(articles);
       } catch (error) {
-        res.status(500).json({ error: 'Error al buscar artículos por categoría' });
+        res.status(500).json({ err: 'Error al buscar artículos por categoría' });
       }
   }
   
- }
+  public async createQr(req: Request, res: Response) {
+    try {
+      const qr = await this.articleFacade.getQr(req);
+      res.json(qr);
+    } catch (error) {
+      res.status(500).json({ err: 'fallo la creacion de qr' });
+    }
+}
+
+
+
+
+}

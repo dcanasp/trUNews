@@ -9,6 +9,9 @@ import {Roles} from '../utils/roleDefinition';
 import {resizeImages} from '../utils/resizeImages';
 import {returnArticles,createArticleType,createArticleUserType,returnArticlesFeed,returnArticlesCategory,returnArticlesCategory_id} from '../dto/article';
 import axios from 'axios';
+import qr from 'qr-image';
+import fs from 'fs';
+import sharp from 'sharp';
 
 @injectable()
 export class ArticleService {
@@ -716,6 +719,45 @@ export class ArticleService {
             }
           });
           return articles;
+        } catch (error) {
+          throw new Error('Error al buscar artículos por categoría');
+        }
+    }
+
+    public async getQr(url: string) {
+        try {          
+            // Step 1: Generate the QR code and save it to a file
+            const qrPng = qr.imageSync(url, { type: 'png', ec_level: 'H' });  // Set Error Correction Level to 'H'
+            fs.writeFileSync('tempQR.png', qrPng);
+
+            // Step 2 & 3: Overlay the logo on top of the QR code
+            const logoBuffer: Buffer = fs.readFileSync('./src/public/logo.jpg');
+
+            const resizedLogoBuffer = await sharp(logoBuffer)
+                .resize(40, 40)
+                .toBuffer();
+            await sharp('tempQR.png')
+                .composite([    
+                {
+                    input: resizedLogoBuffer,
+                    gravity: 'centre'
+                }
+                ])
+                .toFile('QRWithLogo.png', (err, info) => {
+                if (err) {
+                    throw new DatabaseErrors(`Error during composite: ${info}`);
+                } else {
+                    // console.log('QR code generated with logo', info);
+                    // Step 4: Delete the temporary QR code image
+                    fs.unlinkSync('tempQR.png');
+                }
+                });
+                
+            const fullQrBuffer: Buffer = fs.readFileSync('QrWithLogo.png');
+            const fullQr = fullQrBuffer.toString('base64');
+            fs.unlinkSync('QrWithLogo.png');
+            return `data:image/jpeg;base64,${fullQr}`;
+
         } catch (error) {
           throw new Error('Error al buscar artículos por categoría');
         }

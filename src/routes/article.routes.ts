@@ -105,6 +105,9 @@ export class ArticleRouter {
     this.router.get('/category/:categoryId', 
     (req:Request, res:Response) => this.articleController.getArticlesByCategory(req, res));
 
+    this.router.get('/createQr', 
+    (req:Request, res:Response) => this.articleController.createQr(req, res));
+
     return this.router;
   }
 
