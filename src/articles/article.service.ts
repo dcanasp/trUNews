@@ -708,6 +708,7 @@ export class ArticleService {
               views,
               image_url,
               text,
+              sanitizedText,
               article_has_categories,
             } = article.article;
       
@@ -720,6 +721,7 @@ export class ArticleService {
               views,
               image_url,
               text,
+              sanitizedText,
               article_has_categories: article_has_categories.map((category) => {
                 return {
                   category: category.category,
