@@ -15,9 +15,9 @@ import { number } from 'zod';
 
 
 
-const authorization = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbCI6MSwiaWF0IjoxNjk3MDYzMTM1LCJleHAiOjE2OTczMjIzMzV9.lzerOc7RunM2czPZVk_0yn7er23MO6P8aGXfjztZFp8";
+const authorization = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbCI6MSwiaWF0IjoxNjk3MzkzNDIyLCJleHAiOjE2OTc2NTI2MjJ9.qpznsqyeAc-kkIW20TOjIXb1Nb-wczZcWeXnzounSFc";
 const pruebasUserId = 1
-const pruebasUsername = 'Michaela.Herzog29'
+const pruebasUsername = 'Laurence.Farrell'
 
 // let server:any;
 // beforeAll((done) => {
