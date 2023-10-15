@@ -705,22 +705,98 @@ export class ArticleService {
         }
   
     }
-
-    public async getArticlesByCategory(categoryId: string) {
-        const categoryIdNumber = parseInt(categoryId,10);
+    
+    public async getArticlesByCategory(categoryId: string): Promise<returnArticlesCategory[]> {
+        const categoryIdNumber = parseInt(categoryId, 10);
+      
         try {
-          const articles = await this.databaseService.article.findMany({
+          const articles = await this.databaseService.article_has_categories.findMany({
             where: {
-              article_has_categories: {
-                some: {
-                  categories_id_categories: categoryIdNumber,
+              categories_id_categories: categoryIdNumber,
+            },
+            include: {
+              article: {
+                include: {
+                  writer: {
+                    select: {
+                      username: true,
+                      name: true,
+                      lastname: true,
+                      profile_image: true,
+                    },
+                  },
+                  article_has_categories: {
+                    include: {
+                      category: {
+                        select: {
+                          id_category: true,
+                          cat_name: true
+                        },
+                      },
+                    },
+                  },
                 },
               },
-            }
+            },
           });
-          return articles;
+      
+          return articles.flatMap((article) => {
+            const {
+              writer,
+              id_article,
+              id_writer,
+              title,
+              date,
+              views,
+              image_url,
+              text,
+              sanitizedText,
+              article_has_categories,
+            } = article.article;
+      
+            return {
+              ...writer,
+              id_article,
+              id_writer,
+              title: title || null,
+              date,
+              views,
+              image_url,
+              text,
+              sanitizedText,
+              article_has_categories: article_has_categories.map((category) => {
+                return {
+                  category: category.category,
+                };
+              }),
+            };
+          });
         } catch (error) {
           throw new Error('Error al buscar artículos por categoría');
+        }
+      }
+
+
+    public async getCategories() {
+        try {
+          const categories = await this.databaseService.categories.findMany();
+          return categories;
+        } catch (error) {
+          throw new Error('Error al buscar categorías');
+        }
+    }
+
+    public async getCategoryById(categoryId: string) {
+        const categoryIdNumber = parseInt(categoryId,10);
+        try {
+          const category = await this.databaseService.categories.findUnique({
+            where: {
+              id_category: categoryIdNumber,
+            },
+          });
+          return category;
+        } catch (error) {
+          throw new Error('Error al buscar categoría');
         }
     }
 

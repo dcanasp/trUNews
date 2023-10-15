@@ -274,7 +274,7 @@ export class UserService {
                     rol: updatedProfileData.rol || existingUser.rol,
                     profession: updatedProfileData.profession || existingUser.profession,
                     description: updatedProfileData.description || existingUser.description,
-                    profile_image: updatedProfileData.image_url || existingUser.profile_image,
+                    profile_image: updatedProfileData.profile_image || existingUser.profile_image,
                 },
             });
     

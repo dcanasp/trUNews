@@ -155,6 +155,24 @@ export class ArticleController {
       }
   }
   
+  public async getCategories(req: Request, res: Response) {
+    try {
+      const categories = await this.articleFacade.getCategories(req);
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ error: 'Error al buscar categorías' });
+    }
+  }
+
+  public async getCategoryById(req: Request, res: Response) {
+    try {
+      const categories = await this.articleFacade.getCategoryById(req);
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ error: 'Error al buscar categoría por Id' });
+    }
+  }
+
   public async createQr(req: Request, res: Response) {
     try {
       const qr = await this.articleFacade.getQr(req);
@@ -163,7 +181,6 @@ export class ArticleController {
       res.status(500).json({ err: 'fallo la creacion de qr' });
     }
 }
-
 
 
 

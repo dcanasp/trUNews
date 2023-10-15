@@ -86,4 +86,12 @@ export class CommunityController {
       });
   }
 
+  public addArticle(req: Request, res: Response) {
+    this.communityFacade.addArticle(req)
+      .then(community => res.json(community))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
  }
