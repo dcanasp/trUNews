@@ -142,18 +142,32 @@ export class ArticleService {
     }
 
 
-    public async deleteArticle(articleId : number) {
+    public async deleteArticle(articleId : number, userId: number) {
         try {
+            const article = await this.databaseService.article.findUnique({
+                where:{
+                    id_article: articleId
+                }
+            })
+            if (!article){
+                throw new DatabaseErrors("no existe el articulo a eliminar");
+            }
+            if(article.id_writer!=userId){
+                throw new DatabaseErrors("no tiene permiso a eliminar el articulo")
+            }
+
             const result = await this.databaseService.article.delete({
                 where: {
                     id_article: articleId
                 }
             });
+
             if (result) {
                 return {message: 'Artículo eliminado exitosamente'};
             }
+            throw new DatabaseErrors("error fatal: error en eliminar articulo")
         } catch (error) {
-            throw error;
+            return ;
         }
     }
 

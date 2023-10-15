@@ -83,7 +83,6 @@ export class ArticleRouter {
     
     this.router.delete(
       '/:id([0-9]+)',
-      verifyJwt(),
       (req: Request, res: Response) => {
         this.articleController.deleteArticle(req, res);
       }

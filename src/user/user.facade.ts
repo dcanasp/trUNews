@@ -155,13 +155,13 @@ export class UserFacade {
             return { err: 'El usuario no existe' };
         }
         let new_image_url;
-        if(body.image_url!="" && body.image_url!==undefined  ){
+        if(body.profile_image!="" && body.profile_image!==undefined  ){
             if(body.image_extension=="" || body.image_extension==undefined){
                 body.image_extension='.png'
             }
-            new_image_url = await this.userService.addImage(body.image_url,body.image_extension);
+            new_image_url = await this.userService.addImage(body.profile_image,body.image_extension);
         }
-        body.image_url= new_image_url;
+        body.profile_image= new_image_url;
         const updatedUser = await this.userService.updateProfile(parseInt(userId, 10), body);
 
         

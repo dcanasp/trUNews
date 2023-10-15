@@ -3,6 +3,7 @@ import {Request, Response, NextFunction} from "express";
 import {logger, permaLogger} from '../utils/logger';
 import {redoTokenType} from '../dto/user';
 import {Roles} from '../utils/roleDefinition';
+import {decryptedToken} from '../dto/user'
 
 const secret = process.env.JWT_SECRET !;
 
@@ -26,7 +27,6 @@ export const verifyJwt = (rol? : number) => {
         if (! token) 
             return res.status(403).send({auth: false, message: 'No token provided.'});
         
-
 
         jwt.verify(token, secret, (err : any, decoded : any) => {
             if (err) 
@@ -79,9 +79,9 @@ export const redoToken = (data : redoTokenType) => {
 }
 
 
-export const  decryptToken = (token:string)=>{
+export const decryptToken = async (token:string) : Promise<decryptedToken|undefined> =>{
     let decriptedToken;
-    const response = jwt.verify(token, secret, (err : any, decoded : any) => {
+    const response = await jwt.verify(token, secret, (err : any, decoded : any) => {
         if (!err){
             decriptedToken = decoded
         } 

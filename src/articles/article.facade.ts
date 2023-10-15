@@ -5,6 +5,7 @@ import {ArticleService} from './article.service';
 import {DatabaseErrors} from '../errors/database.errors';
 import { decryptToken } from "../auth/jwtServices";
 import {returnArticles,returnArticlesCategory,returnArticlesFeed,returnArticlesCategory_id,createArticleType,addCategoriesType} from '../dto/article';
+import {decryptedToken} from "../dto/user"
 import {sanitizeHtml} from '../utils/sanitizeHtml';
 
 @injectable()
@@ -78,8 +79,18 @@ export class ArticleFacade {
     }
 
     public async deleteArticle(req : Request) {
+        if(!req.headers['authorization']){
+			return {"err": 'no hay token para el feed'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+        const userId = decryptedToken.userId;
+
         const articleId = req.params.id;
-        if (!await this.articleService.deleteArticle(parseInt(articleId, 10))) {
+        if (!await this.articleService.deleteArticle(parseInt(articleId, 10),userId)) {
             return {"err": 'El artículo no existe o no se pudo eliminar'};
         }
         return {message: 'Artículo eliminado correctamente'};

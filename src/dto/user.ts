@@ -45,3 +45,10 @@ export interface followerType {
   }
   
 
+export interface decryptedToken {
+    userId:number,
+    rol:number,
+    iat: number,
+    exp: number
+
+} 
