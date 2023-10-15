@@ -818,7 +818,7 @@ export class ArticleService {
         try {          
             // Step 1: Generate the QR code and save it to a file
             const qrPng = qr.imageSync(url, { type: 'png', ec_level: 'H' });  // Set Error Correction Level to 'H'
-            fs.writeFileSync('tempQR.png', qrPng);
+            fs.writeFileSync('./src/public/tempQR.png', qrPng);
 
             // Step 2 & 3: Overlay the logo on top of the QR code
             const logoBuffer: Buffer = fs.readFileSync('./src/public/logo.jpg');
@@ -826,20 +826,19 @@ export class ArticleService {
             const resizedLogoBuffer = await sharp(logoBuffer)
                 .resize(40, 40)
                 .toBuffer();
-            await sharp('tempQR.png')
+            await sharp('./src/public/tempQR.png')
                 .composite([    
                 {
                     input: resizedLogoBuffer,
                     gravity: 'centre'
                 }
                 ])
-                .toFile('QRWithLogo.png', (err, info) => {
+                .toFile('./src/public/QRWithLogo.png', (err, info) => {
                 if (err) {
                     throw new DatabaseErrors(`Error during composite: ${info}`);
                 } else {
                     // console.log('QR code generated with logo', info);
-                    // Step 4: Delete the temporary QR code image
-                    fs.unlinkSync('tempQR.png');
+                    fs.unlinkSync('./src/public/tempQR.png');
                 }
                 });
                 
