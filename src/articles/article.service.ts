@@ -842,9 +842,9 @@ export class ArticleService {
                 }
                 });
                 
-            const fullQrBuffer: Buffer = fs.readFileSync('QrWithLogo.png');
+            const fullQrBuffer: Buffer = fs.readFileSync('./src/public/QrWithLogo.png');
             const fullQr = fullQrBuffer.toString('base64');
-            fs.unlinkSync('QrWithLogo.png');
+            fs.unlinkSync('./src/public/QrWithLogo.png');
             return `data:image/jpeg;base64,${fullQr}`;
 
         } catch (error) {
