@@ -69,7 +69,7 @@ export function sanitizeHtml(input: string): string {
   }
 
   output += textBuffer;
-  const characters = ['&nbsp','&quot', '&amp', '&lt', '&gt', '&oelig', '&scaron', '&circ', '&tilde', '&ensp', '&emsp', '&thinsp', '&zwnj', '&zwj', '&lrm', '&rlm', '&ndash', '&mdash', '&lsquo', '&rsquo', '&sbquo', '&ldquo', '&rdquo', '&bdquo', '&dagger', '&permil', '&lsaquo', '&rsaquo', '&euro']
+  const characters = ['&nbsp;','&quot', '&amp', '&lt', '&gt', '&oelig', '&scaron', '&circ', '&tilde', '&ensp', '&emsp', '&thinsp', '&zwnj', '&zwj', '&lrm', '&rlm', '&ndash', '&mdash', '&lsquo', '&rsquo', '&sbquo', '&ldquo', '&rdquo', '&bdquo', '&dagger', '&permil', '&lsaquo', '&rsaquo', '&euro']
   for (const char of characters) {
     output = output.replace(char, ' ');
   }
