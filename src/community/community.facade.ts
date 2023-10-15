@@ -7,7 +7,7 @@ import { decryptToken } from "../auth/jwtServices";
 import {communityType} from '../dto/community';
 import {works} from '../utils/works';
 import {returnArticles} from '../dto/article';
-
+import {decryptedToken} from '../dto/user';
 
 
 @injectable()
@@ -86,8 +86,16 @@ export class CommunityFacade {
 
     public async getCommunityById(req : Request) {
         const articleId = req.params.id;
-		//@ts-ignore
-        const userId = decryptToken(req.headers['authorization']).userId;
+        if(!req.headers['authorization']){
+			return {"err": 'no hay token para el feed'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+        const userId = decryptedToken.userId;
+
 
         const article = await this.communityService.getCommunityById(parseInt(articleId, 10), userId);
         if (! article) {
@@ -105,13 +113,23 @@ export class CommunityFacade {
     }
 
     public async updateCommunity(req : Request) {
-        const communityId = req.params.idCommunity;
-		//@ts-ignore
-        const userId = decryptToken(req.headers['authorization']).userId;
-        if(! await this.communityService.isCreator(parseInt(communityId, 10), userId)){
+        const communityId = parseInt( req.params.idCommunity ,10);
+		
+        if(!req.headers['authorization']){
+			return {"err": 'no hay token para el feed'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+        const userId = decryptedToken.userId;
+
+        
+        if(! await this.communityService.isCreator(communityId, userId)){
             return {"err": "No es el creador de la comunidad"}
         }
-        const communityUpdated = await this.communityService.updateCommunity(parseInt(communityId, 10), req.body);
+        const communityUpdated = await this.communityService.updateCommunity(communityId, req.body);
         if (! communityUpdated) {
             return {"err": "No se pudo actualizar la comunidad"}
         }
@@ -119,12 +137,22 @@ export class CommunityFacade {
     }
 
     public async deleteCommunity(req : Request) {
-        const communityId = req.params.idCommunity;		//@ts-ignore
-        const userId = decryptToken(req.headers['authorization']).userId;
-        if(! await this.communityService.isCreator(parseInt(communityId, 10), userId)){
+        const communityId = parseInt(req.params.idCommunity,10);
+        if(!req.headers['authorization']){
+			return {"err": 'no hay token para el feed'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+        const userId = decryptedToken.userId;
+
+
+        if(! await this.communityService.isCreator(communityId, userId)){
             return {"err": "No es el creador de la comunidad"}
         }
-        const communityDeleted = await this.communityService.deleteCommunity(parseInt(communityId, 10));
+        const communityDeleted = await this.communityService.deleteCommunity(communityId);
         if (! communityDeleted) {
             return {"err": "No se pudo eliminar la comunidad"}
         }
@@ -132,11 +160,19 @@ export class CommunityFacade {
     }
 
     public async joinCommunity(req : Request) {
-        const communityId = req.params.idCommunity;
-        
-		//@ts-ignore
-        const userId = decryptToken(req.headers['authorization']).userId;
-        const communityJoined = await this.communityService.joinCommunity(parseInt(communityId, 10), userId);
+        const communityId = parseInt( req.params.idCommunity,10 );
+        if(!req.headers['authorization']){
+			return {"err": 'no hay token para el feed'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+        const userId = decryptedToken.userId;
+
+		
+        const communityJoined = await this.communityService.joinCommunity( communityId, userId);
         if (! communityJoined) {
             return {"err": "No se pudo unirse a la comunidad"}
         }
@@ -146,8 +182,16 @@ export class CommunityFacade {
     public async leaveCommunity(req : Request) {
         const communityId = req.params.idCommunity;
         
-		//@ts-ignore
-        const userId = decryptToken(req.headers['authorization']).userId;
+		if(!req.headers['authorization']){
+			return {"err": 'no hay token para el feed'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+        const userId = decryptedToken.userId;
+
         const communityLeft = await this.communityService.leaveCommunity(parseInt(communityId, 10), userId);
         if (! communityLeft) {
             return {"err": "No se pudo salir de la comunidad"}

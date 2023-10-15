@@ -16,12 +16,11 @@ export class UserService {
         this.databaseService = databaseService.getClient()
     }
 
-    public async getUsersProfile(userId: string, authUserId: string) {
-        const userId2 = parseInt(userId, 10);
+    public async getUsersProfile(userId: number, authUserId: number) {
     
         const user = await this.databaseService.users.findFirst({
           where: {
-            id_user: userId2,
+            id_user: userId,
           },
         });
     
@@ -31,18 +30,18 @@ export class UserService {
     
         const followersCount = await this.databaseService.follower.count({
           where: {
-            id_following: userId2,
+            id_following: userId,
           },
         });
     
         const followingsCount = await this.databaseService.follower.count({
           where: {
-            id_follower: userId2,
+            id_follower: userId,
           },
         });
         const savedArticles = await this.databaseService.saved.findMany({
             where: {
-                id_user: userId2,
+                id_user: userId,
             },
             select: {
                 article: {
@@ -67,7 +66,7 @@ export class UserService {
         if (user.rol === 1) {
           const articlesByUser = await this.databaseService.article.findMany({
             where: {
-              id_writer: userId2,
+              id_writer: userId,
             },
             select: {
               id_article: true,
@@ -406,22 +405,22 @@ public async updatePassword(userId: string, newPassword: string) {
 
     }
 
-    public async isUserFollowing(userId: string, targetUserId: string) {
+    public async isUserFollowing(userId: number, targetUserId: number) {
         const follower = await this.databaseService.follower.findFirst({
             where: {
-                id_follower: parseInt(userId, 10),
-                id_following: parseInt(targetUserId, 10),
+                id_follower: userId,
+                id_following:targetUserId,
             },
         });
 
         return !!follower;
     }
 
-    public async followUser(userId: string, userIdToFollow: string) {
+    public async followUser(userId: number, userIdToFollow: number) {
         try {
             const user = await this.databaseService.users.findUnique({
                 where: {
-                    id_user: parseInt(userId, 10),
+                    id_user: userId,
                 },
             });
 
@@ -431,7 +430,7 @@ public async updatePassword(userId: string, newPassword: string) {
 
             const userToFollow = await this.databaseService.users.findUnique({
                 where: {
-                    id_user: parseInt(userIdToFollow, 10),
+                    id_user: userIdToFollow,
                 },
             });
 
@@ -456,11 +455,11 @@ public async updatePassword(userId: string, newPassword: string) {
         }
     }
 
-    public async unfollowUser(userId: string, userIdToUnfollow: string) {
+    public async unfollowUser(userId: number, userIdToUnfollow: number) {
         try {
             const user = await this.databaseService.users.findUnique({
                 where: {
-                    id_user: parseInt(userId, 10),
+                    id_user: userId,
                 },
             });
 
@@ -472,7 +471,7 @@ public async updatePassword(userId: string, newPassword: string) {
             }
             const userToUnfollow = await this.databaseService.users.findUnique({
                 where: {
-                    id_user: parseInt(userIdToUnfollow, 10),
+                    id_user: userIdToUnfollow,
                 },
             });
 

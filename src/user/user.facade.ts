@@ -1,12 +1,11 @@
 import "reflect-metadata";
 import {Request} from 'express'
 import {logger, permaLogger} from '../utils/logger'
-import {createUserType, chechPasswordType, decryptJWT,imageType} from '../dto/user';
+import {createUserType, chechPasswordType, decryptJWT,imageType,decryptedToken} from '../dto/user';
 import { DatabaseErrors } from '../errors/database.errors';
 import {injectable,inject} from 'tsyringe'
 import { UserService } from './user.service'
 import { decryptToken } from "../auth/jwtServices";
-import { de } from "@faker-js/faker";
 
 @injectable()
 export class UserFacade {
@@ -15,19 +14,18 @@ export class UserFacade {
 
     public async getUsersProfile(req : Request) {
         if(!req.headers['authorization']){
-			return {"err": 'no hay token'};
+			return {"err": 'no hay token para el feed'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
 		}
 
-		const decryptedToken = decryptToken(req.headers['authorization'])
-		if(!decryptedToken){
-			return {"err": 'token invalido'};
-		}        
         const userId = req.params.id;
-		//@ts-ignore
-        const user = await this.userService.getUsersProfile(userId,decryptedToken.userId)
-		//@ts-ignore
-        console.log(decryptedToken.userId);
-		if (!user){
+        const user = await this.userService.getUsersProfile(parseInt(userId,10),decryptedToken.userId)
+
+        if (!user){
             return false
 		}
         const returnableUser:Partial<typeof user> = user 
@@ -147,7 +145,7 @@ export class UserFacade {
     //TODO: pasar a perfil
 
     public async updateProfile(req: Request, body: createUserType) {
-        const userId = req.params.id;
+        const userId = parseInt(req.params.id,10);
         
         const existingUser = await this.userService.getUsersProfile(userId,userId);
 
@@ -162,7 +160,7 @@ export class UserFacade {
             new_image_url = await this.userService.addImage(body.profile_image,body.image_extension);
         }
         body.profile_image= new_image_url;
-        const updatedUser = await this.userService.updateProfile(parseInt(userId, 10), body);
+        const updatedUser = await this.userService.updateProfile(userId, body);
 
         
         const returnableUser:Partial<typeof updatedUser> = updatedUser; 
@@ -226,7 +224,7 @@ export class UserFacade {
     
       public async followUser(userIdToFollow: string, currentUserId: string) {
         try {
-            await this.userService.followUser(currentUserId, userIdToFollow);
+            await this.userService.followUser(parseInt(currentUserId,10), parseInt(userIdToFollow,10));
 
             return { message: 'Ahora sigues a este usuario' };
         } catch (error) {
@@ -236,7 +234,7 @@ export class UserFacade {
 
     public async unfollowUser(userIdToUnfollow: string, currentUserId: string) {
         try {
-            await this.userService.unfollowUser(currentUserId, userIdToUnfollow);
+            await this.userService.unfollowUser(parseInt(currentUserId,10), parseInt(userIdToUnfollow,10));
 
             return { message: 'Dejaste de seguir a este usuario' };
         } catch (error) {

@@ -196,13 +196,13 @@ export class ArticleFacade {
 		if(!req.headers['authorization']){
 			return {"err": 'no hay token para el feed'};
 		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
 
-		const decryptedToken = decryptToken(req.headers['authorization'])
-		if(!decryptedToken){
+        if(!decryptedToken){
 			return {"err": 'token invalido'};
 		}
-		//@ts-ignore
         const userId = decryptedToken.userId;
+
         let weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 20);
 
@@ -290,15 +290,15 @@ export class ArticleFacade {
 	  }
     public async isSaved(req: Request) {
         if(!req.headers['authorization']){
-			return {"err": 'no hay token'};
+			return {"err": 'no hay token para el feed'};
 		}
-		const decryptedToken = decryptToken(req.headers['authorization'])
-		if(!decryptedToken){
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
 			return {"err": 'token invalido'};
 		}
-        
+
         const { articleId } = req.params;
-		//@ts-ignore
         const isSaved = await this.articleService.isSaved(decryptedToken.userId, parseInt(articleId, 10));
         
         if(!isSaved){
@@ -310,31 +310,30 @@ export class ArticleFacade {
 
     public async saveArticle(req: Request) {
         if(!req.headers['authorization']){
-			return {"err": 'no hay token'};
+			return {"err": 'no hay token para el feed'};
 		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
 
-		const decryptedToken = decryptToken(req.headers['authorization'])
-		if(!decryptedToken){
+        if(!decryptedToken){
 			return {"err": 'token invalido'};
 		}
         
         const { articleId } = req.params;
-		//@ts-ignore
+
         return await this.articleService.saveArticle(decryptedToken.userId, parseInt(articleId, 10));
     }
 
     public async unsaveArticle(req: Request) {
-        if (!req.headers['authorization']) {
-          return { "err": 'no hay token' };
-        }
-      
-        const decryptedToken = decryptToken(req.headers['authorization']);
-        if (!decryptedToken) {
-          return { "err": 'token invalido' };
-        }
-      
+        if(!req.headers['authorization']){
+			return {"err": 'no hay token para el feed'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
         const { articleId } = req.params;
-        //@ts-ignore
+
         return await this.articleService.unsaveArticle(decryptedToken.userId, parseInt(articleId, 10));
       }
       
