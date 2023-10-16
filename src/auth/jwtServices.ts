@@ -32,9 +32,7 @@ export const verifyJwt = (rol? : number) => {
             if (err) 
                 return res.status(500).send({auth: false, message: 'Token expirado o error servidor'});
             
-
-
-            if (parseInt(req.params.id, 10) !== decoded.userId) {
+            if (parseInt(req.params.id, 10) !== decoded.userId && decoded.rol !== Roles.admin) {
                 return res.status(403).send({auth: false, message: 'User ID mismatch.'});
             }
 			//si no le mande rol, puede ser cualquiera y salta este, si es admin se va

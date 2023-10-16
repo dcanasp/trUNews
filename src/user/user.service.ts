@@ -95,20 +95,18 @@ export class UserService {
       }
 
     public async deleteUsers(userId : number) {
+        try {
 
-        return await this.databaseService.users.delete({
-            where: {
-                id_user: userId
-            }
-        }).catch((err) => {
-            try {
-                throw new DatabaseErrors(err)
-            }
-            catch(err2){
-                return ;
-            }
-        });
-
+            const deleted = await this.databaseService.users.delete({
+                where: {
+                    id_user: userId
+                }
+            })
+            return deleted
+        }catch(err) {
+            return ;
+        }
+    
     }
 
     public async addUsers(body : createUserType) {
