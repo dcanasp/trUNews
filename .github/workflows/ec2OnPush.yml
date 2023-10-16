@@ -3,7 +3,7 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - actions
+      - main
 
 jobs:
   deploy:
@@ -16,17 +16,23 @@ jobs:
     - name: Setup Node.js environment
       uses: actions/setup-node@v2
       with:
-        node-version: '18' 
+        node-version: '18'
     
-    # no se si quitarlo
+    - name: Fetch environment_keys secret
+      run: |
+        echo -en ${{ secrets.environment_keys }} > .env
+      shell: bash
+        
     - name: Login to Docker Hub
-      run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+      run: docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-    - name: Create Docker Image
-      run: npm run createImage
-    
+    - name: Build and Tag Docker Image
+      run: |
+        docker build -t trunews:latest .  # Assuming your Dockerfile is in the root
+        docker tag trunews:latest ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest
+
     - name: Push Image to Docker Hub
-      run: docker push trunews
+      run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@master
@@ -35,8 +41,10 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          cd trunews
-          git pull origin main
-          npm run init
-          npm run build
+          cd trUNews
+          git pull origin main 
+          git checkout main
+          sudo systemctl start docker
+          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest  # Pull the latest image
+          docker run -d -p 3007:3005 ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest  # Run the Docker container
           npm run restart

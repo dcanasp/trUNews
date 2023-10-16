@@ -18,7 +18,7 @@
     "dockerRun": "docker run -d -p 3007:3005 trunews --name trunews",
     "migratePrisma": "npx prisma migrate dev && npx prisma migrate deploy",
     "nodemon": "nodemon",
-    "connectServer": "ssh -i ./trunews.pem ec2-user@ec2-35-175-244-104.compute-1.amazonaws.com",
+    "connectServer": "ssh -i ./trunews.pem ec2-user@ec2-54-196-247-226.compute-1.amazonaws.com",
     "poblate": "tsc && node build/utils/poblateDB",
     "trendArticle": "tsc && node build/articles/trendArticle",
     "trendUser": "tsc && node build/user/trendAuthor",
