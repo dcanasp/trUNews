@@ -101,6 +101,9 @@ export class ArticleRouter {
     this.router.get('/savedArticles/:userId', 
       (req:Request, res:Response) => this.articleController.getSavedArticles(req, res));
 
+    this.router.get('/categories',
+    (req:Request, res:Response) => this.articleController.getCategories(req, res));
+      
     this.router.get('/category/:categoryId', 
     (req:Request, res:Response) => this.articleController.getArticlesByCategory(req, res));
 

@@ -48,26 +48,26 @@ export class CommunityRouter {
         this.router.get('/:id([0-9]+)', (
             req:Request, res:Response) => this.communityController.getCommunityById(req, res));
 
-        this.router.put('/:id([0-9]+)/update/:idCommunity([0-9]+)',
+        this.router.put('/update/:id([0-9]+)/:idCommunity([0-9]+)',
             verifyJwtPost('creator_id'),
             (req, res) => this.communityController.updateCommunity(req, res));
 
-        this.router.delete('/:id([0-9]+)/delete/:idCommunity([0-9]+)', 
+        this.router.delete('/delete/:id([0-9]+)/:idCommunity([0-9]+)', 
             verifyJwt(),
             (req:Request, res:Response) => this.communityController.deleteCommunity(req, res));
         
-        this.router.post('/:id/join/:idCommunity([0-9]+)',
+        this.router.post('/join/:id([0-9]+)/:idCommunity([0-9]+)',
             verifyJwt(), 
             (req:Request, res:Response) =>  this.communityController.joinCommunity(req, res));
             
-        this.router.post('/:id/leave/:idCommunity([0-9]+)', 
+        this.router.post('/leave/:id([0-9]+)/:idCommunity([0-9]+)', 
             verifyJwt(),
             (req:Request, res:Response) =>  this.communityController.leaveCommunity(req, res));
 
-        this.router.get('/:communityId/members', 
+        this.router.get('/members/:communityId([0-9]+)', 
             (req:Request, res:Response) =>  this.communityController.getMembers(req, res));
 
-        this.router.post('/:communityId/addArticle/:idArticle([0-9]+)',
+        this.router.post('/addArticle/:communityId([0-9]+)/:idArticle([0-9]+)',
             verifyJwt(),
             (req:Request, res:Response) =>  this.communityController.addArticle(req, res));
         
