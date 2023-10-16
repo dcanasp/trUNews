@@ -28,7 +28,7 @@ jobs:
 
     - name: Build and Tag Docker Image
       run: |
-        docker build -t trunews:latest .  # Assuming your Dockerfile is in the root
+        docker build -t trunews:latest .  
         docker tag trunews:latest ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest
 
     - name: Push Image to Docker Hub
