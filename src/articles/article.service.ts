@@ -40,12 +40,12 @@ export class ArticleService {
     public async fetchModels(sanitizedText: string) {
         try {
         const encodedText = encodeURIComponent(sanitizedText);
-        const titleUrl = `${process.env.Ai_model_title}${encodedText}`;
-        const categoriesUrl = `${process.env.Ai_model_categories}${encodedText}`;
+        const titleUrl = `${process.env.Ai_model_title}?summarize=${encodedText}`;
+        const categoriesUrl = `${process.env.Ai_model_categories}?summarize=${encodedText}`;
     
         const [titleResponse, categoriesResponse] = await Promise.all([
-            axios.get(titleUrl),
-            axios.get(categoriesUrl),
+            axios.post(titleUrl),
+            axios.post(categoriesUrl),
         ]);
     
         const titulos = titleResponse.data;
