@@ -10,7 +10,7 @@
     "singleChange": "ts-node src/app.ts",
     "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/server.ts",
     "build": "tsc && xcopy src\\public build\\public /E /I /Y",
-    "buildLinux": "tsc && cp -r src/public build/public",
+    "buildLinux": "tsc && cp -r src/public build",
     "start": "node build/server.js",
     "production": "npm run build && node build/server.js",
     "Pm2Production": "npm run build && pm2 start build/server.js --name trunews && pm2 startup && pm2 save",
