@@ -817,34 +817,37 @@ export class ArticleService {
     public async getQr(url: string) {
         try {          
             // Step 1: Generate the QR code and save it to a file
+            const isDevelopment = process.env.NODE_ENV !== 'production';
+            const basePath = isDevelopment ? './src/public' : './build/public';
+            
             const qrPng = qr.imageSync(url, { type: 'png', ec_level: 'H' });  // Set Error Correction Level to 'H'
             fs.writeFileSync('./src/public/tempQR.png', qrPng);
-
+            
             // Step 2 & 3: Overlay the logo on top of the QR code
-            const logoBuffer: Buffer = fs.readFileSync('./src/public/logo.jpg');
+            const logoBuffer = fs.readFileSync(`${basePath}/logo.jpg`);
 
             const resizedLogoBuffer = await sharp(logoBuffer)
                 .resize(40, 40)
                 .toBuffer();
-            await sharp('./src/public/tempQR.png')
+            await sharp(`${basePath}/tempQR.png`)
                 .composite([    
                 {
                     input: resizedLogoBuffer,
                     gravity: 'centre'
                 }
                 ])
-                .toFile('./src/public/QRWithLogo.png', (err, info) => {
+                .toFile(`${basePath}/QRWithLogo.png`, (err, info) => {
                 if (err) {
                     throw new DatabaseErrors(`Error during composite: ${info}`);
                 } else {
                     // console.log('QR code generated with logo', info);
-                    fs.unlinkSync('./src/public/tempQR.png');
+                    fs.unlinkSync(`${basePath}/tempQR.png`);
                 }
                 });
                 
-            const fullQrBuffer: Buffer = fs.readFileSync('./src/public/QrWithLogo.png');
+            const fullQrBuffer: Buffer = fs.readFileSync(`${basePath}/QrWithLogo.png`);
             const fullQr = fullQrBuffer.toString('base64');
-            fs.unlinkSync('./src/public/QrWithLogo.png');
+            fs.unlinkSync(`${basePath}/QrWithLogo.png`);
             return `data:image/jpeg;base64,${fullQr}`;
 
         } catch (error) {

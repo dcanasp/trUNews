@@ -48,5 +48,6 @@ jobs:
           sudo systemctl start docker
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest  # Pull the latest image
           docker run -d -p 3007:3005 ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest  # Run the Docker container
-          npx tsc
+          npm run init
+          npm run build
           npm run restart
