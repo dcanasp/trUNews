@@ -831,26 +831,27 @@ export class ArticleService {
             const resizedLogoBuffer = await sharp(logoBuffer)
                 .resize(40, 40)
                 .toBuffer();
-            await sharp(`${basePath}/${tempQr}`)
+            const fullQrBuffer = await sharp(`${basePath}/${tempQr}`)
                 .composite([    
                 {
                     input: resizedLogoBuffer,
-                    gravity: 'centre'
+                    gravity: 'center'
                 }
-                ])
-                .toFile(`${basePath}/${QRWithLogo}`, (err, info) => {
-                if (err) {
-                    throw new DatabaseErrors(`Error during composite: ${info}`);
-                } else {
-                    // console.log('QR code generated with logo', info);
-                    fs.unlinkSync(`${basePath}/${tempQr}`);
-                }
-                });
+                ]).toBuffer();
+
+                // .toFile(`${basePath}/${QRWithLogo}`, (err, info) => {
+                // if (err) {
+                //     throw new DatabaseErrors(`Error during composite: ${info}`);
+                // } else {
+                //     // console.log('QR code generated with logo', info);
+                //     fs.unlinkSync(`${basePath}/${tempQr}`);
+                // }
+                // });
                 
-            const fullQrBuffer: Buffer = fs.readFileSync(`${basePath}/${QRWithLogo}`);
+            // const fullQrBuffer: Buffer = fs.readFileSync(`${basePath}/${QRWithLogo}`);
             const fullQr = fullQrBuffer.toString('base64');
-            fs.unlinkSync(`${basePath}/${QRWithLogo}`);
-            return `data:image/jpeg;base64,${fullQr}`;
+            // fs.unlinkSync(`${basePath}/${QRWithLogo}`);
+            return `data:image/png;base64,${fullQr}`;
 
         } catch (error) {
           throw new Error('Error al buscar artículos por categoría');
