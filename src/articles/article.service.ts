@@ -818,48 +818,41 @@ export class ArticleService {
         try {          
             // Step 1: Generate the QR code and save it to a file
             const isDevelopment = process.env.NODE_ENV !== 'production';
-            const basePath = isDevelopment ? './src/public' : './public';
-            console.log(basePath)
-            console.log(process.cwd())
-            if (!fs.existsSync(`${basePath}/public`)) {
-                fs.mkdirSync(`${basePath}/public`, { recursive: true });
-              }
+            const basePath = isDevelopment ? './src/public' : './build/public';
+
             const qrPng = qr.imageSync(url, { type: 'png', ec_level: 'H' });  // Set Error Correction Level to 'H'
-            fs.writeFileSync(`${basePath}/tempQR.png`, qrPng);
+            const tempQr = 'tempQR.png';
+            const QRWithLogo = 'QRWithLogo.png';
+            fs.writeFileSync(`${basePath}/${tempQr}`, qrPng);
             
-            console.log('encuentraImagen');
             // Step 2 & 3: Overlay the logo on top of the QR code
             const logoBuffer = fs.readFileSync(`${basePath}/logo.jpg`);
-
-            console.log('encuentraBuffer');
 
             const resizedLogoBuffer = await sharp(logoBuffer)
                 .resize(40, 40)
                 .toBuffer();
-            await sharp(`${basePath}/tempQR.png`)
+            await sharp(`${basePath}/${tempQr}`)
                 .composite([    
                 {
                     input: resizedLogoBuffer,
                     gravity: 'centre'
                 }
                 ])
-                .toFile(`${basePath}/QRWithLogo.png`, (err, info) => {
+                .toFile(`${basePath}/${QRWithLogo}`, (err, info) => {
                 if (err) {
-                    console.log(err)
                     throw new DatabaseErrors(`Error during composite: ${info}`);
                 } else {
                     // console.log('QR code generated with logo', info);
-                    fs.unlinkSync(`${basePath}/tempQR.png`);
+                    fs.unlinkSync(`${basePath}/${tempQr}`);
                 }
                 });
                 
-            const fullQrBuffer: Buffer = fs.readFileSync(`${basePath}/QrWithLogo.png`);
+            const fullQrBuffer: Buffer = fs.readFileSync(`${basePath}/${QRWithLogo}`);
             const fullQr = fullQrBuffer.toString('base64');
-            fs.unlinkSync(`${basePath}/QrWithLogo.png`);
+            fs.unlinkSync(`${basePath}/${QRWithLogo}`);
             return `data:image/jpeg;base64,${fullQr}`;
 
         } catch (error) {
-            console.log(error)
           throw new Error('Error al buscar artículos por categoría');
         }
     }
