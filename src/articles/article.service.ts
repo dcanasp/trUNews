@@ -821,7 +821,7 @@ export class ArticleService {
             const basePath = isDevelopment ? './src/public' : './build/public';
             
             const qrPng = qr.imageSync(url, { type: 'png', ec_level: 'H' });  // Set Error Correction Level to 'H'
-            fs.writeFileSync('./src/public/tempQR.png', qrPng);
+            fs.writeFileSync(`${basePath}/tempQR.png`, qrPng);
             
             // Step 2 & 3: Overlay the logo on top of the QR code
             const logoBuffer = fs.readFileSync(`${basePath}/logo.jpg`);
