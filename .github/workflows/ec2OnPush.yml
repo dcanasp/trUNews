@@ -42,9 +42,11 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           cd trUNews
-          git pull origin main 
+          git fetch origin main
+          git reset --hard origin/main
           git checkout main
           sudo systemctl start docker
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest  # Pull the latest image
           docker run -d -p 3007:3005 ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest  # Run the Docker container
+          npx tsc
           npm run restart

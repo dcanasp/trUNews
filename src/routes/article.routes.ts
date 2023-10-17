@@ -89,7 +89,6 @@ export class ArticleRouter {
     );
 
     this.router.get('/isSaved/:articleId', 
-    verifyJwt(),
       (req:Request, res:Response) => this.articleController.isSaved(req, res));
 
     this.router.post('/save/:articleId', 
