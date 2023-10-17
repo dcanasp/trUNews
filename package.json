@@ -13,7 +13,7 @@
     "buildLinux": "tsc && cp -r src/public build",
     "start": "node build/server.js",
     "production": "npm run build && node build/server.js",
-    "Pm2Production": "npm run build && pm2 start build/server.js --name trunews && pm2 startup && pm2 save",
+    "Pm2Production": " pm2 start build/server.js --name trunews && pm2 startup && pm2 save",
     "restart": "pm2 restart trunews",
     "createImage": "docker build -t trunews -f DockerFile .",
     "dockerRun": "docker run -d -p 3007:3005 trunews --name trunews",

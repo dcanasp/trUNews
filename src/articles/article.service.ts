@@ -819,12 +819,15 @@ export class ArticleService {
             // Step 1: Generate the QR code and save it to a file
             const isDevelopment = process.env.NODE_ENV !== 'production';
             const basePath = isDevelopment ? './src/public' : './build/public';
-            
+            console.log(basePath)
             const qrPng = qr.imageSync(url, { type: 'png', ec_level: 'H' });  // Set Error Correction Level to 'H'
             fs.writeFileSync(`${basePath}/tempQR.png`, qrPng);
             
+            console.log('encuentraImagen');
             // Step 2 & 3: Overlay the logo on top of the QR code
             const logoBuffer = fs.readFileSync(`${basePath}/logo.jpg`);
+
+            console.log('encuentraBuffer');
 
             const resizedLogoBuffer = await sharp(logoBuffer)
                 .resize(40, 40)
@@ -838,6 +841,7 @@ export class ArticleService {
                 ])
                 .toFile(`${basePath}/QRWithLogo.png`, (err, info) => {
                 if (err) {
+                    console.log(err)
                     throw new DatabaseErrors(`Error during composite: ${info}`);
                 } else {
                     // console.log('QR code generated with logo', info);
