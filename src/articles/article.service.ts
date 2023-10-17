@@ -40,12 +40,12 @@ export class ArticleService {
     public async fetchModels(sanitizedText: string) {
         try {
         const encodedText = encodeURIComponent(sanitizedText);
-        const titleUrl = `${process.env.Ai_model_title}${encodedText}`;
-        const categoriesUrl = `${process.env.Ai_model_categories}${encodedText}`;
+        const titleUrl = `${process.env.Ai_model_title}?summarize=${encodedText}`;
+        const categoriesUrl = `${process.env.Ai_model_categories}?summarize=${encodedText}`;
     
         const [titleResponse, categoriesResponse] = await Promise.all([
-            axios.get(titleUrl),
-            axios.get(categoriesUrl),
+            axios.post(titleUrl),
+            axios.post(categoriesUrl),
         ]);
     
         const titulos = titleResponse.data;
@@ -819,12 +819,15 @@ export class ArticleService {
             // Step 1: Generate the QR code and save it to a file
             const isDevelopment = process.env.NODE_ENV !== 'production';
             const basePath = isDevelopment ? './src/public' : './build/public';
-            
+            console.log(basePath)
             const qrPng = qr.imageSync(url, { type: 'png', ec_level: 'H' });  // Set Error Correction Level to 'H'
-            fs.writeFileSync('./src/public/tempQR.png', qrPng);
+            fs.writeFileSync(`${basePath}/tempQR.png`, qrPng);
             
+            console.log('encuentraImagen');
             // Step 2 & 3: Overlay the logo on top of the QR code
             const logoBuffer = fs.readFileSync(`${basePath}/logo.jpg`);
+
+            console.log('encuentraBuffer');
 
             const resizedLogoBuffer = await sharp(logoBuffer)
                 .resize(40, 40)
@@ -838,6 +841,7 @@ export class ArticleService {
                 ])
                 .toFile(`${basePath}/QRWithLogo.png`, (err, info) => {
                 if (err) {
+                    console.log(err)
                     throw new DatabaseErrors(`Error during composite: ${info}`);
                 } else {
                     // console.log('QR code generated with logo', info);
