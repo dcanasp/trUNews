@@ -818,8 +818,12 @@ export class ArticleService {
         try {          
             // Step 1: Generate the QR code and save it to a file
             const isDevelopment = process.env.NODE_ENV !== 'production';
-            const basePath = isDevelopment ? './src/public' : './build/public';
+            const basePath = isDevelopment ? './src/public' : './public';
             console.log(basePath)
+            console.log(process.cwd())
+            if (!fs.existsSync(`${basePath}/public`)) {
+                fs.mkdirSync(`${basePath}/public`, { recursive: true });
+              }
             const qrPng = qr.imageSync(url, { type: 'png', ec_level: 'H' });  // Set Error Correction Level to 'H'
             fs.writeFileSync(`${basePath}/tempQR.png`, qrPng);
             
@@ -855,6 +859,7 @@ export class ArticleService {
             return `data:image/jpeg;base64,${fullQr}`;
 
         } catch (error) {
+            console.log(error)
           throw new Error('Error al buscar artículos por categoría');
         }
     }
