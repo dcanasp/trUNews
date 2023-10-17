@@ -49,5 +49,5 @@ jobs:
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest  # Pull the latest image
           docker run -d -p 3007:3005 ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest  # Run the Docker container
           npm run init
-          npm run build
+          npm run buildLinux
           npm run restart
