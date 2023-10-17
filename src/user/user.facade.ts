@@ -132,7 +132,7 @@ export class UserFacade {
                 rol: user.rol,
                 profession: user.profession,
                 description: user.description,
-                image_url: user.profile_image,
+                profile_image: user.profile_image,
                 followersCount: followerCount,
                 followingsCount: followingCount,
             };
