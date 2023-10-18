@@ -15,9 +15,9 @@ import { number } from 'zod';
 
 
 
-const authorization = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbCI6MSwiaWF0IjoxNjk3MzkzNDIyLCJleHAiOjE2OTc2NTI2MjJ9.qpznsqyeAc-kkIW20TOjIXb1Nb-wczZcWeXnzounSFc";
+const authorization = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbCI6MCwiaWF0IjoxNjk3NjM0Mjk1LCJleHAiOjE2OTc4OTM0OTV9.5VaDQBbBueAFRRfQzLNvKEXcCg1oo1Mwj1adaJH6hFk";
 const pruebasUserId = 1
-const pruebasUsername = 'Laurence.Farrell'
+const pruebasUsername = 'Nolan96'
 
 // let server:any;
 // beforeAll((done) => {
@@ -116,7 +116,7 @@ beforeAll((done) => {
                 rol: expect.any(Number),
                 followersCount: expect.any(Number),
                 followingsCount: expect.any(Number),
-                image_url: expect.any(String),
+                profile_image: expect.any(String),
                 
 
               };
