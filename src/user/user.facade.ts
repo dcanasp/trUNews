@@ -157,7 +157,7 @@ export class UserFacade {
             if(body.image_extension=="" || body.image_extension==undefined){
                 body.image_extension='.png'
             }
-            new_image_url = await this.userService.addImage(body.profile_image,body.image_extension);
+            new_image_url = await this.userService.addImage(userId,body.profile_image,body.image_extension);
         }
         body.profile_image= new_image_url;
         const updatedUser = await this.userService.updateProfile(userId, body);

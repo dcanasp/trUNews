@@ -333,25 +333,15 @@ public async updatePassword(userId: string, newPassword: string) {
 
     //TODO: pasar a perfil fin
 
-    public async addImage(contenido: string, extension:string) {
+    public async addImage(userId:number,contenido: string, extension:string) {
         try {
-            const ultimo = await this.databaseService.article.findMany({
-                orderBy: {
-                    id_article: 'desc'
-                },
-                take: 1
-            });
             const folder = 'profile';
             // const imageBuffer = contenido;
             const imageBuffer = Buffer.from(contenido.split(',')[1], 'base64');
             // debe ser un buffer el contenido
-            let ultimo_usuario = (1).toString()
-            if (ultimo[0]) {
-                ultimo_usuario = (ultimo[0].id_article + 1).toString()
-            }
-
+            
             const link = process.env.S3_url
-            const file_name = (ultimo_usuario + extension)
+            const file_name = (userId + extension)
             
             // const resizedImageBuffer = await resizeImages(imageBuffer,ancho,ratio);
 
