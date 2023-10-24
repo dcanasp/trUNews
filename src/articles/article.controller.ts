@@ -180,6 +180,16 @@ export class ArticleController {
     } catch (error) {
       res.status(500).json({ err: 'fallo la creacion de qr' });
     }
+  }
+
+
+  public async test(req: Request, res: Response) {
+    try {
+      const qr = await this.articleFacade.test(req);
+      res.json(qr);
+    } catch (error) {
+      res.status(500).json({ err: 'fallo la creacion de qr' });
+    }
 }
 
 

@@ -112,6 +112,9 @@ export class ArticleRouter {
     this.router.get('/createQr', 
     (req:Request, res:Response) => this.articleController.createQr(req, res));
 
+    this.router.post('/test', 
+    (req:Request, res:Response) => this.articleController.test(req, res));
+
     return this.router;
   }
 

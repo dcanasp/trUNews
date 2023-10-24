@@ -370,4 +370,10 @@ export class ArticleFacade {
     }
 
 
+    public async test(req: Request) {
+        const broker = await this.articleService.test();
+
+        return {"test":broker};
+    }
+
 }
