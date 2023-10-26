@@ -6,7 +6,7 @@ import { validatePost } from '../middleware/dataValidation/zodValidation';
 import { convertDateFields } from '../utils/convertDataTypes';
 import { createArticleSchema,addCategoriesSchema } from '../middleware/dataValidation/schemas';
 import { verifyJwt, verifyJwtPost } from '../auth/jwtServices';
-
+import {countView} from '../middleware/countViews'
 
 @injectable()
 export class ArticleRouter {
@@ -39,7 +39,7 @@ export class ArticleRouter {
       '/aiModel',
       convertDateFields(['date']),
       validatePost(createArticleSchema),
-      verifyJwtPost('id_writer'),  
+      // verifyJwtPost('id_writer'),  
       (req: Request, res: Response, next: NextFunction) =>
         this.articleController.aiModel(req, res),
     );
@@ -78,8 +78,10 @@ export class ArticleRouter {
     (req:Request, res:Response) => this.articleController.related(req, res));
 
     this.router.get('/:id([0-9]+)', (req:Request, res:Response) => {
-          this.articleController.getArticleById(req, res)
-    });
+          this.articleController.getArticleById(req, res),
+          countView(req)
+    },
+    );
     
     this.router.delete(
       '/:id([0-9]+)',

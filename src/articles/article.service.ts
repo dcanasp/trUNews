@@ -12,6 +12,7 @@ import axios from 'axios';
 import qr from 'qr-image';
 import fs from 'fs';
 import sharp from 'sharp';
+import amqplib from 'amqplib'
 
 @injectable()
 export class ArticleService {
@@ -36,13 +37,36 @@ export class ArticleService {
         });
     }
 
-    
+    public async countView(articleId : number) {
+        await this.databaseService.article.update({
+            data:{
+                views: {
+                    increment: 1,
+                }
+            },
+            where:{
+                id_article: articleId
+            }
+        })
+        return await this.databaseService.article.findUnique({
+            where: {
+                id_article: articleId
+            },
+            include:{article_has_categories:{
+                select:{category:{select:{cat_name:true}}}
+            },writer:{select:{name:true,username:true,lastname:true}}
+            }
+        });
+    }
+
     public async fetchModels(sanitizedText: string) {
         try {
         const encodedText = encodeURIComponent(sanitizedText);
         const titleUrl = `${process.env.Ai_model_title}?summarize=${encodedText}`;
         const categoriesUrl = `${process.env.Ai_model_categories}?summarize=${encodedText}`;
     
+        await this.sendMessageModels(titleUrl,categoriesUrl)
+        console.log('aaa')
         const [titleResponse, categoriesResponse] = await Promise.all([
             axios.post(titleUrl),
             axios.post(categoriesUrl),
@@ -62,6 +86,20 @@ export class ArticleService {
             console.error('no hay modelos');
             return ;
         }
+    }
+ 
+    public async sendMessageModels(titleUrl:string,categoriesUrl:string){
+
+        const connection = await amqplib.connect("amqp://localhost:5672");
+        const channel = await connection.createChannel()
+    
+        await channel.assertQueue("test-queue");
+    //aqui ya funciona, solo es mandarle el texto de body a el servidor y crear el que escucha en python
+        // const data ='prueba sonido';
+        const data = titleUrl;
+        await channel.sendToQueue("test-queue", Buffer.from(JSON.stringify({"title":data,"category":categoriesUrl})));
+    
+    return ;
     }
 
     public async createArticle(body : createArticleType,sanitizedText:string) {
@@ -859,7 +897,16 @@ export class ArticleService {
     }
 
     public async test(){
-    return ;
+
+            const connection = await amqplib.connect("amqp://localhost:5672");
+            const channel = await connection.createChannel()
+        
+            await channel.assertQueue("test-queue");
+        //aqui ya funciona, solo es mandarle el texto de body a el servidor y crear el que escucha en python
+            const data ='prueba sonido';
+            await channel.sendToQueue("test-queue", Buffer.from(JSON.stringify(data)));
+        
+        return ;
     }
 
 }

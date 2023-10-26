@@ -8,7 +8,7 @@ const doc = {
     title: 'Trunews',
     description: 'Back rutas',
   },
-  host: 'localhost:'+process.env.PORT,
+  host: 'd14b8hrwh6v3h8.cloudfront.net:'+process.env.PORT,
   schemes: ['http'],
 };
 

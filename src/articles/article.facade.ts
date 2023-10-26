@@ -7,11 +7,11 @@ import { decryptToken } from "../auth/jwtServices";
 import {returnArticles,returnArticlesCategory,returnArticlesFeed,returnArticlesCategory_id,createArticleType,addCategoriesType} from '../dto/article';
 import {decryptedToken} from "../dto/user"
 import {sanitizeHtml} from '../utils/sanitizeHtml';
+import {lanzarQueueRespuesta} from './modelConection'
 
 @injectable()
 export class ArticleFacade {
     constructor(@inject(ArticleService)private articleService : ArticleService) {
-
     }
 
     public async getArticles(req : Request) {
@@ -39,17 +39,22 @@ export class ArticleFacade {
         return formattedGet;
     }
 
-    
+
     public async aiModel(req : Request) {
         const body:createArticleType = req.body;
         const sanitizedText = sanitizeHtml(body.text);
-        const modelos = await this.articleService.fetchModels(sanitizedText);
+        // const modelos = await this.articleService.fetchModels(sanitizedText);
+        // const createSocket = await this.modelConection.socketCreation();
+        const modelos = await lanzarQueueRespuesta(sanitizedText);
         if(!modelos){
-            
             return {err:true,titulos:['mejor titulo existente','segundo mejor titulo','tercero'],categorias:[{"label": "EDUCATION","score": 0.34894150495529175 },{"label": "BUSINESS","score": 0.3029727041721344},{"label": "POLITICS","score": 0.08930222690105438},]};
         }
-        return modelos;
         
+
+        // return modelos;
+        // console.log( cola?.replace('\\','') );
+        // console.log( JSON.parse(cola!) );
+        return modelos;
     }
     public async createArticle(req : Request) {
         const body:createArticleType = req.body;
@@ -64,13 +69,13 @@ export class ArticleFacade {
     }
 
     public async createArticleCategories(body : addCategoriesType) {
-        
-        let categorias = body.categories; 
+
+        let categorias = body.categories;
         if (!categorias){
             return {err:"No me envio categorias"};
         }
-        
-        
+
+
         const categoriesCreated = await this.articleService.createCategories(body.id_writer,body.article,categorias);
         if (! categoriesCreated) {
             return {err: "No se pudo añadir las categorias"};
@@ -164,9 +169,9 @@ export class ArticleFacade {
                 formated_date = `Created ${
                     Math.floor(ageInDays)
                 } days ago`;
-            }; 
+            };
 			formated_latest.push({article_id:article.id_article,date: formated_date, image_url: article.image_url, title: article.title});
-		
+
         }
 
 
@@ -206,11 +211,11 @@ export class ArticleFacade {
         let weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 20);
 
-        
+
         const articlesFromFollowed = await this.articleService.articlesFromFollowed(userId,weekAgo);
         // console.log(articlesFromFollowed[0].article_has_categories[0].category);
         let flatArticlesFromFollower:returnArticlesFeed[] =[];
-        if(articlesFromFollowed){  
+        if(articlesFromFollowed){
             flatArticlesFromFollower = articlesFromFollowed.map(({ article_has_categories, ...rest }) => ({
                 ...rest,
                 article_has_categories: article_has_categories,
@@ -220,7 +225,7 @@ export class ArticleFacade {
 
         let flatArticlesFromCateogries:returnArticlesFeed[] =[];
         let flatArticlesFromSaved:returnArticlesFeed[] =[];
-        
+
         if(articlesFromFollowed!=undefined){
             const articlesFromCateogries  = await this.articleService.articlesFromCateogries(articlesFromFollowed);
             if (articlesFromCateogries){
@@ -235,7 +240,7 @@ export class ArticleFacade {
                 flatArticlesFromSaved = articlesFromSaved;
             }
         }
-        		
+
         const feed = [...flatArticlesFromFollower, ...flatArticlesFromCateogries, ...flatArticlesFromSaved];
 
         if (! feed || feed.length<=10) {
@@ -243,7 +248,7 @@ export class ArticleFacade {
             if (! latest){
                 return {"err": 'no hay feed ni articulos nuevos'};
             }
-            
+
             const formattedLatest: returnArticlesFeed[] = latest.map(({writer,...article}) => ({
                 ...article,
                  username: writer.username,
@@ -275,7 +280,7 @@ export class ArticleFacade {
             name: writer?.name,
             lastname: writer?.lastname,
           })) as returnArticles[];
-          
+
 
 		return this.shuffleArray(formattedrelated);
     }
@@ -300,7 +305,7 @@ export class ArticleFacade {
 
         const { articleId } = req.params;
         const isSaved = await this.articleService.isSaved(decryptedToken.userId, parseInt(articleId, 10));
-        
+
         if(!isSaved){
             return false;
         }
@@ -317,7 +322,7 @@ export class ArticleFacade {
         if(!decryptedToken){
 			return {"err": 'token invalido'};
 		}
-        
+
         const { articleId } = req.params;
 
         return await this.articleService.saveArticle(decryptedToken.userId, parseInt(articleId, 10));
@@ -336,7 +341,7 @@ export class ArticleFacade {
 
         return await this.articleService.unsaveArticle(decryptedToken.userId, parseInt(articleId, 10));
       }
-      
+
     public async getSavedArticles(req: Request) {
         const userId = req.params.userId;
         return await this.articleService.getSavedArticles(parseInt(userId,10));
@@ -347,7 +352,7 @@ export class ArticleFacade {
         const articles = await this.articleService.getArticlesByCategory(categoryId);
         return articles;
     }
-    
+
     public async getCategories(req: Request) {
         const categories = await this.articleService.getCategories();
         return categories;
