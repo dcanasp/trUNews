@@ -58,7 +58,7 @@ async function fibonacci(n) {
 
 async function main() {
   try {
-    const connection = await amqplib.connect('amqp://trunews:password@localhost:5672');
+    const connection = await amqplib.connect('amqp://trunews:password@192.168.1.12:5672');
     const channel = await connection.createChannel();
 
     const queue = 'rpc_queue';

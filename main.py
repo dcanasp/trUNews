@@ -1,6 +1,6 @@
 # from fastapi import FastAPI
-# from transformers import pipeline
-# from simplet5 import SimpleT5
+from transformers import pipeline
+from simplet5 import SimpleT5
 
 """ Crear aplicacion """
 
@@ -50,15 +50,23 @@ def ping():
 
 def queue(texto):
     # print(texto)
-    # generate_Title(texto)
-    # generate_Category(texto)
+    generate_Title(texto)
+    generate_Category(texto)
     return [ [ 3,4], [1,2] ]
 
 
 import pika
 
+credentials = pika.PlainCredentials(username='trunews', password='password')
+ip = '192.168.1.12' #debe ser la url del back, mañana lo pruebo
+
 connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host='192.168.1.12',port=5672))
+    pika.ConnectionParameters(
+        host=ip,
+        port=5672,
+        credentials=credentials
+    )
+)
 
 channel = connection.channel()
 
