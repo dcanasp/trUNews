@@ -41,7 +41,7 @@ const sleep = (ms) => {
 async function texto(n) {
   const tiempo = Math.random()*1000 + 3000
   await sleep(tiempo)
-  return '';
+  return 'prueba';
   // return '{"err":true,"titulos":["mejor titulo existente","segundo mejor titulo","tercero"],"categorias":[{"label": "EDUCATION","score": 0.34894150495529175 },{"label": "BUSINESS","score": 0.3029727041721344},{"label": "POLITICS","score": 0.08930222690105438},]}';
 }
 
@@ -58,7 +58,7 @@ async function fibonacci(n) {
 
 async function main() {
   try {
-    const connection = await amqplib.connect('amqp://localhost:5672');
+    const connection = await amqplib.connect('amqp://trunews:password@localhost:5672');
     const channel = await connection.createChannel();
 
     const queue = 'rpc_queue';

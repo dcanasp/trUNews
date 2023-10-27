@@ -37,9 +37,10 @@ export async function socketCreation() { /*
 }
 
 export async function lanzarQueueRespuesta(texto:string) {
-
     try {
-        const connection = await amqplib.connect('amqp://localhost:5672');
+      const user = process.env.rabbitMQCredentials
+      const url = process.env.rabbitMQServerIP
+        const connection = await amqplib.connect(`amqp://${user}@${url}:5672`);
         const channel = await connection.createChannel();
         const q = await channel.assertQueue('', { exclusive: true });
     
@@ -67,7 +68,7 @@ export async function lanzarQueueRespuesta(texto:string) {
             }
           }, { noAck: true });
         });
-        // console.log(numero)
+        console.log(numero)
         return numero;
       } catch (error) {
         console.error('Error:', error);
