@@ -23,14 +23,24 @@ export class CommunityService {
 
         try{
             const comunidad = await this.databaseService.community.findMany({
-                include:{community_has_users:{
-                    orderBy:{
-                        community_id_community:"desc"
+                include:{
+                    community_has_users:{
+                        orderBy:{
+                            community_id_community:"desc"
+                        }
+                },
+                    community_has_categories:{
+                        select:{
+                            category:{
+                                select:{
+                                    id_category:true,
+                                    cat_name:true
+                                }
+                            }
+                        }
                     }
-                }}
+                }
               });
-
-
 
             if (!works(comunidad)) {
                 throw new DatabaseErrors('no hay comunidades');
@@ -55,9 +65,20 @@ export class CommunityService {
                     },
                   ]
                 },
-                include:{community_has_users:{
+                include:{
+                    community_has_users:{
                     orderBy:{
                         community_id_community:"desc"
+                    }
+                },
+                community_has_categories:{
+                    select:{
+                        category:{
+                            select:{
+                                id_category:true,
+                                cat_name:true
+                            }
+                        }
                     }
                 }}
               });
@@ -255,7 +276,7 @@ export class CommunityService {
           id_community: communityId
       },
       include:{community_has_categories:{
-          select:{category:{select:{cat_name:true}}}
+          select:{category:{select:{id_category:true, cat_name:true}}}
       },
       }
     });
