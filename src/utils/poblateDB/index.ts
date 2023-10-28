@@ -263,13 +263,21 @@ async function crearCommunityHasArticle(databaseService : PrismaClient) {
         }
     });
 
+    const allUserIds = await databaseService.users.findMany({
+        select: {
+            id_user: true
+        }
+    });
+
     for (let i = 0; i < numberOfEntries; i++) {
         const id_article = allArticleIds[Math.floor(Math.random() * allArticleIds.length)].id_article
         const id_community = allCommunitysId[Math.floor(Math.random() * allCommunitysId.length)].id_community
+        const id_user = allUserIds[Math.floor(Math.random() * allUserIds.length)].id_user
         await databaseService.community_has_articles.create({
             data: {
                 article_id_community: id_article,
-                community_id_community: id_community
+                community_id_community: id_community,
+                users_id_community: id_user
             }
         }).catch((err) => {
             console.error("Error creating saved: ", err); // falla cuando por suerte un articulo queda con 2 veces la misma categoria

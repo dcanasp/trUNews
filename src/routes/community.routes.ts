@@ -68,9 +68,11 @@ export class CommunityRouter {
             (req:Request, res:Response) =>  this.communityController.getMembers(req, res));
 
         this.router.post('/addArticle/:communityId([0-9]+)/:idArticle([0-9]+)',
-            verifyJwt(),
             (req:Request, res:Response) =>  this.communityController.addArticle(req, res));
-        
+
+        this.router.delete('/removeArticle/:communityId([0-9]+)/:idArticle([0-9]+)',
+            (req:Request, res:Response) =>  this.communityController.removeArticle(req, res));
+
         return this.router
 
     }
