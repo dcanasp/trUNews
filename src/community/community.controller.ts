@@ -94,4 +94,12 @@ export class CommunityController {
       });
   }
 
+  public removeArticle(req: Request, res: Response) {
+    this.communityFacade.removeArticle(req)
+      .then(community => res.json(community))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
  }

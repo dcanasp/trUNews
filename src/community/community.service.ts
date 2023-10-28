@@ -10,6 +10,7 @@ import {Roles} from '../utils/roleDefinition';
 import {resizeImages} from '../utils/resizeImages';
 import {communityType, createCommunityType} from '../dto/community';
 import {works} from '../utils/works';
+import { json } from "stream/consumers";
 
 @injectable()
 export class CommunityService {
@@ -278,28 +279,34 @@ export class CommunityService {
     const isCreator = community.creator_id == userId;
     const isMember = await this.isMemberOfCommunity(userId, communityId);
     if (isMember || isCreator) {
-      const articles = await this.databaseService.community_has_articles.findMany({
-        where: {
-            community_id_community: communityId,
-        },
-        select: {
-            article: {
-                select: {
-                    id_article: true,
-                    title: true,
-                    date: true,
-                    image_url: true,
-                    text: true,
-                    writer: {
-                        select: {
-                            id_user: true,
-                            username: true,
+              const articles = await this.databaseService.community_has_articles.findMany({
+            where: {
+                community_id_community: communityId,
+            },
+            select: {
+                article: {
+                    select: {
+                        id_article: true,
+                        title: true,
+                        date: true,
+                        image_url: true,
+                        text: true,
+                        writer: {
+                            select: {
+                                id_user: true,
+                                username: true,
+                            },
                         },
                     },
                 },
-            },
-        },
-        });
+                users: { // Usuario que posteó el artículo en la comunidad
+                    select: {
+                            id_user: true,
+                            username: true,      
+                            },
+                        },
+                },
+            });
 
         return {
           ...community,
@@ -547,14 +554,40 @@ export class CommunityService {
         }
     }
 
-    public addArticleToCommunity(communityId : number, articleId : number) {
+    public async addArticleToCommunity(communityId: number, articleId: number, userId: number) {
+        
+        const article = await this.databaseService.article.findUnique({
+            where: { id_article: articleId },
+            include: { article_has_categories: { include: { category: true } }},
+            });
+
+        const community = await this.databaseService.community.findUnique({
+            where: { id_community: communityId },
+            include: { community_has_categories: { include: { category: true } }},
+        });
+
+    
+        if (!article || !community) {
+            throw new DatabaseErrors('No se pudo encontrar el artículo o la comunidad.');
+        }
+    
+        // Comprueba si hay al menos una categoría en común entre el artículo y la comunidad
+        const commonCategories = article.article_has_categories.map(ac => ac.category.id_category)
+            .filter(categoryId => community.community_has_categories.some(cc => cc.category.id_category === categoryId));
+    
+        if (commonCategories.length === 0) {
+            return  ;
+        }
+    
         return this.databaseService.community_has_articles.create({
             data: {
                 community_id_community: communityId,
-                article_id_community: articleId
+                article_id_community: articleId,
+                users_id_community: userId
             }
         });
     }
+    
 
     public async addCategoryToCommunity(communityId : number, categoryId : number) {
         try{
@@ -573,6 +606,30 @@ export class CommunityService {
         catch{
             return ;
         }
+    }
+
+    public async removeArticle(communityId : number, articleId : number, userId : number) {
+        try{
+            const communityArticle = await this.databaseService.community_has_articles.deleteMany({
+            where: {
+                community_id_community: communityId,
+                article_id_community: articleId,
+                users_id_community: userId
+            }
+        });
+
+        if (communityArticle.count === 0){
+            return ;
+        }
+        return communityArticle
+        }
+        catch{
+            return ;
+        }
+       }
+
+    public async getPossibleArticlesToPost(articleId : number, userId : number) {
+        
     }
 }
 
