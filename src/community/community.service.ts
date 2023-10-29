@@ -211,8 +211,8 @@ export class CommunityService {
                     community_id_community: communityId,
                 }
             });
-
-            const articles:returnArticles[] = [];
+            const categoriesNames = await this.databaseService.categories.findMany();
+            const articles = [];
             for (const article of idArticulosDeComunidad){
 
                 const articulosComunidad = await this.databaseService.article.findMany({
@@ -224,23 +224,52 @@ export class CommunityService {
                     },
                     include:{
                         writer: {
-                            select: { name: true, lastname: true, username: true },
-                          },
+                            select: { name: true, lastname: true, username: true,profile_image:true },
+                        },
+                        article_has_categories:true
                     }
 
                 }) 
                 if (!articulosComunidad){
                     continue;
                 }
-                const flatArticle = articulosComunidad.map((article)=>{
-                    const {writer,...rest} = article;
 
-                    articles.push({...rest,...writer});
-                })
-
+                const categoriesNamesMap = new Map(
+                    categoriesNames.map(({ id_category, cat_name }) => [id_category, cat_name])
+                  );
+                  
+                  const modifiedArticles = articulosComunidad.map((article) => {
+                    const { writer, article_has_categories, ...rest } = article;
+                  
+                    const modifiedCategories = article_has_categories.map((categoryRelation) => {
+                      const categoryName = categoriesNamesMap.get(categoryRelation.categories_id_categories) || 'Unknown';
+                      return {
+                        categories_id_categories: categoryRelation.categories_id_categories,
+                        category_name: categoryName,
+                      };
+                    });
+                  
+                    return {
+                      ...rest,
+                      ...writer,
+                      article_has_categories: modifiedCategories,
+                    };
+                  });
+                  
+                if (!modifiedArticles||modifiedArticles.length===0){
+                    continue;
+                }
+                articles.push(modifiedArticles)
+                  
+                  
+                
             }
+            
+            const flatArticle: returnArticles[] = articles.flatMap( eachArticle =>{
+                return [...eachArticle]
+            })
 
-            return articles 
+            return flatArticle 
 
         }
         catch{

@@ -72,7 +72,7 @@ export class CommunityFacade {
 
     public async feed(req : Request) {
         let weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 10);
+        weekAgo.setDate(weekAgo.getDate() - 15);
         //@ts-ignore
         const communities = await this.communityService.feed(parseInt(req.query.communityId),weekAgo);
 

@@ -39,7 +39,7 @@ export class ArticleRouter {
       '/aiModel',
       convertDateFields(['date']),
       validatePost(createArticleSchema),
-      // verifyJwtPost('id_writer'),  
+      verifyJwtPost('id_writer'),  
       (req: Request, res: Response, next: NextFunction) =>
         this.articleController.aiModel(req, res),
     );

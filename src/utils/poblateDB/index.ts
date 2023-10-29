@@ -10,7 +10,7 @@ import {sanitizeHtml} from '../sanitizeHtml';
 const database = container.resolve(DatabaseService).getClient();
 const numberOfEntries = 300;
 main()
-async function main() {
+export async function main() {
     await crearUsuarios(database);
     await crearArticulos(database);
     await crearFollowers(database);

@@ -5,8 +5,8 @@ export async function resizeImages(imageBuffer:Buffer,ancho:number,ratio:string)
     const ratioSeparado = ratio.split(':');
 
     return await Sharp(imageBuffer).resize({
-      width: Math.round( ancho * parseFloat(ratioSeparado[0]) ),
-      height: Math.round( ancho *parseFloat(ratioSeparado[1]) ),
+      width: Math.ceil( ancho * parseFloat(ratioSeparado[0]) ),
+      height: Math.ceil( ancho *parseFloat(ratioSeparado[1]) ),
       fit: Sharp.fit.cover, 
     }).toBuffer();
 
