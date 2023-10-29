@@ -209,14 +209,41 @@ export class CommunityFacade {
     }
 
     public async addArticle(req : Request) {
+        if(!req.headers['authorization']){
+			return {"err": 'No hay token para añadir artículo.'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+
         const communityId = req.params.communityId;
         const articleId = req.params.idArticle;
-        const articleAdded = await this.communityService.addArticleToCommunity(parseInt(communityId, 10), parseInt(articleId, 10));
+        const articleAdded = await this.communityService.addArticleToCommunity(parseInt(communityId, 10), parseInt(articleId, 10),decryptedToken.userId);
         if (! articleAdded) {
-            return {"err": "No se pudo agregar el articulo a la comunidad"}
+            return {"err": "No se pudo agregar el articulo a la comunidad, verifique que posea una categoría en común con la comunidad."}
         }
         return ;
     }
 
+    public async removeArticle(req : Request) {
+        if(!req.headers['authorization']){
+			return {"err": 'No hay token para añadir artículo.'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+    
+        const communityId = req.params.communityId;
+        const articleId = req.params.idArticle;
+        const articleRemoved = await this.communityService.removeArticle(parseInt(communityId, 10), parseInt(articleId, 10),decryptedToken.userId);
+        if (! articleRemoved) {
+            return {"err": "No se pudo eliminar el articulo de la comunidad"}
+        }
+        return ;
+    }
     
 }

@@ -97,6 +97,7 @@ model users {
   saved       saved[]
   community_has_users community_has_users[]
   community community[]
+  community_has_articles community_has_articles[]
 }
 
 model community {
@@ -117,10 +118,12 @@ model community {
 model community_has_articles {
   article_id_community           Int
   community_id_community          Int
+  users_id_community              Int
 
   article article @relation(fields: [article_id_community],references: [id_article],onDelete: Cascade)
   community community @relation(fields: [community_id_community],references: [id_community],onDelete: Cascade)
-  @@id([community_id_community, article_id_community])
+  users users @relation(fields: [users_id_community],references: [id_user],onDelete: Cascade)
+  @@id([community_id_community, article_id_community, users_id_community])
 }
 
 
