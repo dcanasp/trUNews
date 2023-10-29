@@ -54,17 +54,33 @@ export async function lanzarQueueRespuesta(texto:string) {
         });
     
         // Receiving the message
-        const numero = await new Promise<string>((resolve) => {
-          channel.consume(q.queue, (msg) =>  {
+        const numero = await new Promise<any>((resolve) => {
+          channel.consume(q.queue, (msg) => {
             let stringMsg = msg?.content.toString('utf8');
-
+        
             if (msg?.properties.correlationId === correlationId) {
-              // console.log(' [.] Got %s', stringMsg );
-              resolve( stringMsg! ); 
-              // setTimeout(() => {
-              //   connection.close();
-              //   process.exit(0);
-              // }, 500);
+              console.log(stringMsg);
+              
+              // Replace single quotes with double quotes to make it a valid JSON string
+              let jsonString = stringMsg!.replace(/'/g, '"');
+        
+              let nestedArray;
+              try {
+                nestedArray = JSON.parse(jsonString);
+              } catch (e) {
+                console.error("Could not parse message content:", e);
+                return;
+              }
+        
+              // Now, nestedArray should be [['text1', 'text2'], [{'label': ..., 'score': ...}, ...]]
+        
+              // Form the object
+              let finalObject = {
+                "titulos": nestedArray[0],
+                "categorias": nestedArray[1]
+              };
+              
+              resolve(finalObject);
             }
           }, { noAck: true });
         });
