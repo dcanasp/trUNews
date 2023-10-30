@@ -1,40 +1,4 @@
-import {Server as HttpServer} from 'http';
-import {Server as SocketIoServer, Socket} from 'socket.io';
 import amqplib from 'amqplib'
-
-// private io: SocketIoServer;
-
-// constructor(private httpServer: HttpServer) {
-
-// Initialize Socket.io
-// this.io = new SocketIoServer(httpServer, {
-// Additional options if needed
-// });
-
-export async function socketCreation() { /*
-        this.io.on("connection", (socket: Socket) => {
-        console.log(`New client connected with id: ${socket.id}`);
-  
-        // Listen for 'newArticle' event from the frontend
-        socket.on("newArticle", (data) => {
-          console.log(`Received new article with id: ${data.id}`);
-          
-          // TODO: Process the article and push it to RabbitMQ
-          
-          // After processing, you can emit back the "importantData"
-          const importantData = {
-            // Your data here
-          };
-          socket.emit("importantData", importantData);
-        });
-  
-        // Optionally, handle client disconnection
-        socket.on("disconnect", () => {
-          console.log(`Client ${socket.id} disconnected`);
-        });
-      });
-      */
-}
 
 export async function lanzarQueueRespuesta(texto:string) {
     try {
