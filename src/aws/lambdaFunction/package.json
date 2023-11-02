@@ -10,14 +10,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@faker-js/faker": "^8.2.0",
+    "@faker-js/faker": "^8.2.0", 
     "@prisma/client": "^5.2.0",
     "argon2": "^0.31.1",
     "prisma": "^5.2.0",
     "reflect-metadata": "^0.1.13",
     "tsyringe": "^4.8.0"
-  },
+  }, 
   "devDependencies": {
-    "@types/node": "^20.8.9"
+    "@types/node": "^20.8.9",
+    "typescript": "^5.2.2"
   }
 }

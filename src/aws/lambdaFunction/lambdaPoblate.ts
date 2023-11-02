@@ -21,12 +21,15 @@ export async function hashPassword(password:string): Promise<string>{
 
 } 
 
-
+console.log('funcion principal');
 exports.main = async function (){
+    console.log("entra a main");
     await crearUsuarios(database);
+    console.log("crar usuarios funcion");
     await crearArticulos(database);
     await crearFollowers(database);
     await crearSaved(database);
+    console.log("hasta saved");
     await crearArticleHasCategories(database);
     await crearCommunityHasArticle(database);
     await crearCommunityHasUsers(database);
@@ -45,6 +48,7 @@ async function crearUsuarios(databaseService: PrismaClient) {
         const profession = Math.random() < 0.5 ? faker.person.jobTitle() : null; // 50% que sea nulo
         const description = Math.random() < 0.5 ? faker.lorem.sentence() : null; // 50% que sea nulo
         const profile_image = 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg';
+        console.log("antes de crear usuarios");
         await databaseService.users.create({
         data: {
             name: firstName,
