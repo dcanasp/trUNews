@@ -378,7 +378,7 @@ export class CommunityService {
 
   }
 
-  private async isMemberOfCommunity(userId: number, communityId: number) {
+  public async isMemberOfCommunity(userId: number, communityId: number) {
     const userMember = await this.databaseService.community_has_users.findFirst({
       where: {
         users_id_community: userId,
@@ -678,8 +678,89 @@ export class CommunityService {
         }
        }
 
-    public async getPossibleArticlesToPost(articleId : number, userId : number) {
+        public async checkArticleToAdd(userId: number,communityId: number) {
         
+
+        const article = await this.databaseService.article.findMany({
+            where: { id_writer:userId },
+            include: { 
+                writer:{select:{
+                    username:true,
+                    name:true,
+                    lastname:true,
+                }},
+                article_has_categories: { select: { category: true } },
+        },
+        });
+        
+        const saved = await this.databaseService.saved.findMany({
+            where: { id_user:userId },
+            include: { 
+                article:{include:{
+
+                        writer:{select:{
+                            username:true,
+                            name:true,
+                            lastname:true,}},
+                        article_has_categories: { select: { category: true } },
+                        
+                    },
+                    
+
+                }
+            
+            },
+        });
+
+        
+        if (!article && !saved) {
+            throw new DatabaseErrors('No tiene nada escrito, ni guardado');
+        }
+        
+        const isInCommunity = await this.databaseService.community_has_articles.findMany({
+            where: {users_id_community:userId,community_id_community:communityId}
+        });
+
+        const filterArticle = article.filter((art) => {
+            return !isInCommunity.some(commnunityArt => art.id_article === commnunityArt.article_id_community);
+        });
+
+        const filterSaved = saved.filter((sav) => {
+            return !isInCommunity.some(commnunityArt => sav.id_article === commnunityArt.article_id_community);
+        });
+
+        const flatArticle = filterArticle.map((art) => {
+            const { writer, article_has_categories, sanitizedText, ...articleData } = art;
+            const categories = article_has_categories.map(cat => ({
+              category: {
+                cat_name: cat.category.cat_name
+              }
+            }));
+            return {
+              ...articleData,
+              ...writer,
+              article_has_categories: categories
+            };
+          });
+        
+          const flatSaved = filterSaved.map((art) => {
+            const { article,...rest } = art;
+            const {article_has_categories,sanitizedText,...restArticle} =article;
+            const {writer,...articleData} = restArticle;
+            const categories = article_has_categories.map(cat => ({
+              category: {
+                cat_name: cat.category.cat_name
+              }
+            }));
+            return {
+              ...articleData,
+              ...writer,
+              article_has_categories: categories
+            };
+          });
+
+        return [...flatArticle,...flatSaved];
+
     }
 }
 

@@ -102,4 +102,15 @@ export class CommunityController {
       });
   }
 
- }
+  public checkArticleToAdd(req: Request, res: Response) {
+    this.communityFacade.checkArticleToAdd(req)
+      .then(community => res.json(community))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
+
+
+
+}
