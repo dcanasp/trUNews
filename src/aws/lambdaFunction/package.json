@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc",
+    "createLocal": "docker build --platform linux/amd64 -t lambda .",
+    "runLocal": "docker run -d -p 9000:8080 lambda"
   },
   "author": "",
   "license": "ISC",

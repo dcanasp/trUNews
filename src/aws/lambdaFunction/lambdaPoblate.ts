@@ -5,6 +5,9 @@ import { faker } from '@faker-js/faker';
 import {DatabaseService} from './databaseService';
 import { hash } from "argon2";
 import {sanitizeHtml} from './sanitizeHtml';
+import {trendArticle} from './decay'
+import { trendAuthor } from "./create";
+
 const database = container.resolve(DatabaseService).getClient();
 
 const numberOfEntries = 20;
@@ -33,6 +36,13 @@ exports.main = async function (){
     await crearArticleHasCategories(database);
     await crearCommunityHasArticle(database);
     await crearCommunityHasUsers(database);
+    
+    const createTrendArticle = container.resolve(trendArticle);
+    await createTrendArticle.weightedSumOfViews().then(result => console.log(`suma de pesos: ${result}`));
+
+    
+    const createTrendAuthor = container.resolve(trendAuthor);
+    await createTrendAuthor.create().then(result => console.log("funciona usuarios tendencia"));
 }
 
 
