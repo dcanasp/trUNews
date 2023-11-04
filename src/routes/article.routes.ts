@@ -45,7 +45,7 @@ export class ArticleRouter {
     );
     
     this.router.post('/create/categories',
-    validatePost(addCategoriesSchema),
+      validatePost(addCategoriesSchema),
       verifyJwtPost('id_writer'),  
       (req: Request, res: Response, next: NextFunction) =>
         this.articleController.createArticleCategories(req, res),
@@ -114,8 +114,8 @@ export class ArticleRouter {
     this.router.get('/createQr', 
     (req:Request, res:Response) => this.articleController.createQr(req, res));
 
-    this.router.post('/test', 
-    (req:Request, res:Response) => this.articleController.test(req, res));
+    
+    // la ruta me tiene que traer todos los articulos (escritos o guardados) de un usuario que conicidan con una o más categorias de la comunidad en la que esté
 
     return this.router;
   }

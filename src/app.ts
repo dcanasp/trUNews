@@ -6,8 +6,6 @@ import { swaggerUi} from "./utils/swagger/swagger";
 import {logger,permaLogger} from './utils/logger'
 import { rateLimiter } from './utils/rateLimiter';
 import { testConection } from './utils/testConection'
-import { Server as HttpServer } from 'http';
-import { Server as SocketIoServer } from 'socket.io';
 
 const fs = require('fs'); 
 const rawdata = fs.readFileSync('./swagger-output.json');
@@ -15,8 +13,6 @@ const swaggerDocument = JSON.parse(rawdata);
 
 export class App  {
   private app: Express;
-  private httpServer: HttpServer;
-  private io: SocketIoServer;
 
   constructor() {
     this.app = express();
@@ -27,8 +23,6 @@ export class App  {
     this.app.use( rateLimiter );
     this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     
-    this.httpServer = new HttpServer(this.app);  // Create an HTTP server
-    this.io = new SocketIoServer(this.httpServer);  // Create a Socket.io server
     testConection()
     
     this.loggerMiddleware()

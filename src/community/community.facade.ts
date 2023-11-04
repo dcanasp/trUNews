@@ -4,9 +4,9 @@ import {injectable, inject} from 'tsyringe'
 import {CommunityService} from './community.service';
 import {DatabaseErrors} from '../errors/database.errors';
 import { decryptToken } from "../auth/jwtServices";
-import {communityType} from '../dto/community';
+import {communityType,checkArticleToAddType} from '../dto/community';
 import {works} from '../utils/works';
-import {returnArticles} from '../dto/article';
+import {returnArticles,returnArticlesCategory} from '../dto/article';
 import {decryptedToken} from '../dto/user';
 
 
@@ -245,5 +245,19 @@ export class CommunityFacade {
         }
         return ;
     }
-    
+ 
+    public async checkArticleToAdd(req : Request) {
+        const body:checkArticleToAddType = req.body;
+        const userInCommunity = await this.communityService.isMemberOfCommunity(body.userId,body.communityId);
+        if (!userInCommunity){
+            return {"err": "Usuario no pertenece a la comunidad"};
+        }
+        const articleAdded: returnArticlesCategory[] = await this.communityService.checkArticleToAdd(body.userId,body.communityId);
+        if (! articleAdded) {
+            return {"err": "No tiene articulos publicados"}
+        }
+
+        return articleAdded;
+    }
+
 }

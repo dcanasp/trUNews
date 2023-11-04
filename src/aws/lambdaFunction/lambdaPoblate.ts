@@ -2,52 +2,78 @@ import "reflect-metadata";
 import {container} from 'tsyringe';
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
-import {DatabaseService} from '../../db/databaseService';
-import {hashPassword} from '../createHash';
-import {sanitizeHtml} from '../sanitizeHtml';
-
+import {DatabaseService} from './databaseService';
+import { hash } from "argon2";
+import {sanitizeHtml} from './sanitizeHtml';
+import {trendArticle} from './decay'
+import { trendAuthor } from "./create";
 
 const database = container.resolve(DatabaseService).getClient();
-const numberOfEntries = 300;
-main()
-export async function main() {
+
+const numberOfEntries = 20;
+
+export async function hashPassword(password:string): Promise<string>{
+    
+    try {
+        const hashPassword = await hash(password);
+        return hashPassword;
+    } catch (error:any) {
+        console.log(error)
+        return '';
+    }
+
+} 
+
+console.log('funcion principal');
+exports.main = async function (){
+    console.log("entra a main");
     await crearUsuarios(database);
+    console.log("crar usuarios funcion");
     await crearArticulos(database);
     await crearFollowers(database);
     await crearSaved(database);
-    await crearCategories(database);
+    console.log("hasta saved");
     await crearArticleHasCategories(database);
-	// await crearComunidades(database);
-	await crearCommunityHasArticle(database);
-	await crearCommunityHasCategorys(database);
-	await crearCommunityHasUsers(database);
-}
-async function crearUsuarios(databaseService: PrismaClient) {
-  for (let i = 0; i < numberOfEntries; i++) {
-    const firstName = faker.person.firstName();
-    const lastName = faker.person.lastName();
-    const username = faker.internet.displayName({ firstName, lastName });
-    const hash = await hashPassword("password");
+    await crearCommunityHasArticle(database);
+    await crearCommunityHasUsers(database);
+    
+    const createTrendArticle = container.resolve(trendArticle);
+    await createTrendArticle.weightedSumOfViews().then(result => console.log(`suma de pesos: ${result}`));
 
-    const rol = Math.floor(Math.random() * 3);
-    const profession = Math.random() < 0.5 ? faker.person.jobTitle() : null; // 50% que sea nulo
-    const description = Math.random() < 0.5 ? faker.lorem.sentence() : null; // 50% que sea nulo
-    const profile_image = 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg';
-    await databaseService.users.create({
-      data: {
-          name: firstName,
-          lastname: lastName,
-          username,
-          hash,
-          rol,
-          profession,
-          description,
-          profile_image
-      }
-    }).catch((err) => {
-      console.error("Error creating user: ", err);
-    });
-  }
+    
+    const createTrendAuthor = container.resolve(trendAuthor);
+    await createTrendAuthor.create().then(result => console.log("funciona usuarios tendencia"));
+}
+
+
+
+async function crearUsuarios(databaseService: PrismaClient) {
+    for (let i = 0; i < numberOfEntries; i++) {
+        const firstName = faker.person.firstName();
+        const lastName = faker.person.lastName();
+        const username = faker.internet.displayName({ firstName, lastName });
+        const hash = await hashPassword("password");
+
+        const rol = Math.floor(Math.random() * 2)+1;
+        const profession = Math.random() < 0.5 ? faker.person.jobTitle() : null; // 50% que sea nulo
+        const description = Math.random() < 0.5 ? faker.lorem.sentence() : null; // 50% que sea nulo
+        const profile_image = 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg';
+        console.log("antes de crear usuarios");
+        await databaseService.users.create({
+        data: {
+            name: firstName,
+            lastname: lastName,
+            username,
+            hash,
+            rol,
+            profession,
+            description,
+            profile_image
+        }
+        }).catch((err:any) => {
+        console.error("Error creating user: ", err);
+        });
+    }
 }
 
 
@@ -67,7 +93,7 @@ async function crearArticulos(databaseService: PrismaClient) {
       const id_writer = allUserIds[randomIndex].id_user;
   
       const title = faker.lorem.sentence();
-      const date = faker.date.recent({ days: 60 });
+      const date = faker.date.recent({ days: 15 });
       const views = Math.floor(Math.random()*1000);
       const text = `<div><h1>${faker.lorem.words()}</h1><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p><ul><li>${faker.lorem.word()}</li><li>${faker.lorem.word()}</li></ul><p>${faker.lorem.paragraph()}</p></div>`;
       const image_url = faker.image.url({height:1800,width:1920});
@@ -83,7 +109,7 @@ async function crearArticulos(databaseService: PrismaClient) {
           sanitizedText,
           image_url
         }
-      }).catch((err) => {
+      }).catch((err:any) => {
         console.error("Error creating article: ", err);
       });
     }
@@ -111,7 +137,7 @@ async function crearFollowers(databaseService : PrismaClient) {
                 id_follower,
                 id_following
             }
-        }).catch((err) => {
+        }).catch((err:any) => {
             console.error("Error creating follower: ", err); // va a fallar cuando por suerte vuelvan a salir 2 veces los mismos numeros
         });
     }
@@ -143,7 +169,7 @@ async function crearSaved(databaseService : PrismaClient) {
                 id_article,
                 date
             }
-        }).catch((err) => {
+        }).catch((err:any) => {
             console.error("Error creating saved: ", err);
         });
     }
@@ -157,7 +183,7 @@ async function crearCategories(databaseService : PrismaClient) {
             data: {
                 cat_name: cat
             }
-        }).catch((err) => {
+        }).catch((err:any) => {
             console.error("Error creating saved: ", err);
         });
     };
@@ -172,9 +198,13 @@ async function crearArticleHasCategories(databaseService : PrismaClient) {
     });
 
     const allArticleIds = await databaseService.article.findMany({
+        orderBy: {
+            id_article: 'desc',  // Order by id_article in descending order to get latest articles
+        },
+        take: numberOfEntries,
         select: {
             id_article: true
-        }
+        },
     });
     for (const article of allArticleIds) {
         const cantidadCategorias = Math.ceil(Math.random() * 4);
@@ -191,7 +221,7 @@ async function crearArticleHasCategories(databaseService : PrismaClient) {
                     articles_id_article: article.id_article,
                     categories_id_categories: id_category
                 }
-            }).catch((err) => {
+            }).catch((err:any) => {
                 console.error("Error creating saved: ",err);// falla cuando por suerte un articulo queda con 2 veces la misma categoria de la que ya esta en la db
             });
         };
@@ -240,7 +270,7 @@ async function crearComunidades(databaseService : PrismaClient) {
             }
         })
         }
-        catch(err){
+        catch(err:any){
             console.error("Error creating saved: ", err);
         }
 
@@ -279,7 +309,7 @@ async function crearCommunityHasArticle(databaseService : PrismaClient) {
                 community_id_community: id_community,
                 users_id_community: id_user
             }
-        }).catch((err) => {
+        }).catch((err:any) => {
             console.error("Error creating saved: ", err); // falla cuando por suerte un articulo queda con 2 veces la misma categoria
         });
     };
@@ -308,7 +338,7 @@ async function crearCommunityHasCategorys(databaseService : PrismaClient) {
                 categories_id_community: id_category,
                 community_id_community: id_community
             }
-        }).catch((err) => {
+        }).catch((err:any) => {
             console.error("Error creating saved: ", err); // falla cuando por suerte un articulo queda con 2 veces la misma categoria
         });
     };
@@ -336,7 +366,7 @@ async function crearCommunityHasUsers(databaseService : PrismaClient) {
                 users_id_community: id_user,
                 community_id_community: id_community
             }
-        }).catch((err) => {
+        }).catch((err:any) => {
             console.error("Error creating saved: ", err); // falla cuando por suerte un articulo queda con 2 veces la misma categoria
         });
     };

@@ -1,0 +1,26 @@
+{
+  "name": "aws_lambda_poblate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "createLocal": "docker build --platform linux/amd64 -t lambda .",
+    "runLocal": "docker run -d -p 9000:8080 lambda"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@faker-js/faker": "^8.2.0", 
+    "@prisma/client": "^5.2.0",
+    "argon2": "^0.31.1",
+    "prisma": "^5.2.0",
+    "reflect-metadata": "^0.1.13",
+    "tsyringe": "^4.8.0"
+  }, 
+  "devDependencies": {
+    "@types/node": "^20.8.9",
+    "typescript": "^5.2.2"
+  }
+}
