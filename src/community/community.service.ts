@@ -300,6 +300,8 @@ export class CommunityService {
     }
 
   public async getCommunityById(communityId : number, userId : number) {
+    try{
+
     const community = await this.databaseService.community.findFirst({
       where: {
           id_community: communityId
@@ -375,6 +377,10 @@ export class CommunityService {
       membersCount,
       articlesCount,
     };
+    }
+    catch{
+        return ;
+    }
 
   }
 
@@ -697,7 +703,8 @@ export class CommunityService {
        }
 
        public async checkArticleToAdd(userId: number,communityId: number) {
-        
+        try{
+
 
         const article = await this.databaseService.article.findMany({
             where: { id_writer:userId },
@@ -778,12 +785,16 @@ export class CommunityService {
           });
 
         return [...flatArticle,...flatSaved];
+        }
+        catch{
+            return;
+        }
 
     }
 
 
     public async postedOnCommunity(userId: number,communityId: number) {
-        
+        try {
         const isInCommunity = await this.databaseService.community_has_articles.findMany({
             where: {users_id_community:userId,community_id_community:communityId}
         });
@@ -822,8 +833,12 @@ export class CommunityService {
             };
           });
         return flatArticle;
-
     }
+    catch{
+        return;
+    }
+    }
+
 
 }
 
