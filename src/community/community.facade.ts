@@ -176,7 +176,7 @@ export class CommunityFacade {
         if (! communityJoined) {
             return {"err": "No se pudo unirse a la comunidad"}
         }
-        return ;
+        return {"success":true};
     }
 
     public async leaveCommunity(req : Request) {
@@ -196,7 +196,7 @@ export class CommunityFacade {
         if (! communityLeft) {
             return {"err": "No se pudo salir de la comunidad"}
         }
-        return ;
+        return {"success":true};
     }
 
     public async getCommunityMembers(req : Request) {
@@ -247,7 +247,7 @@ export class CommunityFacade {
         if (! articleRemoved) {
             return {"err": "No se pudo eliminar el articulo de la comunidad"}
         }
-        return ;
+        return {"success":true};
     }
  
     public async checkArticleToAdd(req : Request) {
@@ -257,7 +257,7 @@ export class CommunityFacade {
             return {"err": "Usuario no pertenece a la comunidad"};
         }
         const articleAdded: returnArticlesCategory[] = await this.communityService.checkArticleToAdd(body.userId,body.communityId);
-        if (! articleAdded) {
+        if (! articleAdded || articleAdded.length===0) {
             return {"err": "No tiene articulos publicados"}
         }
 

@@ -397,23 +397,31 @@ export class CommunityService {
   public async createCommunity(body : createCommunityType) {
       try{
         
+        let finalAvatarUrl= 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg';
+        if (body.avatar_url!=''){
+            const urlAvatar = await this.addImageNew(body.avatar_url,body.avatar_extension,body.avatar_ancho,body.avatar_ratio,'avatar')
+            if (! urlAvatar) {
+                throw new DatabaseErrors('No se pudo crear avatar en s3.')
+            }
+            finalAvatarUrl = urlAvatar;
+        }
 
-        // const urlAvatar = await this.addImageNew(body.avatar_url,body.avatar_extension,body.avatar_ancho,body.avatar_ratio,'avatar')
-        // if (! urlAvatar) {
-        //     throw new DatabaseErrors('No se pudo crear avatar en s3.')
-        // }
-        // const urlBanner = await this.addImageNew(body.banner_url,body.banner_extension,body.banner_ancho,body.banner_ratio,'banner')
-        // if (! urlBanner) {
-        //     throw new DatabaseErrors('No se pudo crear banner en s3.')
-        // }
+        let finalBannerUrl= 'https://trunews.s3.us-east-2.amazonaws.com/community/banner/defaultBanner.jpg';
+        if (body.banner_url!=''){
+            const urlBanner = await this.addImageNew(body.banner_url,body.banner_extension,body.banner_ancho,body.banner_ratio,'banner')
+            if (! urlBanner) {
+                throw new DatabaseErrors('No se pudo crear banner en s3.')
+            }
+            finalBannerUrl = urlBanner;
+        }
         const communityCreated = await this.databaseService.community.create({
           data: {
               name: body.name,
               description: body.description,
               creator_id: body.creator_id,
               date: body.date,
-              avatar_url: 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg',//urlAvatar
-              banner_url: 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg',//urlBanner
+              avatar_url: finalAvatarUrl,//urlAvatar
+              banner_url: finalBannerUrl,//urlBanner
           }
       })
 
@@ -448,7 +456,7 @@ export class CommunityService {
         return community.creator_id == userId;
     }
 
-  public async updateCommunity(communityId : number, body : createCommunityType) {
+  public async updateCommunity(communityId : number, body : Partial<createCommunityType>) {
       try{
         const existingCommunity = await this.databaseService.community.findFirst({
           where: {
@@ -459,16 +467,15 @@ export class CommunityService {
       if (!existingCommunity) {
           throw new DatabaseErrors('La comunidad no existe');
       }
-
-      
-    //   const urlAvatar = await this.addImageUpdate(body.avatar_url,body.avatar_extension,body.avatar_ancho,body.avatar_ratio)
-    //   if (! urlAvatar) {
-    //       throw new DatabaseErrors('No se pudo crear avatar en s3.')
-    //   }
-    //   const urlBanner = await this.addImageUpdate(body.banner_url,body.banner_extension,body.banner_ancho,body.banner_ratio)
-    //   if (! urlBanner) {
-    //       throw new DatabaseErrors('No se pudo crear banner en s3.')
-    //   }
+      //public async addImageUpdate(communityId:number,contenido: string, extension:string,subFolder:string) {
+      const urlAvatar = await this.addImageUpdate(communityId,body.avatar_url,body.avatar_extension,'banner')
+      if (! urlAvatar) {
+          throw new DatabaseErrors('No se pudo crear avatar en s3.')
+      }
+      const urlBanner = await this.addImageUpdate(communityId,body.banner_url,body.banner_extension,'banner')
+      if (! urlBanner) {
+          throw new DatabaseErrors('No se pudo crear banner en s3.')
+      }
       
 
       const communityUpdated = await this.databaseService.community.update({
@@ -540,7 +547,7 @@ export class CommunityService {
       if (!communityJoined){
           throw new DatabaseErrors('No se pudo unir al usuario a la comunidad.')
       }
-      return communityJoined
+      return communityJoined;
       }
       catch{
           return ;
@@ -565,6 +572,29 @@ export class CommunityService {
           return ;
       }
   }
+
+    public async addImageUpdate(communityId:number,contenido: string, extension:string='.png',subFolder:string) {
+        try {
+            const folder = `community/${subFolder}`;
+            // const imageBuffer = contenido;
+            const imageBuffer = Buffer.from(contenido.split(',')[1], 'base64');
+            // debe ser un buffer el contenido
+            
+            const link = process.env.S3_url
+            const file_name = (communityId + extension)
+            
+            // const resizedImageBuffer = await resizeImages(imageBuffer,ancho,ratio);
+
+            const url = await uploadToS3(file_name, imageBuffer,folder) // body.contenido);
+            if (! url) {
+                throw new DatabaseErrors('no se pudo subir a s3');
+            }
+            // crear nuevo registro
+            return `${link}${folder}/${file_name}`;
+        } catch (error) {
+            return;
+        }
+    }
 
     public async addImageNew(contenido: string, extension:string,ancho:number,ratio:string,subFolder:string) {
         try {
@@ -704,109 +734,8 @@ export class CommunityService {
 
        public async checkArticleToAdd(userId: number,communityId: number) {
         try{
-
-
-        const article = await this.databaseService.article.findMany({
-            where: { id_writer:userId },
-            include: { 
-                writer:{select:{
-                    username:true,
-                    name:true,
-                    lastname:true,
-                }},
-                article_has_categories: { select: { category: true } },
-        },
-        });
-        
-        const saved = await this.databaseService.saved.findMany({
-            where: { id_user:userId },
-            include: { 
-                article:{include:{
-
-                        writer:{select:{
-                            username:true,
-                            name:true,
-                            lastname:true,}},
-                        article_has_categories: { select: { category: true } },
-                        
-                    },
-                    
-
-                }
-            
-            },
-        });
-
-        
-        if (!article && !saved) {
-            throw new DatabaseErrors('No tiene nada escrito, ni guardado');
-        }
-        
-        const isInCommunity = await this.databaseService.community_has_articles.findMany({
-            where: {users_id_community:userId,community_id_community:communityId}
-        });
-
-        const filterArticle = article.filter((art) => {
-            return !isInCommunity.some(commnunityArt => art.id_article === commnunityArt.article_id_community);
-        });
-
-        const filterSaved = saved.filter((sav) => {
-            return !isInCommunity.some(commnunityArt => sav.id_article === commnunityArt.article_id_community);
-        });
-
-        const flatArticle = filterArticle.map((art) => {
-            const { writer, article_has_categories, sanitizedText, ...articleData } = art;
-            const categories = article_has_categories.map(cat => ({
-              category: {
-                cat_name: cat.category.cat_name
-              }
-            }));
-            return {
-              ...articleData,
-              ...writer,
-              article_has_categories: categories
-            };
-          });
-        
-          const flatSaved = filterSaved.map((art) => {
-            const { article,...rest } = art;
-            const {article_has_categories,sanitizedText,...restArticle} =article;
-            const {writer,...articleData} = restArticle;
-            const categories = article_has_categories.map(cat => ({
-              category: {
-                cat_name: cat.category.cat_name
-              }
-            }));
-            return {
-              ...articleData,
-              ...writer,
-              article_has_categories: categories
-            };
-          });
-
-        return [...flatArticle,...flatSaved];
-        }
-        catch{
-            return;
-        }
-
-    }
-
-
-    public async postedOnCommunity(userId: number,communityId: number) {
-        try {
-        const isInCommunity = await this.databaseService.community_has_articles.findMany({
-            where: {users_id_community:userId,community_id_community:communityId}
-        });
-        
-        if(!isInCommunity || isInCommunity.length===0){
-            throw new DatabaseErrors("no tiene articulos en la comunidad publicados");
-        }
-
-        const allArticles:any = [];
-        for (const article of isInCommunity){
-            const eachArticle = await this.databaseService.article.findUnique({
-                where:{id_article:article.article_id_community},
+            const article = await this.databaseService.article.findMany({
+                where: { id_writer:userId },
                 include: { 
                     writer:{select:{
                         username:true,
@@ -816,27 +745,125 @@ export class CommunityService {
                     article_has_categories: { select: { category: true } },
             },
             });
-            allArticles.push(eachArticle);
+            
+            const saved = await this.databaseService.saved.findMany({
+                where: { id_user:userId },
+                include: { 
+                    article:{include:{
+
+                            writer:{select:{
+                                username:true,
+                                name:true,
+                                lastname:true,}},
+                            article_has_categories: { select: { category: true } },
+                            
+                        },
+                        
+
+                    }
+                
+                },
+            });
+
+            
+            if (!article && !saved) {
+                throw new DatabaseErrors('No tiene nada escrito, ni guardado');
+            }
+            
+            const isInCommunity = await this.databaseService.community_has_articles.findMany({
+                where: {users_id_community:userId,community_id_community:communityId}
+            });
+
+            const filterArticle = article.filter((art) => {
+                return !isInCommunity.some(commnunityArt => art.id_article === commnunityArt.article_id_community);
+            });
+
+            const filterSaved = saved.filter((sav) => {
+                return !isInCommunity.some(commnunityArt => sav.id_article === commnunityArt.article_id_community);
+            });
+
+            const flatArticle = filterArticle.map((art) => {
+                const { writer, article_has_categories, sanitizedText, ...articleData } = art;
+                const categories = article_has_categories.map(cat => ({
+                category: {
+                    cat_name: cat.category.cat_name
+                }
+                }));
+                return {
+                ...articleData,
+                ...writer,
+                article_has_categories: categories
+                };
+            });
+            
+            const flatSaved = filterSaved.map((art) => {
+                const { article,...rest } = art;
+                const {article_has_categories,sanitizedText,...restArticle} =article;
+                const {writer,...articleData} = restArticle;
+                const categories = article_has_categories.map(cat => ({
+                category: {
+                    cat_name: cat.category.cat_name
+                }
+                }));
+                return {
+                ...articleData,
+                ...writer,
+                article_has_categories: categories
+                };
+            });
+
+            return [...flatArticle,...flatSaved];
+        }catch{
+            return [];
         }
 
-        const flatArticle = allArticles.map((art:any) => {
-            const { writer, article_has_categories, sanitizedText, ...articleData } = art;
-            const categories = article_has_categories.map((cat:any) => ({
-              category: {
-                cat_name: cat.category.cat_name
-              }
-            }));
-            return {
-              ...articleData,
-              ...writer,
-              article_has_categories: categories
-            };
-          });
-        return flatArticle;
     }
-    catch{
-        return;
-    }
+
+
+    public async postedOnCommunity(userId: number,communityId: number) {
+        try {
+            const isInCommunity = await this.databaseService.community_has_articles.findMany({
+                where: {users_id_community:userId,community_id_community:communityId}
+            });
+            
+            if(!isInCommunity || isInCommunity.length===0){
+                throw new DatabaseErrors("no tiene articulos en la comunidad publicados");
+            }
+
+            const allArticles:any = [];
+            for (const article of isInCommunity){
+                const eachArticle = await this.databaseService.article.findUnique({
+                    where:{id_article:article.article_id_community},
+                    include: { 
+                        writer:{select:{
+                            username:true,
+                            name:true,
+                            lastname:true,
+                        }},
+                        article_has_categories: { select: { category: true } },
+                },
+                });
+                allArticles.push(eachArticle);
+            }
+
+            const flatArticle = allArticles.map((art:any) => {
+                const { writer, article_has_categories, sanitizedText, ...articleData } = art;
+                const categories = article_has_categories.map((cat:any) => ({
+                category: {
+                    cat_name: cat.category.cat_name
+                }
+                }));
+                return {
+                ...articleData,
+                ...writer,
+                article_has_categories: categories
+                };
+            });
+            return flatArticle;
+        }
+        catch{
+            return;
+        }
     }
 
 
