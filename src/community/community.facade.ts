@@ -4,7 +4,7 @@ import {injectable, inject} from 'tsyringe'
 import {CommunityService} from './community.service';
 import {DatabaseErrors} from '../errors/database.errors';
 import { decryptToken } from "../auth/jwtServices";
-import {communityType,checkArticleToAddType} from '../dto/community';
+import {communityType,checkArticleToAddType,addArticleCommunityType} from '../dto/community';
 import {works} from '../utils/works';
 import {returnArticles,returnArticlesCategory} from '../dto/article';
 import {decryptedToken} from '../dto/user';
@@ -217,14 +217,18 @@ export class CommunityFacade {
         if(!decryptedToken){
 			return {"err": 'token invalido'};
 		}
-
-        const communityId = req.params.communityId;
-        const articleId = req.params.idArticle;
-        const articleAdded = await this.communityService.addArticleToCommunity(parseInt(communityId, 10), parseInt(articleId, 10),decryptedToken.userId);
+        const body:addArticleCommunityType = req.body;
+        const communityId = body.communityId;
+        const userInCommunity = this.communityService.isMemberOfCommunity(decryptedToken.userId,communityId)
+        if (!userInCommunity){
+            return {"err": "Usuario no pertenece a la comunidad"};
+        }
+        const articleId = body.articleId;
+        const articleAdded = await this.communityService.addArticleToCommunity(communityId,articleId ,decryptedToken.userId);
         if (! articleAdded) {
             return {"err": "No se pudo agregar el articulo a la comunidad, verifique que posea una categoría en común con la comunidad."}
         }
-        return ;
+        return articleAdded;
     }
 
     public async removeArticle(req : Request) {

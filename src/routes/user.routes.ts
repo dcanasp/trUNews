@@ -99,7 +99,12 @@ export class UserRouter {
             this.router.get('/following/:userId', 
                 (req:Request, res:Response) =>  this.userController.getFollowing(req, res));
 
+            this.router.get('/statistics/monthlyViews/:id', 
+                verifyJwt(Roles.escritor),
+                (req:Request, res:Response) => this.userController.monthlyViews(req, res));
+            
             return this.router
+
 
             
     }

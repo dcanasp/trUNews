@@ -1,8 +1,9 @@
 import { z } from 'zod';
-import { createCommunitySchema,checkArticleToAddSchema } from '../middleware/dataValidation/schemas'; // Asegúrate de importar el esquema adecuado
+import { createCommunitySchema,checkArticleToAddSchema,addArticleCommunitySchema } from '../middleware/dataValidation/schemas'; // Asegúrate de importar el esquema adecuado
 
 export type createCommunityType = z.infer<typeof createCommunitySchema>;
 export type checkArticleToAddType = z.infer<typeof checkArticleToAddSchema>;
+export type addArticleCommunityType = z.infer<typeof addArticleCommunitySchema>;
 
 export interface communityHasUsersType {
     users_id_community: number;

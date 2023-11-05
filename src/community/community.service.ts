@@ -390,7 +390,17 @@ export class CommunityService {
 
   public async createCommunity(body : createCommunityType) {
       try{
-      const communityCreated = await this.databaseService.community.create({
+        
+
+        // const urlAvatar = await this.addImageNew(body.avatar_url,body.avatar_extension,body.avatar_ancho,body.avatar_ratio,'avatar')
+        // if (! urlAvatar) {
+        //     throw new DatabaseErrors('No se pudo crear avatar en s3.')
+        // }
+        // const urlBanner = await this.addImageNew(body.banner_url,body.banner_extension,body.banner_ancho,body.banner_ratio,'banner')
+        // if (! urlBanner) {
+        //     throw new DatabaseErrors('No se pudo crear banner en s3.')
+        // }
+        const communityCreated = await this.databaseService.community.create({
           data: {
               name: body.name,
               description: body.description,
@@ -432,7 +442,7 @@ export class CommunityService {
         return community.creator_id == userId;
     }
 
-  public async updateCommunity(communityId : number, body : Partial<createCommunityType>) {
+  public async updateCommunity(communityId : number, body : createCommunityType) {
       try{
         const existingCommunity = await this.databaseService.community.findFirst({
           where: {
@@ -444,16 +454,16 @@ export class CommunityService {
           throw new DatabaseErrors('La comunidad no existe');
       }
 
-      /*
-      const urlAvatar = await this.addImage(body.avatar_url,body.avatar_extension,body.avatar_ancho,body.avatar_ratio)
-      if (! urlAvatar) {
-          throw new DatabaseErrors('No se pudo crear avatar en s3.')
-      }
-      const urlBanner = await this.addImage(body.banner_url,body.banner_extension,body.banner_ancho,body.banner_ratio)
-      if (! urlBanner) {
-          throw new DatabaseErrors('No se pudo crear banner en s3.')
-      }
-      */
+      
+    //   const urlAvatar = await this.addImageUpdate(body.avatar_url,body.avatar_extension,body.avatar_ancho,body.avatar_ratio)
+    //   if (! urlAvatar) {
+    //       throw new DatabaseErrors('No se pudo crear avatar en s3.')
+    //   }
+    //   const urlBanner = await this.addImageUpdate(body.banner_url,body.banner_extension,body.banner_ancho,body.banner_ratio)
+    //   if (! urlBanner) {
+    //       throw new DatabaseErrors('No se pudo crear banner en s3.')
+    //   }
+      
 
       const communityUpdated = await this.databaseService.community.update({
           where: {
@@ -550,7 +560,7 @@ export class CommunityService {
       }
   }
 
-    public async addImage(contenido: string, extension:string,ancho:number,ratio:string) {
+    public async addImageNew(contenido: string, extension:string,ancho:number,ratio:string,subFolder:string) {
         try {
             const ultimo = await this.databaseService.community.findMany({
                 orderBy: {
@@ -558,7 +568,7 @@ export class CommunityService {
                 },
                 take: 1
             });
-            const folder = 'community';
+            const folder = `community/${subFolder}`;
             // const imageBuffer = contenido;
             const imageBuffer = Buffer.from(contenido.split(',')[1], 'base64');
             // debe ser un buffer el contenido
@@ -605,7 +615,8 @@ export class CommunityService {
     }
 
     public async addArticleToCommunity(communityId: number, articleId: number, userId: number) {
-        
+        try{
+
         const article = await this.databaseService.article.findUnique({
             where: { id_article: articleId },
             include: { article_has_categories: { include: { category: true } }},
@@ -620,22 +631,29 @@ export class CommunityService {
         if (!article || !community) {
             throw new DatabaseErrors('No se pudo encontrar el artículo o la comunidad.');
         }
-    
+        // console.log(article.article_has_categories)
+        // console.log(community.community_has_categories)
         // Comprueba si hay al menos una categoría en común entre el artículo y la comunidad
         const commonCategories = article.article_has_categories.map(ac => ac.category.id_category)
             .filter(categoryId => community.community_has_categories.some(cc => cc.category.id_category === categoryId));
-    
         if (commonCategories.length === 0) {
             return  ;
         }
     
-        return this.databaseService.community_has_articles.create({
+
+        const crearArticulo =await this.databaseService.community_has_articles.create({
             data: {
                 community_id_community: communityId,
                 article_id_community: articleId,
                 users_id_community: userId
             }
         });
+        return {"succes":true}        
+        }
+        catch{
+            return {"err":"ya existe el articulo en la comunidad"};
+        }
+
     }
     
 

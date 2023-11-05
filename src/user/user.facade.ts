@@ -261,12 +261,16 @@ export class UserFacade {
             throw new Error('Error al obtener a quiénes sigue el usuario');
         }
     }
-    // public async addImage(body:any){
-    //     const urlS3 =await this.userService.addImage(body);
-    //     if(!urlS3){
-    //         return{'err':'no se pudo subir a S3'}
-    //     }
-    //     return {"url":urlS3}
-    // }
+
+    public async monthlyViews(userId: number) {
+        try{
+            console.log(userId)
+            const statistics =  await this.userService.monthlyViews(userId);
+            return statistics;  
+        }
+        catch (error) {
+            throw new Error('no hay estadisticas mensuales');
+        }
+    }
   
 }

@@ -536,5 +536,15 @@ public async updatePassword(userId: string, newPassword: string) {
 
 
 
+    public async monthlyViews(userId: number) {
+        try {
+            
+            return '';
+        } catch (error) {
+            throw new Error('error Estadisticas mensuales servicio');
+        }
+    }
+
+
 
 }

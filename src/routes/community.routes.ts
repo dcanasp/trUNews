@@ -5,7 +5,7 @@ import {logger,permaLogger} from '../utils/logger';
 // import { UserController } from '../user/user.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation'
 import { convertDateFields } from '../utils/convertDataTypes'
-import { checkPasswordSchema, createCommunitySchema, createUserSchema, decryptJWTSchema, checkArticleToAddSchema} from '../middleware/dataValidation/schemas'
+import { checkPasswordSchema, createCommunitySchema, createUserSchema, decryptJWTSchema,addArticleCommunitySchema, checkArticleToAddSchema} from '../middleware/dataValidation/schemas'
 import { generateJwt, verifyJwt, verifyJwtPost } from '../auth/jwtServices'
 import { Roles } from '../utils/roleDefinition'
 import { inject, injectable } from 'tsyringe'
@@ -67,7 +67,8 @@ export class CommunityRouter {
         this.router.get('/members/:communityId([0-9]+)', 
             (req:Request, res:Response) =>  this.communityController.getMembers(req, res));
 
-        this.router.post('/addArticle/:communityId([0-9]+)/:idArticle([0-9]+)',
+        this.router.post('/addArticle/',
+            validatePost(addArticleCommunitySchema),
             (req:Request, res:Response) =>  this.communityController.addArticle(req, res));
 
         this.router.delete('/removeArticle/:communityId([0-9]+)/:idArticle([0-9]+)',

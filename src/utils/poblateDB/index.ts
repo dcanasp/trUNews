@@ -17,7 +17,7 @@ export async function main() {
     await crearSaved(database);
     await crearCategories(database);
     await crearArticleHasCategories(database);
-	// await crearComunidades(database);
+	await crearComunidades(database);
 	await crearCommunityHasArticle(database);
 	await crearCommunityHasCategorys(database);
 	await crearCommunityHasUsers(database);
@@ -177,7 +177,7 @@ async function crearArticleHasCategories(databaseService : PrismaClient) {
         }
     });
     for (const article of allArticleIds) {
-        const cantidadCategorias = Math.ceil(Math.random() * 4);
+        const cantidadCategorias = Math.floor(Math.random() * 3)+1;
         const usedCategories:number[] = [];
         for (let i = 0; i < cantidadCategorias; i++) {
             let id_category = allCategoriesId[Math.floor(Math.random() * allCategoriesId.length)].id_category;
