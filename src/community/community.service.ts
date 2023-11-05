@@ -678,7 +678,7 @@ export class CommunityService {
         }
        }
 
-        public async checkArticleToAdd(userId: number,communityId: number) {
+       public async checkArticleToAdd(userId: number,communityId: number) {
         
 
         const article = await this.databaseService.article.findMany({
@@ -762,5 +762,50 @@ export class CommunityService {
         return [...flatArticle,...flatSaved];
 
     }
+
+
+    public async postedOnCommunity(userId: number,communityId: number) {
+        
+        const isInCommunity = await this.databaseService.community_has_articles.findMany({
+            where: {users_id_community:userId,community_id_community:communityId}
+        });
+        
+        if(!isInCommunity || isInCommunity.length===0){
+            throw new DatabaseErrors("no tiene articulos en la comunidad publicados");
+        }
+
+        const allArticles:any = [];
+        for (const article of isInCommunity){
+            const eachArticle = await this.databaseService.article.findUnique({
+                where:{id_article:article.article_id_community},
+                include: { 
+                    writer:{select:{
+                        username:true,
+                        name:true,
+                        lastname:true,
+                    }},
+                    article_has_categories: { select: { category: true } },
+            },
+            });
+            allArticles.push(eachArticle);
+        }
+
+        const flatArticle = allArticles.map((art:any) => {
+            const { writer, article_has_categories, sanitizedText, ...articleData } = art;
+            const categories = article_has_categories.map((cat:any) => ({
+              category: {
+                cat_name: cat.category.cat_name
+              }
+            }));
+            return {
+              ...articleData,
+              ...writer,
+              article_has_categories: categories
+            };
+          });
+        return flatArticle;
+
+    }
+
 }
 

@@ -111,6 +111,13 @@ export class CommunityController {
   }
 
 
+  public postedOnCommunity(req: Request, res: Response) {
+    this.communityFacade.postedOnCommunity(req)
+      .then(community => res.json(community))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
 
 
 }

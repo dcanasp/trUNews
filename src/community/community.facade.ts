@@ -260,4 +260,18 @@ export class CommunityFacade {
         return articleAdded;
     }
 
+    public async postedOnCommunity(req : Request) {
+        const body:checkArticleToAddType = req.body;
+        const userInCommunity = await this.communityService.isMemberOfCommunity(body.userId,body.communityId);
+        if (!userInCommunity){
+            return {"err": "Usuario no pertenece a la comunidad"};
+        }
+        const articleAdded:returnArticlesCategory[] = await this.communityService.postedOnCommunity(body.userId,body.communityId);
+        if (! articleAdded) {
+            return {"err": "No tiene articulos publicados en la comunidad"}
+        }
+
+        return articleAdded;
+    }
+
 }
