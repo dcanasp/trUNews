@@ -73,12 +73,12 @@ export class CommunityRouter {
         this.router.delete('/removeArticle/:communityId([0-9]+)/:idArticle([0-9]+)',
             (req:Request, res:Response) =>  this.communityController.removeArticle(req, res));
 
-        this.router.get('/checkArticleToAdd',
+        this.router.post('/checkArticleToAdd',
             validatePost(checkArticleToAddSchema),
             verifyJwtPost('userId'),
             (req:Request, res:Response) =>  this.communityController.checkArticleToAdd(req, res));
         
-        this.router.get('/postedOnCommunity',
+        this.router.post('/postedOnCommunity',
             validatePost(checkArticleToAddSchema),
             verifyJwtPost('userId'),
             (req:Request, res:Response) =>  this.communityController.postedOnCommunity(req, res));
