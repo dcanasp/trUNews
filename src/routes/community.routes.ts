@@ -78,7 +78,11 @@ export class CommunityRouter {
             verifyJwtPost('userId'),
             (req:Request, res:Response) =>  this.communityController.checkArticleToAdd(req, res));
         
-
+        this.router.get('/postedOnCommunity',
+            validatePost(checkArticleToAddSchema),
+            verifyJwtPost('userId'),
+            (req:Request, res:Response) =>  this.communityController.postedOnCommunity(req, res));
+        
         return this.router
 
     }
