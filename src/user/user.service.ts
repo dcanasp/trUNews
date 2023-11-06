@@ -561,6 +561,21 @@ public async updatePassword(userId: string, newPassword: string) {
         }
     }
 
+    public async getEventsAttended(userId: number) {
+        try {
+            const events = await this.databaseService.event_attendee.findMany({
+                where: {
+                    user_id_attendee: userId,
+                },
+                include: {
+                    event: true
+                }
+            });
 
+            return events;
+        } catch (error) {
+            throw new Error('Error al obtener los eventos a los que asistió el usuario');
+        }
+    }
 
 }

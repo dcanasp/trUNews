@@ -276,4 +276,107 @@ export class CommunityFacade {
         return articleAdded;
     }
 
+    public async createEvent(req : Request) {
+        const body = req.body;
+        const eventCreated = await this.communityService.createEvent(body);
+        if (! eventCreated) {
+            return {"err": "No se pudo crear el evento"}
+        }
+        return eventCreated;
+    }
+
+    public async getCommunityEvents(req : Request) {
+        if(!req.headers['authorization']){
+			return {"err": 'No hay token para añadir artículo.'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+        const communityId = req.params.communityId;
+        const events = await this.communityService.getCommunityEvents(parseInt(communityId, 10), decryptedToken.userId);
+        if (! events) {
+            return {"err": "No se pudo obtener los eventos de la comunidad"}
+        }
+        return events;
+    }
+
+    public async getEvent(req : Request) {
+        if(!req.headers['authorization']){
+			return {"err": 'No hay token para añadir artículo.'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+        const eventId = req.params.eventId;
+        const event = await this.communityService.getEvent(parseInt(eventId, 10), decryptedToken.userId);
+        if (! event) {
+            return {"err": "No se pudo obtener el evento"}
+        }
+        return event;
+    }
+
+    public async deleteEvent(req : Request) {
+        const eventId = parseInt(req.params.idCommunity,10);
+        if(!req.headers['authorization']){
+			return {"err": 'no hay token'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+        const userId = decryptedToken.userId;
+
+
+        if(! await this.communityService.isCreatorEvent(eventId, userId)){
+            return {"err": "No es el creador del evento"}
+        }
+        const eventDeleted = await this.communityService.deleteEvent(eventId);
+        if (! eventDeleted) {
+            return {"err": "No se pudo eliminar el evento"}
+        }
+        return {eventId: eventDeleted.id_event, name: eventDeleted.name}
+    }
+
+    public async attendEvent(req : Request) {
+        const eventId = parseInt( req.params.idEvent,10 );
+        if(!req.headers['authorization']){
+			return {"err": 'no hay token'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+        const userId = decryptedToken.userId;
+		
+        const eventAttended = await this.communityService.attendEvent(eventId, userId);
+        if (! eventAttended) {
+            return {"err": "No se pudo asistir al evento"}
+        }
+        return {"success":true};
+    }
+
+    public async undoAttendEvent(req : Request) {
+        const eventId = parseInt( req.params.idEvent,10 );
+        if(!req.headers['authorization']){
+			return {"err": 'no hay token'};
+		}
+		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+			return {"err": 'token invalido'};
+		}
+        const userId = decryptedToken.userId;
+        
+        const eventAttended = await this.communityService.undoAttendEvent(eventId, userId);
+        if (! eventAttended) {
+            return {"err": "No se pudo asistir al evento"}
+        }
+        return {"success":true};
+    }
 }

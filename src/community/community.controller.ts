@@ -119,5 +119,51 @@ export class CommunityController {
       });
   }
 
+  public createEvent(req: Request, res: Response) {
+    this.communityFacade.createEvent(req)
+      .then(community => res.json(community))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
 
+  public getCommunityEvents(req: Request, res: Response) {
+    this.communityFacade.getCommunityEvents(req)
+      .then(events => res.json(events))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
+  public getEvent(req: Request, res: Response) {
+    this.communityFacade.getEvent(req)
+      .then(event => res.json(event))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
+  public deleteEvent(req: Request, res: Response) {
+    this.communityFacade.deleteEvent(req)
+      .then(event => res.json(event))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+  
+  public attendEvent(req: Request, res: Response) {
+    this.communityFacade.attendEvent(req)
+      .then(event => res.json(event))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
+  public undoAttendEvent(req: Request, res: Response) {
+    this.communityFacade.undoAttendEvent(req)
+      .then(event => res.json(event))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
 }

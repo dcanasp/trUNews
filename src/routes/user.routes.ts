@@ -103,6 +103,9 @@ export class UserRouter {
                 verifyJwt(Roles.escritor),
                 (req:Request, res:Response) => this.userController.statistics(req, res));
             
+            this.router.get('/eventsAttended/:userId([0-9]+)',
+                (req:Request, res:Response) => this.userController.eventsAttended(req, res));
+                
             return this.router
 
 
