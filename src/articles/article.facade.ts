@@ -39,22 +39,34 @@ export class ArticleFacade {
         return formattedGet;
     }
 
+    private timeout = (ms: number) => {
+        return new Promise(resolve => setTimeout(resolve, ms, 'timeout'));
+      };
 
     public async aiModel(req : Request) {
         const body:createArticleType = req.body;
         const sanitizedText = sanitizeHtml(body.text);
         // const modelos = await this.articleService.fetchModels(sanitizedText);
-        // const createSocket = await this.modelConection.socketCreation();
-        const modelos = await lanzarQueueRespuesta(sanitizedText);
-        if(!modelos){
-            return {err:true,titulos:['mejor titulo existente','segundo mejor titulo','tercero'],categorias:[{"label": "EDUCATION","score": 0.34894150495529175 },{"label": "BUSINESS","score": 0.3029727041721344},{"label": "POLITICS","score": 0.08930222690105438},]};
+        const modelosPromise = lanzarQueueRespuesta(sanitizedText);
+        const timeoutPromise = this.timeout(120000); // 2 minutes in milliseconds
+        
+        const result = await Promise.race([modelosPromise, timeoutPromise]);
+        
+        if (result === 'timeout' || !result) {
+          return {
+            err: true,
+            titulos: ['mejor titulo existente', 'segundo mejor titulo', 'tercero'],
+            categorias: [
+              {"label": "EDUCATION", "score": 0.34894150495529175 },
+              {"label": "BUSINESS", "score": 0.3029727041721344},
+              {"label": "POLITICS", "score": 0.08930222690105438}
+            ]
+          };
         }
         
+        // If you reached here, then `modelosPromise` resolved before timing out
+        return result;
 
-        // return modelos;
-        // console.log( cola?.replace('\\','') );
-        // console.log( JSON.parse(cola!) );
-        return modelos;
     }
     public async createArticle(req : Request) {
         const body:createArticleType = req.body;
@@ -80,7 +92,7 @@ export class ArticleFacade {
         if (! categoriesCreated) {
             return {err: "No se pudo añadir las categorias"};
         }
-        return {succes:"true"};
+        return {"success":"true"};
     }
 
     public async deleteArticle(req : Request) {

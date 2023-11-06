@@ -5,7 +5,7 @@
     "description": "Back rutas",
     "version": "1.0.0"
   },
-  "host": "localhost:3005",
+  "host": "d14b8hrwh6v3h8.cloudfront.net:3005",
   "basePath": "/",
   "schemes": [
     "http"
@@ -538,19 +538,11 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
           }
         ],
         "responses": {
-          "403": {
-            "description": "Forbidden"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -564,19 +556,11 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
           }
         ],
         "responses": {
-          "403": {
-            "description": "Forbidden"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -635,6 +619,16 @@
         }
       }
     },
+    "/articles/categories": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/articles/category/{categoryId}": {
       "get": {
         "description": "",
@@ -653,251 +647,349 @@
         }
       }
     },
-"/communities/find": {
-  "get": {
-    "description": "",
-    "responses": {
-      "default": {
-        "description": ""
+    "/articles/categoryById/{categoryId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/articles/createQr": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/communities/find": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/communities/find/{nombre}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "nombre",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/communities/related": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/communities/feed": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/communities/create": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/communities/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/communities/{id([0-9]+)}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/communities/update/{id([0-9]+)}/{idCommunity([0-9]+)}": {
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "idCommunity([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/communities/delete/{id([0-9]+)}/{idCommunity([0-9]+)}": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "idCommunity([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/communities/join/{id([0-9]+)}/{idCommunity([0-9]+)}": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "idCommunity([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/communities/leave/{id([0-9]+)}/{idCommunity([0-9]+)}": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "idCommunity([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/communities/members/{communityId([0-9]+)}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "communityId([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/communities/addArticle/{communityId([0-9]+)}/{idArticle([0-9]+)}": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "communityId([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "idArticle([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/communities/removeArticle/{communityId([0-9]+)}/{idArticle([0-9]+)}": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "communityId([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "idArticle([0-9]+)",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/communities/checkArticleToAdd": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
       }
     }
-  }
-},
-"/communities/find/{nombre}": {
-  "get": {
-    "description": "",
-    "parameters": [
-      {
-        "name": "nombre",
-        "in": "path",
-        "required": true,
-        "type": "string"
-      }
-    ],
-    "responses": {
-      "default": {
-        "description": ""
-      }
-    }
-  }
-},
-"/communities/related": {
-  "get": {
-    "description": "",
-    "responses": {
-      "default": {
-        "description": ""
-      }
-    }
-  }
-},
-"/communities/feed": {
-  "get": {
-    "description": "",
-    "responses": {
-      "default": {
-        "description": ""
-      }
-    }
-  }
-},
-"/communities/create": {
-  "post": {
-    "description": "",
-    "parameters": [
-      {
-        "name": "authorization",
-        "in": "header",
-        "type": "string"
-      }
-    ],
-    "responses": {
-      "400": {
-        "description": "Bad Request"
-      },
-      "403": {
-        "description": "Forbidden"
-      },
-      "500": {
-        "description": "Internal Server Error"
-      }
-    }
-  }
-},
-"/communities/": {
-  "get": {
-    "description": "",
-    "responses": {
-      "default": {
-        "description": ""
-      }
-    }
-  }
-},
-"/communities/{id([0-9]+)}": {
-  "get": {
-    "description": "",
-    "parameters": [
-      {
-        "name": "id([0-9]+)",
-        "in": "path",
-        "required": true,
-        "type": "string"
-      }
-    ],
-    "responses": {
-      "default": {
-        "description": ""
-      }
-    }
-  }
-},
-"/communities/{id([0-9]+)}/update/{idCommunity([0-9]+)}": {
-  "put": {
-    "description": "",
-    "parameters": [
-      {
-        "name": "id([0-9]+)",
-        "in": "path",
-        "required": true,
-        "type": "string"
-      },
-      {
-        "name": "idCommunity([0-9]+)",
-        "in": "path",
-        "required": true,
-        "type": "string"
-      },
-      {
-        "name": "authorization",
-        "in": "header",
-        "type": "string"
-      }
-    ],
-    "responses": {
-      "403": {
-        "description": "Forbidden"
-      },
-      "500": {
-        "description": "Internal Server Error"
-      }
-    }
-  }
-},
-"/communities/{id([0-9]+)}/delete/{idCommunity([0-9]+)}": {
-  "delete": {
-    "description": "",
-    "parameters": [
-      {
-        "name": "id([0-9]+)",
-        "in": "path",
-        "required": true,
-        "type": "string"
-      },
-      {
-        "name": "idCommunity([0-9]+)",
-        "in": "path",
-        "required": true,
-        "type": "string"
-      },
-      {
-        "name": "authorization",
-        "in": "header",
-        "type": "string"
-      }
-    ],
-    "responses": {
-      "403": {
-        "description": "Forbidden"
-      },
-      "500": {
-        "description": "Internal Server Error"
-      }
-    }
-  }
-},
-"/communities/{id}/join/{idCommunity([0-9]+)}": {
-  "post": {
-    "description": "",
-    "parameters": [
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "type": "string"
-      },
-      {
-        "name": "idCommunity([0-9]+)",
-        "in": "path",
-        "required": true,
-        "type": "string"
-      },
-      {
-        "name": "authorization",
-        "in": "header",
-        "type": "string"
-      }
-    ],
-    "responses": {
-      "403": {
-        "description": "Forbidden"
-      },
-      "500": {
-        "description": "Internal Server Error"
-      }
-    }
-  }
-},
-"/communities/{id}/leave/{idCommunity([0-9]+)}": {
-  "post": {
-    "description": "",
-    "parameters": [
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "type": "string"
-      },
-      {
-        "name": "idCommunity([0-9]+)",
-        "in": "path",
-        "required": true,
-        "type": "string"
-      },
-      {
-        "name": "authorization",
-        "in": "header",
-        "type": "string"
-      }
-    ],
-    "responses": {
-      "403": {
-        "description": "Forbidden"
-      },
-      "500": {
-        "description": "Internal Server Error"
-      }
-    }
-  }
-},
-"/communities/{communityId}/members": {
-  "get": {
-    "description": "",
-    "parameters": [
-      {
-        "name": "communityId",
-        "in": "path",
-        "required": true,
-        "type": "string"
-      }
-    ],
-    "responses": {
-      "default": {
-        "description": ""
-      }
-    }
-  }
-}
-
   }
 }

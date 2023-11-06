@@ -4,9 +4,9 @@ import {injectable, inject} from 'tsyringe'
 import {CommunityService} from './community.service';
 import {DatabaseErrors} from '../errors/database.errors';
 import { decryptToken } from "../auth/jwtServices";
-import {communityType} from '../dto/community';
+import {communityType,checkArticleToAddType,addArticleCommunityType} from '../dto/community';
 import {works} from '../utils/works';
-import {returnArticles} from '../dto/article';
+import {returnArticles,returnArticlesCategory} from '../dto/article';
 import {decryptedToken} from '../dto/user';
 
 
@@ -71,10 +71,8 @@ export class CommunityFacade {
 
 
     public async feed(req : Request) {
-        let weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 10);
         //@ts-ignore
-        const communities = await this.communityService.feed(parseInt(req.query.communityId),weekAgo);
+        const communities = await this.communityService.feed(parseInt(req.query.communityId));
 
         if(! communities ){
 			return {"err":'no hay feed de esta comunidad'}
@@ -176,7 +174,7 @@ export class CommunityFacade {
         if (! communityJoined) {
             return {"err": "No se pudo unirse a la comunidad"}
         }
-        return ;
+        return {"success":true};
     }
 
     public async leaveCommunity(req : Request) {
@@ -196,7 +194,7 @@ export class CommunityFacade {
         if (! communityLeft) {
             return {"err": "No se pudo salir de la comunidad"}
         }
-        return ;
+        return {"success":true};
     }
 
     public async getCommunityMembers(req : Request) {
@@ -217,14 +215,18 @@ export class CommunityFacade {
         if(!decryptedToken){
 			return {"err": 'token invalido'};
 		}
-
-        const communityId = req.params.communityId;
-        const articleId = req.params.idArticle;
-        const articleAdded = await this.communityService.addArticleToCommunity(parseInt(communityId, 10), parseInt(articleId, 10),decryptedToken.userId);
+        const body:addArticleCommunityType = req.body;
+        const communityId = body.communityId;
+        const userInCommunity = this.communityService.isMemberOfCommunity(decryptedToken.userId,communityId)
+        if (!userInCommunity){
+            return {"err": "Usuario no pertenece a la comunidad"};
+        }
+        const articleId = body.articleId;
+        const articleAdded = await this.communityService.addArticleToCommunity(communityId,articleId ,decryptedToken.userId);
         if (! articleAdded) {
             return {"err": "No se pudo agregar el articulo a la comunidad, verifique que posea una categoría en común con la comunidad."}
         }
-        return ;
+        return articleAdded;
     }
 
     public async removeArticle(req : Request) {
@@ -243,7 +245,35 @@ export class CommunityFacade {
         if (! articleRemoved) {
             return {"err": "No se pudo eliminar el articulo de la comunidad"}
         }
-        return ;
+        return {"success":true};
     }
-    
+ 
+    public async checkArticleToAdd(req : Request) {
+        const body:checkArticleToAddType = req.body;
+        const userInCommunity = await this.communityService.isMemberOfCommunity(body.userId,body.communityId);
+        if (!userInCommunity){
+            return {"err": "Usuario no pertenece a la comunidad"};
+        }
+        const articleAdded: returnArticlesCategory[] = await this.communityService.checkArticleToAdd(body.userId,body.communityId);
+        if (! articleAdded || articleAdded.length===0) {
+            return {"err": "No tiene articulos publicados"}
+        }
+
+        return articleAdded;
+    }
+
+    public async postedOnCommunity(req : Request) {
+        const body:checkArticleToAddType = req.body;
+        const userInCommunity = await this.communityService.isMemberOfCommunity(body.userId,body.communityId);
+        if (!userInCommunity){
+            return {"err": "Usuario no pertenece a la comunidad"};
+        }
+        const articleAdded:returnArticlesCategory[] = await this.communityService.postedOnCommunity(body.userId,body.communityId);
+        if (! articleAdded) {
+            return {"err": "No tiene articulos publicados en la comunidad"}
+        }
+
+        return articleAdded;
+    }
+
 }

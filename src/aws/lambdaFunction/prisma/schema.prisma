@@ -1,0 +1,144 @@
+generator client {
+  // provider = "prisma-dbml-generator"//para sacar el sql de prisma
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model article {
+  id_article                Int      @id @default(autoincrement())
+  id_writer                 Int
+  title                     String?   
+  date                      DateTime @db.Date
+  views                     Int
+  image_url                 String
+  text                      String
+  sanitizedText             String?
+  writer                    users    @relation(fields: [id_writer], references: [id_user], onDelete: Cascade)
+  saved                     saved[]
+  article_has_categories    article_has_categories[]
+  community_has_articles community_has_articles[]
+
+}
+
+model article_has_categories {
+  articles_id_article      Int
+  categories_id_categories Int
+  category  categories @relation(fields: [categories_id_categories],references: [id_category],onDelete: Cascade)
+  article  article @relation(fields: [articles_id_article],references: [id_article],onDelete: Cascade)
+  @@id([articles_id_article, categories_id_categories])
+}
+
+model categories {
+  id_category Int    @id @default(autoincrement())
+  cat_name    String @unique @db.VarChar(45)
+
+  article_has_categories article_has_categories[]
+  community_has_categories community_has_categories[]
+}
+
+model follower {
+  id_follower  Int
+  id_following Int
+  follower     users    @relation("FollowerToUser", fields: [id_follower], references: [id_user],onDelete: Cascade)
+  following    users    @relation("FollowingToUser", fields: [id_following], references: [id_user],onDelete: Cascade)
+
+  @@id([id_follower, id_following])
+}
+
+model saved {
+  id_user    Int
+  id_article Int
+  date       DateTime @db.Date 
+  user       users   @relation(fields: [id_user], references: [id_user],onDelete: Cascade)
+  article    article @relation(fields: [id_article], references: [id_article],onDelete: Cascade)
+
+  @@id([id_user, id_article])
+}
+
+model trend_article {
+  articles_id_article Int      @id
+  title               String?   
+  date                DateTime @db.Date
+  author              String   
+  image_url           String
+  views               Int
+  text                String
+  sanitizedText       String
+  weight              Decimal
+}
+
+model trend_author {
+  users_id_user Int    @id
+  username      String @unique 
+  name          String @db.VarChar(45)
+  lastname      String @db.VarChar(45)
+  profile_image String 
+  profession    String 
+  weight        Decimal
+}
+
+model users {
+  id_user     Int       @id @default(autoincrement())
+  username    String    @unique
+  name        String    @db.VarChar(45)
+  hash        String
+  lastname    String    @db.VarChar(45)
+  rol         Int
+  profession  String?   
+  description String?
+  profile_image   String
+  article     article[]
+  followers   follower[] @relation("FollowerToUser")
+  followings  follower[] @relation("FollowingToUser")
+  saved       saved[]
+  community_has_users community_has_users[]
+  community community[]
+  community_has_articles community_has_articles[]
+}
+
+model community {
+  id_community    Int     @id @default(autoincrement())
+  name            String  @unique 
+  description     String?
+  creator_id      Int
+  date            DateTime @db.Date
+  avatar_url      String
+  banner_url      String
+  users users @relation(fields: [creator_id],references: [id_user],onDelete: Cascade)
+  community_has_categories  community_has_categories[]
+  community_has_users community_has_users[]
+  community_has_articles community_has_articles[]
+}
+
+
+model community_has_articles {
+  article_id_community           Int
+  community_id_community          Int
+  users_id_community              Int
+
+  article article @relation(fields: [article_id_community],references: [id_article],onDelete: Cascade)
+  community community @relation(fields: [community_id_community],references: [id_community],onDelete: Cascade)
+  users users @relation(fields: [users_id_community],references: [id_user],onDelete: Cascade)
+  @@id([community_id_community, article_id_community, users_id_community])
+}
+
+
+model community_has_users {
+  users_id_community        Int
+  community_id_community       Int
+  users users @relation(fields: [users_id_community],references: [id_user],onDelete: Cascade)
+  community community @relation(fields: [community_id_community],references: [id_community],onDelete: Cascade)
+  @@id([community_id_community, users_id_community])
+}
+
+model community_has_categories {
+  categories_id_community        Int
+  community_id_community        Int
+  category  categories @relation(fields: [categories_id_community],references: [id_category],onDelete: Cascade)
+  community community @relation(fields: [community_id_community],references: [id_community],onDelete: Cascade)
+  @@id([categories_id_community, community_id_community])
+}

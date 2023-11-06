@@ -65,3 +65,12 @@ export const createCommunitySchema = z.object({
     id_categories: z.number().array().optional(),
   }).strict();
 
+
+export const checkArticleToAddSchema = z.object({
+    userId: z.number({}),
+    communityId: z.number({}),
+})
+export const addArticleCommunitySchema = z.object({
+    articleId: z.number({}),
+    communityId: z.number({}),
+})

@@ -45,9 +45,9 @@ jobs:
           git fetch origin main
           git reset --hard origin/main
           git checkout main
-          sudo systemctl start docker
-          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest  # Pull the latest image
-          docker run -d -p 3007:3005 ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest  # Run the Docker container
+          # sudo systemctl start docker
+          # docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest  # Pull the latest image
+          # docker run -d -p 3007:3005 ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest  # Run the Docker container
           npm run init
           npm run buildLinux
           npm run restart

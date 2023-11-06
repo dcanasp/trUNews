@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ZodSchema } from "zod";
 import { logger, permaLogger } from "../../utils/logger";
 export const validatePost = (schema: ZodSchema<any>) => {
-    return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
       try {
         schema.parse(req.body);
         next();
