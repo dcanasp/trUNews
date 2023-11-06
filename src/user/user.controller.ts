@@ -149,10 +149,10 @@ export class UserController {
         res.json(following);
     }
     
-    public async monthlyViews(req: Request, res: Response) {
+    public async statistics(req: Request, res: Response) {
         //@ts-ignore
         const userId = req.userId;
-        this.userFacade.monthlyViews(userId)
+        this.userFacade.statistics(userId)
           .then((response) => res.json(response))
           .catch(err => {
             res.status(400).json(err);

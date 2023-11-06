@@ -71,10 +71,8 @@ export class CommunityFacade {
 
 
     public async feed(req : Request) {
-        let weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 15);
         //@ts-ignore
-        const communities = await this.communityService.feed(parseInt(req.query.communityId),weekAgo);
+        const communities = await this.communityService.feed(parseInt(req.query.communityId));
 
         if(! communities ){
 			return {"err":'no hay feed de esta comunidad'}

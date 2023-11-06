@@ -262,10 +262,9 @@ export class UserFacade {
         }
     }
 
-    public async monthlyViews(userId: number) {
+    public async statistics(userId: number) {
         try{
-            console.log(userId)
-            const statistics =  await this.userService.monthlyViews(userId);
+            const statistics =  await this.userService.statistics(userId);
             return statistics;  
         }
         catch (error) {

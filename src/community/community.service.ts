@@ -226,7 +226,7 @@ export class CommunityService {
     }
     
     }
-    public async feed(communityId:number,weekAgo:Date) {
+    public async feed(communityId:number) {
         try{
             const idArticulosDeComunidad = await this.databaseService.community_has_articles.findMany({
                 where:{
@@ -240,10 +240,8 @@ export class CommunityService {
                 const articulosComunidad = await this.databaseService.article.findMany({
                     where:{
                         id_article:article.article_id_community,
-                        date:{
-                            gte:weekAgo,
-                        }
                     },
+                    orderBy:{date:'desc'},
                     include:{
                         writer: {
                             select: { name: true, lastname: true, username: true,profile_image:true },
@@ -395,10 +393,9 @@ export class CommunityService {
   }
 
   public async createCommunity(body : createCommunityType) {
-      try{
-        
-        let finalAvatarUrl= 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg';
-        if (body.avatar_url!=''){
+      try{ 
+          let finalAvatarUrl= 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg';
+          if (body.avatar_url!=''){
             const urlAvatar = await this.addImageNew(body.avatar_url,body.avatar_extension,body.avatar_ancho,body.avatar_ratio,'avatar')
             if (! urlAvatar) {
                 throw new DatabaseErrors('No se pudo crear avatar en s3.')
@@ -414,6 +411,8 @@ export class CommunityService {
             }
             finalBannerUrl = urlBanner;
         }
+
+        console.log(finalBannerUrl)
         const communityCreated = await this.databaseService.community.create({
           data: {
               name: body.name,
@@ -615,9 +614,9 @@ export class CommunityService {
 
             const link = process.env.S3_url
             const file_name = (ultimo_usuario + extension)
-            console.log(file_name);
+            // console.log(file_name);
             const resizedImageBuffer = await resizeImages(imageBuffer,ancho,ratio);
-            console.log("Img resized");
+
             const url = await uploadToS3(file_name, resizedImageBuffer,folder) // body.contenido);
             if (! url) {
                 throw new DatabaseErrors('no se pudo subir a s3');
