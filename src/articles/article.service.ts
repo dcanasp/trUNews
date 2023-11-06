@@ -172,7 +172,7 @@ export class ArticleService {
                 };
             }
 
-            return {succes:"true"}
+            return {"success":"true"}
         }
         catch{
             return ;

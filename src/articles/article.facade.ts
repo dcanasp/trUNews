@@ -92,7 +92,7 @@ export class ArticleFacade {
         if (! categoriesCreated) {
             return {err: "No se pudo añadir las categorias"};
         }
-        return {succes:"true"};
+        return {"success":"true"};
     }
 
     public async deleteArticle(req : Request) {

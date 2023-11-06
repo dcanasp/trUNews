@@ -70,3 +70,7 @@ export const checkArticleToAddSchema = z.object({
     userId: z.number({}),
     communityId: z.number({}),
 })
+export const addArticleCommunitySchema = z.object({
+    articleId: z.number({}),
+    communityId: z.number({}),
+})

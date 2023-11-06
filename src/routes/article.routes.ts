@@ -67,7 +67,6 @@ export class ArticleRouter {
     this.router.get('/find/',
     (req:Request, res:Response) => this.articleController.findAllArticle(req, res));
     
-    
     this.router.get('/find/:nombre',
     (req:Request, res:Response) => this.articleController.findArticle(req, res));
 

@@ -226,7 +226,7 @@ export class CommunityService {
     }
     
     }
-    public async feed(communityId:number,weekAgo:Date) {
+    public async feed(communityId:number) {
         try{
             const idArticulosDeComunidad = await this.databaseService.community_has_articles.findMany({
                 where:{
@@ -240,10 +240,8 @@ export class CommunityService {
                 const articulosComunidad = await this.databaseService.article.findMany({
                     where:{
                         id_article:article.article_id_community,
-                        date:{
-                            gte:weekAgo,
-                        }
                     },
+                    orderBy:{date:'desc'},
                     include:{
                         writer: {
                             select: { name: true, lastname: true, username: true,profile_image:true },
@@ -300,6 +298,8 @@ export class CommunityService {
     }
 
   public async getCommunityById(communityId : number, userId : number) {
+    try{
+
     const community = await this.databaseService.community.findFirst({
       where: {
           id_community: communityId
@@ -375,6 +375,10 @@ export class CommunityService {
       membersCount,
       articlesCount,
     };
+    }
+    catch{
+        return ;
+    }
 
   }
 
@@ -389,15 +393,34 @@ export class CommunityService {
   }
 
   public async createCommunity(body : createCommunityType) {
-      try{
-      const communityCreated = await this.databaseService.community.create({
+      try{ 
+          let finalAvatarUrl= 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg';
+          if (body.avatar_url!=''){
+            const urlAvatar = await this.addImageNew(body.avatar_url,body.avatar_extension,body.avatar_ancho,body.avatar_ratio,'avatar')
+            if (! urlAvatar) {
+                throw new DatabaseErrors('No se pudo crear avatar en s3.')
+            }
+            finalAvatarUrl = urlAvatar;
+        }
+
+        let finalBannerUrl= 'https://trunews.s3.us-east-2.amazonaws.com/community/banner/defaultBanner.jpg';
+        if (body.banner_url!=''){
+            const urlBanner = await this.addImageNew(body.banner_url,body.banner_extension,body.banner_ancho,body.banner_ratio,'banner')
+            if (! urlBanner) {
+                throw new DatabaseErrors('No se pudo crear banner en s3.')
+            }
+            finalBannerUrl = urlBanner;
+        }
+
+        console.log(finalBannerUrl)
+        const communityCreated = await this.databaseService.community.create({
           data: {
               name: body.name,
               description: body.description,
               creator_id: body.creator_id,
               date: body.date,
-              avatar_url: 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg',//urlAvatar
-              banner_url: 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg',//urlBanner
+              avatar_url: finalAvatarUrl,//urlAvatar
+              banner_url: finalBannerUrl,//urlBanner
           }
       })
 
@@ -443,17 +466,16 @@ export class CommunityService {
       if (!existingCommunity) {
           throw new DatabaseErrors('La comunidad no existe');
       }
-
-      /*
-      const urlAvatar = await this.addImage(body.avatar_url,body.avatar_extension,body.avatar_ancho,body.avatar_ratio)
+      //public async addImageUpdate(communityId:number,contenido: string, extension:string,subFolder:string) {
+      const urlAvatar = await this.addImageUpdate(communityId,body.avatar_url,body.avatar_extension,'banner')
       if (! urlAvatar) {
           throw new DatabaseErrors('No se pudo crear avatar en s3.')
       }
-      const urlBanner = await this.addImage(body.banner_url,body.banner_extension,body.banner_ancho,body.banner_ratio)
+      const urlBanner = await this.addImageUpdate(communityId,body.banner_url,body.banner_extension,'banner')
       if (! urlBanner) {
           throw new DatabaseErrors('No se pudo crear banner en s3.')
       }
-      */
+      
 
       const communityUpdated = await this.databaseService.community.update({
           where: {
@@ -524,7 +546,7 @@ export class CommunityService {
       if (!communityJoined){
           throw new DatabaseErrors('No se pudo unir al usuario a la comunidad.')
       }
-      return communityJoined
+      return communityJoined;
       }
       catch{
           return ;
@@ -550,7 +572,30 @@ export class CommunityService {
       }
   }
 
-    public async addImage(contenido: string, extension:string,ancho:number,ratio:string) {
+    public async addImageUpdate(communityId:number,contenido: string, extension:string='.png',subFolder:string) {
+        try {
+            const folder = `community/${subFolder}`;
+            // const imageBuffer = contenido;
+            const imageBuffer = Buffer.from(contenido.split(',')[1], 'base64');
+            // debe ser un buffer el contenido
+            
+            const link = process.env.S3_url
+            const file_name = (communityId + extension)
+            
+            // const resizedImageBuffer = await resizeImages(imageBuffer,ancho,ratio);
+
+            const url = await uploadToS3(file_name, imageBuffer,folder) // body.contenido);
+            if (! url) {
+                throw new DatabaseErrors('no se pudo subir a s3');
+            }
+            // crear nuevo registro
+            return `${link}${folder}/${file_name}`;
+        } catch (error) {
+            return;
+        }
+    }
+
+    public async addImageNew(contenido: string, extension:string,ancho:number,ratio:string,subFolder:string) {
         try {
             const ultimo = await this.databaseService.community.findMany({
                 orderBy: {
@@ -558,7 +603,7 @@ export class CommunityService {
                 },
                 take: 1
             });
-            const folder = 'community';
+            const folder = `community/${subFolder}`;
             // const imageBuffer = contenido;
             const imageBuffer = Buffer.from(contenido.split(',')[1], 'base64');
             // debe ser un buffer el contenido
@@ -569,9 +614,9 @@ export class CommunityService {
 
             const link = process.env.S3_url
             const file_name = (ultimo_usuario + extension)
-            console.log(file_name);
+            // console.log(file_name);
             const resizedImageBuffer = await resizeImages(imageBuffer,ancho,ratio);
-            console.log("Img resized");
+
             const url = await uploadToS3(file_name, resizedImageBuffer,folder) // body.contenido);
             if (! url) {
                 throw new DatabaseErrors('no se pudo subir a s3');
@@ -605,7 +650,8 @@ export class CommunityService {
     }
 
     public async addArticleToCommunity(communityId: number, articleId: number, userId: number) {
-        
+        try{
+
         const article = await this.databaseService.article.findUnique({
             where: { id_article: articleId },
             include: { article_has_categories: { include: { category: true } }},
@@ -620,22 +666,29 @@ export class CommunityService {
         if (!article || !community) {
             throw new DatabaseErrors('No se pudo encontrar el artículo o la comunidad.');
         }
-    
+        // console.log(article.article_has_categories)
+        // console.log(community.community_has_categories)
         // Comprueba si hay al menos una categoría en común entre el artículo y la comunidad
         const commonCategories = article.article_has_categories.map(ac => ac.category.id_category)
             .filter(categoryId => community.community_has_categories.some(cc => cc.category.id_category === categoryId));
-    
         if (commonCategories.length === 0) {
             return  ;
         }
     
-        return this.databaseService.community_has_articles.create({
+
+        const crearArticulo =await this.databaseService.community_has_articles.create({
             data: {
                 community_id_community: communityId,
                 article_id_community: articleId,
                 users_id_community: userId
             }
         });
+        return {"succes":true}        
+        }
+        catch{
+            return {"err":"ya existe el articulo en la comunidad"};
+        }
+
     }
     
 
@@ -679,105 +732,9 @@ export class CommunityService {
        }
 
        public async checkArticleToAdd(userId: number,communityId: number) {
-        
-
-        const article = await this.databaseService.article.findMany({
-            where: { id_writer:userId },
-            include: { 
-                writer:{select:{
-                    username:true,
-                    name:true,
-                    lastname:true,
-                }},
-                article_has_categories: { select: { category: true } },
-        },
-        });
-        
-        const saved = await this.databaseService.saved.findMany({
-            where: { id_user:userId },
-            include: { 
-                article:{include:{
-
-                        writer:{select:{
-                            username:true,
-                            name:true,
-                            lastname:true,}},
-                        article_has_categories: { select: { category: true } },
-                        
-                    },
-                    
-
-                }
-            
-            },
-        });
-
-        
-        if (!article && !saved) {
-            throw new DatabaseErrors('No tiene nada escrito, ni guardado');
-        }
-        
-        const isInCommunity = await this.databaseService.community_has_articles.findMany({
-            where: {users_id_community:userId,community_id_community:communityId}
-        });
-
-        const filterArticle = article.filter((art) => {
-            return !isInCommunity.some(commnunityArt => art.id_article === commnunityArt.article_id_community);
-        });
-
-        const filterSaved = saved.filter((sav) => {
-            return !isInCommunity.some(commnunityArt => sav.id_article === commnunityArt.article_id_community);
-        });
-
-        const flatArticle = filterArticle.map((art) => {
-            const { writer, article_has_categories, sanitizedText, ...articleData } = art;
-            const categories = article_has_categories.map(cat => ({
-              category: {
-                cat_name: cat.category.cat_name
-              }
-            }));
-            return {
-              ...articleData,
-              ...writer,
-              article_has_categories: categories
-            };
-          });
-        
-          const flatSaved = filterSaved.map((art) => {
-            const { article,...rest } = art;
-            const {article_has_categories,sanitizedText,...restArticle} =article;
-            const {writer,...articleData} = restArticle;
-            const categories = article_has_categories.map(cat => ({
-              category: {
-                cat_name: cat.category.cat_name
-              }
-            }));
-            return {
-              ...articleData,
-              ...writer,
-              article_has_categories: categories
-            };
-          });
-
-        return [...flatArticle,...flatSaved];
-
-    }
-
-
-    public async postedOnCommunity(userId: number,communityId: number) {
-        
-        const isInCommunity = await this.databaseService.community_has_articles.findMany({
-            where: {users_id_community:userId,community_id_community:communityId}
-        });
-        
-        if(!isInCommunity || isInCommunity.length===0){
-            throw new DatabaseErrors("no tiene articulos en la comunidad publicados");
-        }
-
-        const allArticles:any = [];
-        for (const article of isInCommunity){
-            const eachArticle = await this.databaseService.article.findUnique({
-                where:{id_article:article.article_id_community},
+        try{
+            const article = await this.databaseService.article.findMany({
+                where: { id_writer:userId },
                 include: { 
                     writer:{select:{
                         username:true,
@@ -787,25 +744,127 @@ export class CommunityService {
                     article_has_categories: { select: { category: true } },
             },
             });
-            allArticles.push(eachArticle);
+            
+            const saved = await this.databaseService.saved.findMany({
+                where: { id_user:userId },
+                include: { 
+                    article:{include:{
+
+                            writer:{select:{
+                                username:true,
+                                name:true,
+                                lastname:true,}},
+                            article_has_categories: { select: { category: true } },
+                            
+                        },
+                        
+
+                    }
+                
+                },
+            });
+
+            
+            if (!article && !saved) {
+                throw new DatabaseErrors('No tiene nada escrito, ni guardado');
+            }
+            
+            const isInCommunity = await this.databaseService.community_has_articles.findMany({
+                where: {users_id_community:userId,community_id_community:communityId}
+            });
+
+            const filterArticle = article.filter((art) => {
+                return !isInCommunity.some(commnunityArt => art.id_article === commnunityArt.article_id_community);
+            });
+
+            const filterSaved = saved.filter((sav) => {
+                return !isInCommunity.some(commnunityArt => sav.id_article === commnunityArt.article_id_community);
+            });
+
+            const flatArticle = filterArticle.map((art) => {
+                const { writer, article_has_categories, sanitizedText, ...articleData } = art;
+                const categories = article_has_categories.map(cat => ({
+                category: {
+                    cat_name: cat.category.cat_name
+                }
+                }));
+                return {
+                ...articleData,
+                ...writer,
+                article_has_categories: categories
+                };
+            });
+            
+            const flatSaved = filterSaved.map((art) => {
+                const { article,...rest } = art;
+                const {article_has_categories,sanitizedText,...restArticle} =article;
+                const {writer,...articleData} = restArticle;
+                const categories = article_has_categories.map(cat => ({
+                category: {
+                    cat_name: cat.category.cat_name
+                }
+                }));
+                return {
+                ...articleData,
+                ...writer,
+                article_has_categories: categories
+                };
+            });
+
+            return [...flatArticle,...flatSaved];
+        }catch{
+            return [];
         }
 
-        const flatArticle = allArticles.map((art:any) => {
-            const { writer, article_has_categories, sanitizedText, ...articleData } = art;
-            const categories = article_has_categories.map((cat:any) => ({
-              category: {
-                cat_name: cat.category.cat_name
-              }
-            }));
-            return {
-              ...articleData,
-              ...writer,
-              article_has_categories: categories
-            };
-          });
-        return flatArticle;
-
     }
+
+
+    public async postedOnCommunity(userId: number,communityId: number) {
+        try {
+            const isInCommunity = await this.databaseService.community_has_articles.findMany({
+                where: {users_id_community:userId,community_id_community:communityId}
+            });
+            
+            if(!isInCommunity || isInCommunity.length===0){
+                throw new DatabaseErrors("no tiene articulos en la comunidad publicados");
+            }
+
+            const allArticles:any = [];
+            for (const article of isInCommunity){
+                const eachArticle = await this.databaseService.article.findUnique({
+                    where:{id_article:article.article_id_community},
+                    include: { 
+                        writer:{select:{
+                            username:true,
+                            name:true,
+                            lastname:true,
+                        }},
+                        article_has_categories: { select: { category: true } },
+                },
+                });
+                allArticles.push(eachArticle);
+            }
+
+            const flatArticle = allArticles.map((art:any) => {
+                const { writer, article_has_categories, sanitizedText, ...articleData } = art;
+                const categories = article_has_categories.map((cat:any) => ({
+                category: {
+                    cat_name: cat.category.cat_name
+                }
+                }));
+                return {
+                ...articleData,
+                ...writer,
+                article_has_categories: categories
+                };
+            });
+            return flatArticle;
+        }
+        catch{
+            return;
+        }
+    }
+
 
 }
 

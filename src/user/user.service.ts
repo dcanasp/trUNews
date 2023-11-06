@@ -17,82 +17,87 @@ export class UserService {
     }
 
     public async getUsersProfile(userId: number, authUserId: number) {
-    
-        const user = await this.databaseService.users.findFirst({
-          where: {
-            id_user: userId,
-          },
-        });
-    
-        if (!user) {
-          throw new Error('Usuario no encontrado');
-        }
-    
-        const followersCount = await this.databaseService.follower.count({
-          where: {
-            id_following: userId,
-          },
-        });
-    
-        const followingsCount = await this.databaseService.follower.count({
-          where: {
-            id_follower: userId,
-          },
-        });
-        const savedArticles = await this.databaseService.saved.findMany({
+        try{
+            const user = await this.databaseService.users.findFirst({
             where: {
                 id_user: userId,
             },
-            select: {
-                article: {
-                    select: {
-                        id_article: true,
-                        title: true,
-                        date: true,
-                        image_url: true,
-                        text: true,
-                        writer: {
-                            select: {
-                                id_user: true,
-                                username: true,
+            });
+        
+            if (!user) {
+            throw new Error('Usuario no encontrado');
+            }
+        
+            const followersCount = await this.databaseService.follower.count({
+            where: {
+                id_following: userId,
+            },
+            });
+        
+            const followingsCount = await this.databaseService.follower.count({
+            where: {
+                id_follower: userId,
+            },
+            });
+            const savedArticles = await this.databaseService.saved.findMany({
+                where: {
+                    id_user: userId,
+                },
+                select: {
+                    article: {
+                        select: {
+                            id_article: true,
+                            title: true,
+                            date: true,
+                            image_url: true,
+                            text: true,
+                            writer: {
+                                select: {
+                                    id_user: true,
+                                    username: true,
+                                },
                             },
                         },
                     },
                 },
-            },
-        });
+            });
 
-        const isFollowing = await this.isUserFollowing(userId,authUserId);
-        if (user.rol === 1) {
-          const articlesByUser = await this.databaseService.article.findMany({
-            where: {
-              id_writer: userId,
-            },
-            select: {
-              id_article: true,
-              title: true,
-              image_url: true,
-            },
-          });
-    
-          return {
+            const isFollowing = await this.isUserFollowing(userId,authUserId);
+            if (user.rol === 1) {
+            const articlesByUser = await this.databaseService.article.findMany({
+                where: {
+                id_writer: userId,
+                },
+                select: {
+                id_article: true,
+                title: true,
+                image_url: true,
+                },
+            });
+        
+            return {
+                ...user,
+                followersCount,
+                followingsCount,
+                isFollowing,
+                articlesByUser,
+                savedArticles
+            };
+            }
+        
+            return {
             ...user,
             followersCount,
             followingsCount,
             isFollowing,
-            articlesByUser,
             savedArticles
-          };
+            };
         }
-    
-        return {
-          ...user,
-          followersCount,
-          followingsCount,
-          isFollowing,
-          savedArticles
-        };
-      }
+        catch{
+            return ;
+        }
+        
+    }
 
     public async deleteUsers(userId : number) {
         try {
@@ -534,6 +539,27 @@ public async updatePassword(userId: string, newPassword: string) {
         }
     }
 
+
+
+    public async statistics(userId: number) {
+        try {
+            const date = (new Date()).toISOString().split('-');
+            const year = date[0];
+            const month = date[1];
+            console.log(new Date(`${year}-${month}-30`))
+            const articulos = await this.databaseService.article.findMany({
+                where:{id_writer:userId,
+                    date:{
+                        lte:new Date(`${year}-${month}-30`),
+                        gte: new Date(`${year}-${month}-1`),
+                    }
+                }
+            })
+            return articulos;
+        } catch (error) {
+            throw new Error('error Estadisticas mensuales servicio');
+        }
+    }
 
 
 
