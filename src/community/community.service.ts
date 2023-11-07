@@ -870,6 +870,11 @@ export class CommunityService {
 
     public async createEvent(body : createEventType) {
         try{ 
+            const isMember = await this.isMemberOfCommunity(body.creator_id,body.community_id);
+            if (!isMember) {
+                throw new DatabaseErrors('El usuario no pertenece a la comunidad.');
+            }
+
             let finalImageUrl= 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg';
             if (body.image_url!=''){
               const urlImage = await this.addImageNew(body.image_url,body.image_extension,body.image_ancho,body.image_ratio,'eventImage')
@@ -1051,8 +1056,8 @@ export class CommunityService {
                 }
             });
             return eventAttendee;
-        }catch{
-            return;
+        }catch (error){
+            return ;
         }
     }
 

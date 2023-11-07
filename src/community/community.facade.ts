@@ -287,7 +287,7 @@ export class CommunityFacade {
 
     public async getCommunityEvents(req : Request) {
         if(!req.headers['authorization']){
-			return {"err": 'No hay token para añadir artículo.'};
+			return {"err": 'No hay token.'};
 		}
 		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
 
@@ -304,7 +304,7 @@ export class CommunityFacade {
 
     public async getEvent(req : Request) {
         if(!req.headers['authorization']){
-			return {"err": 'No hay token para añadir artículo.'};
+			return {"err": 'No hay token.'};
 		}
 		const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
 
@@ -320,7 +320,7 @@ export class CommunityFacade {
     }
 
     public async deleteEvent(req : Request) {
-        const eventId = parseInt(req.params.idCommunity,10);
+        const eventId = parseInt(req.params.eventId,10);
         if(!req.headers['authorization']){
 			return {"err": 'no hay token'};
 		}
