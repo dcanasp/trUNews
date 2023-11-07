@@ -5,7 +5,7 @@ import {logger,permaLogger} from '../utils/logger';
 // import { UserController } from '../user/user.controller';
 import { validatePost } from '../middleware/dataValidation/zodValidation'
 import { convertDateFields } from '../utils/convertDataTypes'
-import { checkPasswordSchema, createCommunitySchema, createUserSchema, decryptJWTSchema,addArticleCommunitySchema, checkArticleToAddSchema} from '../middleware/dataValidation/schemas'
+import { checkPasswordSchema, createCommunitySchema, createUserSchema, decryptJWTSchema,addArticleCommunitySchema, checkArticleToAddSchema, createEventSchema} from '../middleware/dataValidation/schemas'
 import { generateJwt, verifyJwt, verifyJwtPost } from '../auth/jwtServices'
 import { Roles } from '../utils/roleDefinition'
 import { inject, injectable } from 'tsyringe'
@@ -84,8 +84,31 @@ export class CommunityRouter {
             verifyJwtPost('userId'),
             (req:Request, res:Response) =>  this.communityController.postedOnCommunity(req, res));
         
-        return this.router
+        this.router.post('/createEvent',
+            convertDateFields(['date']),
+            validatePost(createEventSchema),
+            verifyJwtPost('creator_id'),  
+            (req:Request, res:Response) =>  this.communityController.createEvent(req, res));
+        
+        this.router.get('/communityEvents/:communityId([0-9]+)',
+            (req:Request, res:Response) =>  this.communityController.getCommunityEvents(req, res));
 
+        this.router.get('/event/:eventId([0-9]+)',
+            (req:Request, res:Response) =>  this.communityController.getEvent(req, res));
+        
+        this.router.delete('/deleteEvent/:id([0-9]+)/:eventId([0-9]+)',
+            verifyJwt(),
+            (req:Request, res:Response) =>  this.communityController.deleteEvent(req, res));
+
+        this.router.post('/attend/:id([0-9]+)/:idEvent([0-9]+)',
+            verifyJwt(), 
+            (req:Request, res:Response) =>  this.communityController.attendEvent(req, res));
+            
+        this.router.post('/undoAttend/:id([0-9]+)/:idEvent([0-9]+)', 
+            verifyJwt(),
+            (req:Request, res:Response) =>  this.communityController.undoAttendEvent(req, res));
+
+        return this.router
     }
 }
 

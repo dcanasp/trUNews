@@ -98,6 +98,9 @@ model users {
   community_has_users community_has_users[]
   community community[]
   community_has_articles community_has_articles[]
+  event event[]
+  events_attending event_attendee[]  
+
 }
 
 model community {
@@ -112,6 +115,7 @@ model community {
   community_has_categories  community_has_categories[]
   community_has_users community_has_users[]
   community_has_articles community_has_articles[]
+  event     event[]
 }
 
 
@@ -141,4 +145,26 @@ model community_has_categories {
   category  categories @relation(fields: [categories_id_community],references: [id_category],onDelete: Cascade)
   community community @relation(fields: [community_id_community],references: [id_community],onDelete: Cascade)
   @@id([categories_id_community, community_id_community])
+}
+
+model event {
+  id_event      Int      @id @default(autoincrement())
+  community_id  Int
+  creator_id    Int
+  name          String
+  description   String?
+  place         String
+  date          DateTime
+  image_url     String
+  community     community @relation(fields: [community_id], references: [id_community],onDelete: Cascade)
+  users         users @relation(fields: [creator_id],references: [id_user],onDelete: Cascade)
+  attendees     event_attendee[] 
+}
+
+model event_attendee {
+  event_id_attendee Int
+  user_id_attendee  Int
+  event             event    @relation(fields: [event_id_attendee], references: [id_event],onDelete: Cascade)
+  user              users    @relation(fields: [user_id_attendee], references: [id_user],onDelete: Cascade)
+  @@id([event_id_attendee, user_id_attendee])
 }

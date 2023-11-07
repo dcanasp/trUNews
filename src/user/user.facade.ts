@@ -272,4 +272,13 @@ export class UserFacade {
         }
     }
   
+    public async getEventsAttended(userId: string) {
+        try{
+            const events =  await this.userService.getEventsAttended(parseInt(userId,10));
+            return events;  
+        }
+        catch (error) {
+            throw new Error('Error al obtener los eventos asistidos del usuario');
+        }
+    }
 }
