@@ -45,9 +45,14 @@ jobs:
           git fetch origin main
           git reset --hard origin/main
           git checkout main
+          docker stop $(docker ps -a -q)
+          # docker system prune -f
+          docker container prune -f
           # sudo systemctl start docker
           # docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest  # Pull the latest image
           # docker run -d -p 3007:3005 ${{ secrets.DOCKER_HUB_USERNAME }}/trunews:latest  # Run the Docker container
           npm run init
           npm run buildLinux
           npm run restart
+          npm run startQueue
+          npm run startNginx
