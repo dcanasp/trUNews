@@ -1,6 +1,6 @@
 #tokens quemados
 tokensQuemados.txt
-trunews.pem
+*.pem
 # Logs
 logs
 *.log

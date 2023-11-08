@@ -25,7 +25,8 @@
     "trendArticle": "tsc && node build/articles/trendArticle",
     "trendUser": "tsc && node build/user/trendAuthor",
     "fullStart": "tsc && node build/utils/poblateDB && node build/articles/trendArticle && node build/user/trendAuthor",
-    "startQueue": "docker run -d --name some-rabbit -p 5672:5672 -p 15672:15672 -e RABBITMQ_DEFAULT_USER=trunews -e RABBITMQ_DEFAULT_PASS=password rabbitmq:management"
+    "startQueue": "docker run -d --name some-rabbit -p 5672:5672 -p 15672:15672 -e RABBITMQ_DEFAULT_USER=trunews -e RABBITMQ_DEFAULT_PASS=password rabbitmq:management",
+    "startNginx": "docker run --name my-nginx-proxy -v $(pwd)/default.conf:/etc/nginx/conf.d/default.conf:ro -d -p 80:80 nginx"
   },
   "repository": {
     "type": "git",
