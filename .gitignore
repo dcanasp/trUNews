@@ -1,6 +1,7 @@
 #tokens quemados
 tokensQuemados.txt
 *.pem
+sslCertificates/certificate.crt
 # Logs
 logs
 *.log

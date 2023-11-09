@@ -7,7 +7,7 @@
     "test": "npm run build && jest --coverage --maxWorkers=1 --setupFiles dotenv/config",
     "testNoCoverage": "npm run build && jest --maxWorkers=1 --setupFiles dotenv/config",
     "init": "npm i && npx prisma generate",
-    "singleChange": "ts-node src/app.ts",
+    "singleChange": "ts-node src/server.ts",
     "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/server.ts",
     "build": "tsc && xcopy src\\public build\\public /E /I /Y",
     "buildLinux": "tsc && cp -r src/public build",
@@ -26,7 +26,7 @@
     "trendUser": "tsc && node build/user/trendAuthor",
     "fullStart": "tsc && node build/utils/poblateDB && node build/articles/trendArticle && node build/user/trendAuthor",
     "startQueue": "docker run -d --name some-rabbit -p 5672:5672 -p 15672:15672 -e RABBITMQ_DEFAULT_USER=trunews -e RABBITMQ_DEFAULT_PASS=password rabbitmq:management",
-    "startNginx": "docker run --name my-nginx-proxy -v $(pwd)/default.conf:/etc/nginx/conf.d/default.conf:ro -d -p 80:80 nginx"
+    "startNginx": " docker run --name my-nginx-proxy -v /home/ec2-user/trUNews/sslCertificates:/etc/nginx/ssl:ro -v /home/ec2-user/trUNews/default.conf:/etc/nginx/conf.d/default.conf:ro --add-host=host.docker.internal:34.226.1.69 -p 80:80 -p 443:443 -d nginx"
   },
   "repository": {
     "type": "git",
