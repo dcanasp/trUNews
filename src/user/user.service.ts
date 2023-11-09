@@ -568,14 +568,41 @@ public async updatePassword(userId: string, newPassword: string) {
                     user_id_attendee: userId,
                 },
                 include: {
-                    event: true
+                    event: {
+                        select: {
+                            id_event: true,
+                            name: true,
+                            description: true,
+                            creator_id: true,
+                            place: true,
+                            date: true,
+                            image_url: true,
+                            attendees: {
+                                select: {
+                                    user_id_attendee: true
+                                }
+                            }
+                        }
+                    }
                 }
             });
-
-            return events;
+    
+            const eventsInfo = events.map((event) => ({
+                id_event: event.event.id_event,
+                name: event.event.name,
+                description: event.event.description,
+                creator_id: event.event.creator_id,
+                place: event.event.place,
+                date: event.event.date,
+                image_url: event.event.image_url,
+                attendeesCount: event.event.attendees.length,
+                isAttendee: event.event.attendees.length > 0,
+                isCreator: event.event.creator_id === userId
+            }));
+    
+            return eventsInfo;
         } catch (error) {
             throw new Error('Error al obtener los eventos a los que asistió el usuario');
         }
     }
-
 }
