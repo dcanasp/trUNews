@@ -265,6 +265,9 @@ export class UserFacade {
     public async statistics(userId: number) {
         try{
             const statistics =  await this.userService.statistics(userId);
+            if (!statistics || statistics.length===0){
+                return {"err": "no se pudieron generar estadisticas o no hay articulos para el periodo"}
+            }
             return statistics;  
         }
         catch (error) {

@@ -543,19 +543,46 @@ public async updatePassword(userId: string, newPassword: string) {
 
     public async statistics(userId: number) {
         try {
-            const date = (new Date()).toISOString().split('-');
-            const year = date[0];
-            const month = date[1];
-            console.log(new Date(`${year}-${month}-30`))
-            const articulos = await this.databaseService.article.findMany({
-                where:{id_writer:userId,
-                    date:{
-                        lte:new Date(`${year}-${month}-30`),
-                        gte: new Date(`${year}-${month}-1`),
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 because getMonth() returns 0-11
+            // Fetch articles and include categories
+            const articlesWithCategories = await this.databaseService.article.findMany({
+                where: {
+                    id_writer: userId,
+                    date: {
+                        gte: new Date(`${year}-${month}-01`),
+                        lte: new Date(`${year}-${month}-30`),
+                    },
+                },
+                include: {
+                    article_has_categories: {
+                        include: {
+                            category: true,
+                        },
+                    },
+                },
+            });
+        
+            // Aggregate views per category
+            const viewsPerCategory: { [key: string]: number } = {};
+        
+            articlesWithCategories.forEach(article => {
+                article.article_has_categories.forEach(ahc => {
+                    const categoryName = ahc.category.cat_name;
+                    if (!viewsPerCategory[categoryName]) {
+                        viewsPerCategory[categoryName] = 0;
                     }
-                }
-            })
-            return articulos;
+                    viewsPerCategory[categoryName] += article.views;
+                });
+            });
+        
+            // Convert the aggregated results into the desired array format
+            return Object.entries(viewsPerCategory).map(([category, views]) => ({
+                category,
+                views,
+            }));
+
         } catch (error) {
             throw new Error('error Estadisticas mensuales servicio');
         }
