@@ -159,5 +159,13 @@ export class UserController {
           });
     }
 
+    public async eventsAttended(req: Request, res: Response) {
+        const userId = req.params.userId;
+        this.userFacade.getEventsAttended(userId)
+          .then((response) => res.json(response))
+          .catch(err => {
+            res.status(400).json(err);
+          });
+    }
 
 }

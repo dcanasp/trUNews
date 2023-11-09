@@ -11,6 +11,9 @@ import {resizeImages} from '../utils/resizeImages';
 import {communityType, createCommunityType} from '../dto/community';
 import {works} from '../utils/works';
 import { json } from "stream/consumers";
+import { CreateEventActionRequest } from "aws-sdk/clients/dataexchange";
+import { createEventType } from "../dto/event";
+import { get } from "http";
 
 @injectable()
 export class CommunityService {
@@ -865,6 +868,210 @@ export class CommunityService {
         }
     }
 
+    public async createEvent(body : createEventType) {
+        try{ 
+            const isMember = await this.isMemberOfCommunity(body.creator_id,body.community_id);
+            if (!isMember) {
+                throw new DatabaseErrors('El usuario no pertenece a la comunidad.');
+            }
 
+            let finalImageUrl= 'https://trunews.s3.us-east-2.amazonaws.com/profile/defaultProfile.jpg';
+            if (body.image_url!=''){
+              const urlImage = await this.addImageNew(body.image_url,body.image_extension,body.image_ancho,body.image_ratio,'eventImage')
+              if (! urlImage) {
+                  throw new DatabaseErrors('No se pudo crear avatar en s3.')
+              }
+              finalImageUrl = urlImage;
+          }
+  
+          const eventCreated = await this.databaseService.event.create({
+            data: {
+                name: body.name,
+                description: body.description,
+                creator_id: body.creator_id,
+                community_id: body.community_id,
+                place: body.place,
+                date: body.date,
+                image_url: finalImageUrl,
+            }
+        })
+  
+      if (!eventCreated){
+          throw new DatabaseErrors('No se pudo crear el evento.')
+      }
+        return eventCreated
+        }
+        catch{
+            return ;
+        }
+    }
+
+    public async getEvent(eventId: number, userId: number) {
+        try {
+            const eventDetails = await this.databaseService.event.findUnique({
+                where: { id_event: eventId },
+                select: {
+                    id_event: true,
+                    name: true,
+                    description: true,
+                    creator_id: true,
+                    place: true,
+                    date: true,
+                    image_url: true,
+                    attendees: {
+                        where: {
+                            user_id_attendee: userId
+                        },
+                        select: {
+                            user_id_attendee: true
+                        }
+                    }
+                }
+            });
+    
+            if (!eventDetails) {
+                throw new DatabaseErrors('No se pudo encontrar el evento.');
+            }
+    
+            // Procesa la información para calcular el número de asistentes, si el usuario es asistente y si es el creador
+            const isAttendee = eventDetails.attendees.length > 0;
+            const isCreator = eventDetails.creator_id === userId;
+    
+            const eventInfo = {
+                id_event: eventDetails.id_event,
+                name: eventDetails.name,
+                description: eventDetails.description,
+                creator_id: eventDetails.creator_id,
+                place: eventDetails.place,
+                date: eventDetails.date,
+                image_url: eventDetails.image_url,
+                attendeesCount: eventDetails.attendees.length,
+                isAttendee,
+                isCreator
+            };
+    
+            return eventInfo;
+        }catch{
+            return;
+        }
+    }
+
+    public async isCreatorEvent(eventId : number, userId : number) {
+        const event = await this.databaseService.event.findFirst({
+        where: {
+                id_event: eventId
+            },
+        });
+    
+        if (!event) {
+            return {"err": 'El evento no existe'};
+        }
+    
+        return event.creator_id == userId;
+    }
+
+    public async getAttendeesCount(eventId: number){
+        try{
+            const attendeesCount = await this.databaseService.event_attendee.count({
+                where: { event_id_attendee: eventId }
+            });
+            if (!attendeesCount) {
+                throw new DatabaseErrors('No se pudo encontrar el evento.');
+            }
+            return attendeesCount;
+        }catch{
+            return;
+        }
+    }
+
+    
+
+    public async getCommunityEvents(communityId: number, userId: number){
+        try {
+            const eventsWithAttendees = await this.databaseService.event.findMany({
+                where: { community_id: communityId },
+                select: {
+                    id_event: true,
+                    name: true,
+                    description: true,
+                    creator_id: true,
+                    place: true,
+                    date: true,
+                    image_url: true,
+                    attendees: {
+                        where: {
+                            user_id_attendee: userId
+                        },
+                        select: {
+                            user_id_attendee: true
+                        }
+                    }
+                }
+            });
+    
+            const eventsInfo = eventsWithAttendees.map((event) => ({
+                id_event: event.id_event,
+                name: event.name,
+                description: event.description,
+                creator_id: event.creator_id,
+                place: event.place,
+                date: event.date,
+                image_url: event.image_url,
+                attendeesCount: event.attendees.length,
+                isAttendee: event.attendees.length > 0,
+                isCreator: event.creator_id === userId
+            }));
+    
+            return eventsInfo;
+        }
+        catch{
+            return;
+        }
+    }
+
+    public async deleteEvent(eventId : number) {
+        try{
+        const eventDeleted = await this.databaseService.event.delete({
+            where: {
+                id_event: eventId
+            }
+        })
+
+        if (!eventDeleted){
+            throw new DatabaseErrors('No se pudo eliminar el evento.')
+        }
+        return eventDeleted
+        }
+        catch{
+            return ;
+        }
+    }
+
+    public attendEvent(eventId: number, userId: number){
+        try{
+            const eventAttendee = this.databaseService.event_attendee.create({
+                data: {
+                    event_id_attendee: eventId,
+                    user_id_attendee: userId
+                }
+            });
+            return eventAttendee;
+        }catch (error){
+            return ;
+        }
+    }
+
+    public undoAttendEvent(eventId: number, userId: number){
+        try{
+            const eventAttendee = this.databaseService.event_attendee.deleteMany({
+                where: {
+                    event_id_attendee: eventId,
+                    user_id_attendee: userId
+                }
+            });
+            return eventAttendee;
+        }catch{
+            return;
+        }
+    }
 }
-
