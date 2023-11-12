@@ -801,15 +801,26 @@ export class CommunityService {
             }
             
             const isInCommunity = await this.databaseService.community_has_articles.findMany({
-                where: {users_id_community:userId,community_id_community:communityId}
+                where: {users_id_community:userId,community_id_community:communityId},
             });
 
+            const hasCategoriesSimilar = await this.databaseService.community_has_categories.findMany({
+                where:{ community_id_community: communityId}
+            })            
+            
+            const communityCategoryIds = hasCategoriesSimilar.map(cat => cat.categories_id_community);
             const filterArticle = article.filter((art) => {
-                return !isInCommunity.some(commnunityArt => art.id_article === commnunityArt.article_id_community);
+                const notInCommunity = !isInCommunity.some((communityArt) => art.id_article === communityArt.article_id_community);
+                const sharesCategory = art.article_has_categories.some(artCat => communityCategoryIds.includes(artCat.category.id_category));
+    
+                return notInCommunity && sharesCategory;
             });
-
+    
             const filterSaved = saved.filter((sav) => {
-                return !isInCommunity.some(commnunityArt => sav.id_article === commnunityArt.article_id_community);
+                const notInCommunity = !isInCommunity.some(communityArt => sav.id_article === communityArt.article_id_community);
+                const sharesCategory = sav.article.article_has_categories.some(artCat => communityCategoryIds.includes(artCat.category.id_category));
+    
+                return notInCommunity && sharesCategory;
             });
 
             const flatArticle = filterArticle.map((art) => {
