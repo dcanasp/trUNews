@@ -23,7 +23,6 @@ export async function lanzarQueueRespuesta(texto:string) {
             let stringMsg = msg?.content.toString('utf8');
         
             if (msg?.properties.correlationId === correlationId) {
-              console.log(stringMsg);
               
               // Replace single quotes with double quotes to make it a valid JSON string
               let jsonString = stringMsg!.replace(/'/g, '"');
@@ -48,7 +47,7 @@ export async function lanzarQueueRespuesta(texto:string) {
             }
           }, { noAck: true });
         });
-        console.log(numero)
+        // console.log(numero)
         return numero;
       } catch (error) {
         console.error('Error:', error);

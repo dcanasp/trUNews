@@ -415,7 +415,6 @@ export class CommunityService {
             finalBannerUrl = urlBanner;
         }
 
-        console.log(finalBannerUrl)
         const communityCreated = await this.databaseService.community.create({
           data: {
               name: body.name,
@@ -464,21 +463,29 @@ export class CommunityService {
           where: {
               id_community: communityId
           },
-      });
+        });
 
-      if (!existingCommunity) {
-          throw new DatabaseErrors('La comunidad no existe');
-      }
-      //public async addImageUpdate(communityId:number,contenido: string, extension:string,subFolder:string) {
-      const urlAvatar = await this.addImageUpdate(communityId,body.avatar_url,body.avatar_extension,'banner')
-      if (! urlAvatar) {
-          throw new DatabaseErrors('No se pudo crear avatar en s3.')
-      }
-      const urlBanner = await this.addImageUpdate(communityId,body.banner_url,body.banner_extension,'banner')
-      if (! urlBanner) {
-          throw new DatabaseErrors('No se pudo crear banner en s3.')
-      }
-      
+        if (!existingCommunity) {
+            throw new DatabaseErrors('La comunidad no existe');
+        }
+
+        let finalAvatarUrl= existingCommunity.avatar_url;
+        if (body.avatar_url!=''){
+            const urlAvatar = await this.addImageUpdate(communityId,body.avatar_url,body.avatar_extension,'banner')
+            if (! urlAvatar) {
+                throw new DatabaseErrors('No se pudo crear avatar en s3.')
+            }
+            finalAvatarUrl = urlAvatar;
+        }    
+
+        let finalBannerUrl= existingCommunity.banner_url;
+        if (body.banner_url!=''){
+            const urlBanner = await this.addImageUpdate(communityId,body.banner_url,body.banner_extension,'banner')
+            if (! urlBanner) {
+                throw new DatabaseErrors('No se pudo crear banner en s3.')
+            }    
+            finalBannerUrl = urlBanner;
+        }
 
       const communityUpdated = await this.databaseService.community.update({
           where: {
@@ -491,11 +498,32 @@ export class CommunityService {
               avatar_url: body.avatar_url || existingCommunity.avatar_url,
               banner_url: body.banner_url || existingCommunity.banner_url,
           }
-      })
+      });
 
+
+      if (body.id_categories && body.id_categories.length!==0){
+        
+        const deleteCategories = await this.databaseService.community_has_categories.deleteMany({
+            where:{
+                community_id_community: communityId
+            },
+        });
+        
+        for (const category of body.id_categories){
+            const newCat = await this.databaseService.community_has_categories.create({
+                data: {
+                    community_id_community: communityId,
+                    categories_id_community: category,
+                }
+            });
+        }
+
+
+      }
+      
       if (!communityUpdated){
           throw new DatabaseErrors('No se pudo actualizar la comunidad.')
-      }
+        }
       return communityUpdated
       }
       catch{

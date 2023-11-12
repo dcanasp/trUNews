@@ -66,7 +66,6 @@ export class ArticleService {
         const categoriesUrl = `${process.env.Ai_model_categories}?summarize=${encodedText}`;
     
         await this.sendMessageModels(titleUrl,categoriesUrl)
-        console.log('aaa')
         const [titleResponse, categoriesResponse] = await Promise.all([
             axios.post(titleUrl),
             axios.post(categoriesUrl),
