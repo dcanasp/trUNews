@@ -4,10 +4,11 @@ import {injectable, inject} from 'tsyringe'
 import {CommunityService} from './community.service';
 import {DatabaseErrors} from '../errors/database.errors';
 import { decryptToken } from "../auth/jwtServices";
-import {communityType,checkArticleToAddType,addArticleCommunityType} from '../dto/community';
+import {communityType,communityTypeExtended,checkArticleToAddType,addArticleCommunityType} from '../dto/community';
 import {works} from '../utils/works';
 import {returnArticles,returnArticlesCategory} from '../dto/article';
 import {decryptedToken} from '../dto/user';
+
 
 
 @injectable()
@@ -24,9 +25,23 @@ export class CommunityFacade {
 		}
 
         const communitiesWithUsersCount = await this.communityService.getUsersCountFromCommunities(communities);
-        if(! communities ){
+        if(! communitiesWithUsersCount ){
 			return {"err":'no se puso sacar conteo de participantes'}
 		}
+
+        const userId: number = await getUserIdIfHas(req);
+        if (userId!= -999){
+            const finalCommunityFind:communityTypeExtended[]=[];
+            for (let i = 0; i < communitiesWithUsersCount.length; i++) {
+                const isMember = await this.communityService.isMemberOfCommunity(userId,communitiesWithUsersCount[i].id_community)
+                finalCommunityFind.push({
+                    ...communitiesWithUsersCount[i],
+                    isMember: isMember
+                });
+            }        
+            return finalCommunityFind;
+        }
+
         return communitiesWithUsersCount;
 
 
@@ -38,9 +53,23 @@ export class CommunityFacade {
 			return {"err":'no hay comunidades con ese nombre'}
 		}
         const communitiesWithUsersCount = await this.communityService.getUsersCountFromCommunities(communities);
-        if(! communities ){
+        if(! communitiesWithUsersCount ){
 			return {"err":'no se puso sacar conteo de participantes'}
 		}
+
+        const userId: number = await getUserIdIfHas(req);
+        if (userId!= -999){
+            const finalCommunityFind:communityTypeExtended[]=[];
+            for (let i = 0; i < communitiesWithUsersCount.length; i++) {
+                const isMember = await this.communityService.isMemberOfCommunity(userId,communitiesWithUsersCount[i].id_community)
+                finalCommunityFind.push({
+                    ...communitiesWithUsersCount[i],
+                    isMember: isMember
+                });
+            }        
+            return finalCommunityFind;
+        }
+
         return communitiesWithUsersCount;
 
     }
@@ -94,11 +123,13 @@ export class CommunityFacade {
 		}
         const userId = decryptedToken.userId;
 
-
         const article = await this.communityService.getCommunityById(parseInt(articleId, 10), userId);
         if (! article) {
             return {"err": 'La comunidad no existe'};
         }
+
+        
+
         return article;
     }
 
@@ -378,5 +409,25 @@ export class CommunityFacade {
             return {"err": "No se pudo asistir al evento"}
         }
         return {"success":true};
+    }
+}
+
+const getUserIdIfHas = async (req: Request) :Promise<number>=>{
+    try{
+
+        if(!req.headers['authorization']){
+            throw new Error()
+        }
+        const decryptedToken:decryptedToken|undefined = await  decryptToken(req.headers['authorization']);
+
+        if(!decryptedToken){
+            throw new Error()
+        }
+        const userId = decryptedToken.userId;    
+        return userId;
+
+    }
+    catch{
+        return -999;
     }
 }

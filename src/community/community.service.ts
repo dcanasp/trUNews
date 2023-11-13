@@ -8,7 +8,7 @@ import {DatabaseErrors} from '../errors/database.errors';
 import {UserService} from '../user/user.service';
 import {Roles} from '../utils/roleDefinition';
 import {resizeImages} from '../utils/resizeImages';
-import {communityType, createCommunityType} from '../dto/community';
+import {communityType,communityTypeWithUsers, createCommunityType} from '../dto/community';
 import {works} from '../utils/works';
 import { json } from "stream/consumers";
 import { CreateEventActionRequest } from "aws-sdk/clients/dataexchange";
@@ -95,7 +95,7 @@ export class CommunityService {
 
     }
 
-    public async getUsersCountFromCommunities(comunidad: communityType[]){
+    public async getUsersCountFromCommunities(comunidad: communityTypeWithUsers[]){
         try{
         const communitiesWithFollowerCount = await Promise.all(
             comunidad.map(async ({community_has_users,...community}) => {

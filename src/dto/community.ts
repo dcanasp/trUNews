@@ -18,6 +18,15 @@ export interface communityType {
     date: Date;
     avatar_url: string;
     banner_url: string;
-    community_has_users: communityHasUsersType[];
   }
-  
+  export interface communityTypeWithUsers extends communityType{
+    community_has_users: communityHasUsersType[]; 
+  }  
+
+export interface communityTypeExtended extends communityType {
+  followerCount: number,
+  isMember: boolean
+  isCreator?: false,
+  membersCount?: number,
+  articlesCount?: number
+}
