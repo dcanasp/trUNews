@@ -550,10 +550,7 @@ public async updatePassword(userId: string, newPassword: string) {
             const articlesWithCategories = await this.databaseService.article.findMany({
                 where: {
                     id_writer: userId,
-                    date: {
-                        gte: new Date(`${year}-${month}-01`),
-                        lte: new Date(`${year}-${month}-30`),
-                    },
+                    
                 },
                 include: {
                     article_has_categories: {
