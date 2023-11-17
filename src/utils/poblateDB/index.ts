@@ -11,16 +11,17 @@ const database = container.resolve(DatabaseService).getClient();
 const numberOfEntries = 300;
 main()
 export async function main() {
-    await crearUsuarios(database);
-    await crearArticulos(database);
-    await crearFollowers(database);
-    await crearSaved(database);
-    await crearCategories(database);
-    await crearArticleHasCategories(database);
-	await crearComunidades(database);
-	await crearCommunityHasArticle(database);
-	await crearCommunityHasCategorys(database);
-	await crearCommunityHasUsers(database);
+    // await crearUsuarios(database);
+    // await crearArticulos(database);
+    // await crearFollowers(database);
+    // await crearSaved(database);
+    // await crearCategories(database);
+    // await crearArticleHasCategories(database);
+	// await crearComunidades(database);
+	// await crearCommunityHasArticle(database);
+	// await crearCommunityHasCategorys(database);
+	// await crearCommunityHasUsers(database);
+    await crearEventosYAsistentes(database);
 }
 async function crearUsuarios(databaseService: PrismaClient) {
   for (let i = 0; i < numberOfEntries; i++) {
@@ -341,3 +342,64 @@ async function crearCommunityHasUsers(databaseService : PrismaClient) {
         });
     };
 };
+
+async function crearEventosYAsistentes(databaseService: PrismaClient) {
+    const allCommunities = await databaseService.community.findMany({
+        select: {
+            id_community: true,
+            name: true
+        }
+    });
+
+    const allUsers = await databaseService.users.findMany({
+        select: {
+            id_user: true
+        }
+    });
+
+    for (const community of allCommunities) {
+        // Obtener usuarios que son miembros de la comunidad
+        const communityMembers = await databaseService.community_has_users.findMany({
+            where: {
+                community_id_community: community.id_community
+            },
+            select: {
+                users_id_community: true
+            }
+        });
+
+        for (let i = 0; i < 3; i++) {
+            const randomMember = communityMembers[Math.floor(Math.random() * communityMembers.length)];
+
+            const eventName = `Event for ${community.name} - ${i + 1}`;
+            const eventDescription = faker.lorem.sentence();
+            const eventPlace = faker.location.city();
+            const eventDate = faker.date.recent({ days: 30 });
+            const eventImageUrl = faker.image.url({height:500,width:1500})
+
+            const createdEvent = await databaseService.event.create({
+                data: {
+                    community_id: community.id_community,
+                    creator_id: randomMember.users_id_community,
+                    name: eventName,
+                    description: eventDescription,
+                    place: eventPlace,
+                    date: eventDate,
+                    image_url: eventImageUrl
+                }
+            });
+
+            const numberOfAttendees = Math.floor(Math.random() * (communityMembers.length - 1)) + 1;
+            const shuffledMembers = communityMembers.sort(() => Math.random() - 0.5).slice(0, numberOfAttendees);
+
+            for (const attendee of shuffledMembers) {
+                await databaseService.event_attendee.create({
+                    data: {
+                        event_id_attendee: createdEvent.id_event,
+                        user_id_attendee: attendee.users_id_community
+                    }
+                });
+            }
+        }
+    }
+}
