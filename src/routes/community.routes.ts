@@ -108,6 +108,10 @@ export class CommunityRouter {
             verifyJwt(),
             (req:Request, res:Response) =>  this.communityController.undoAttendEvent(req, res));
 
+        this.router.get('/recommended', (
+            req:Request, res:Response) => this.communityController.recommended(req, res));
+    
+
         return this.router
     }
 }

@@ -1086,9 +1086,9 @@ export class CommunityService {
         }
     }
 
-    public attendEvent(eventId: number, userId: number){
+    public async attendEvent(eventId: number, userId: number){
         try{
-            const eventAttendee = this.databaseService.event_attendee.create({
+            const eventAttendee = await this.databaseService.event_attendee.create({
                 data: {
                     event_id_attendee: eventId,
                     user_id_attendee: userId
@@ -1100,9 +1100,9 @@ export class CommunityService {
         }
     }
 
-    public undoAttendEvent(eventId: number, userId: number){
+    public async undoAttendEvent(eventId: number, userId: number){
         try{
-            const eventAttendee = this.databaseService.event_attendee.deleteMany({
+            const eventAttendee = await this.databaseService.event_attendee.deleteMany({
                 where: {
                     event_id_attendee: eventId,
                     user_id_attendee: userId
@@ -1113,4 +1113,147 @@ export class CommunityService {
             return;
         }
     }
+
+    public async recommended(userId: number){
+        try{
+            
+            let weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 20);
+            const allCommunityFull = await this.findAll();
+            if (!allCommunityFull){
+                throw new DatabaseErrors('No hay comunidades para recomendaciones')
+            }
+            const allCommunity = allCommunityFull.flatMap((com)=>{
+                const categorias = com.community_has_categories.flatMap((cat)=>{
+                    return cat.category.id_category;
+                })
+                return {"community_id":com.id_community,"categories":categorias}
+            })
+
+            const userData = await this.databaseService.users.findUnique({
+                where:{
+                    id_user: userId
+                },
+                select:{
+                    community_has_users:{select:{community_id_community:true,community:{select:{community_has_categories:true}} }},
+                    saved:{select:{article:{select:{article_has_categories:true}}}},
+                    followers:{select:{following:{select:{article:{select:{article_has_categories:true},where:{date:{gte:weekAgo} } } }}}},
+                    article:{select:{views:true,article_has_categories:true}},
+                }
+            });
+            if(!userData){
+                throw new DatabaseErrors('Fallaron recomendaciones de comunidad pero barbaro');
+            }
+
+            //saca las comunidades en las que ya esta
+            const communities_already_in: number[] = userData.community_has_users.map((com)=>{
+                const communitiesId = com.community_id_community;
+                return communitiesId;
+            });
+            //categorias de estas comunidades en las que ya esta
+            const categories_of_his_communities = Array.from(new Set(
+                userData.community_has_users.flatMap((com)=>{
+                const categories = com.community.community_has_categories.map((cat)=>{
+                    return cat.categories_id_community;
+                });
+                return categories;
+            })
+            ));
+            //categorias de los articulos salvados
+            const categories_of_his_saved_articles = Array.from(new Set(
+                userData.saved.flatMap((sav)=>{
+                const categories =  sav.article.article_has_categories.map((cat)=>{
+                    return cat.categories_id_categories;
+                });
+
+                return categories;
+            })
+            ));
+            //categorias de los articulos escritos por los que el sigue
+            const categories_of_following_articles = Array.from(new Set(
+                userData.followers.flatMap((following)=>{
+                const categories = following.following.article.flatMap((art_has_cat)=>{
+                    return art_has_cat.article_has_categories.map((cat)=>{
+                        return cat.categories_id_categories;
+                    });
+                });
+                return categories
+            })
+            ));
+            //categorias de los articulos escritos 
+            const categories_of_his_articles = userData.article.map((art)=>{
+                const views = art.views;
+                const categories = art.article_has_categories.map((cat)=>{
+                    return cat.categories_id_categories
+                })
+                return {views,categories}
+            })
+                
+
+            const categoryWeights: Map<number, number> = new Map();
+
+            const updateWeight = (category: number, weight: number) => {
+                const currentWeight = categoryWeights.get(category) || 0;
+                categoryWeights.set(category, currentWeight + weight);
+            };
+        
+            // Assign weights for joined communities, saved and following articles
+            const basicWeight = 1; // Basic weight for joined, saved, and followed categories
+            categories_of_his_communities.forEach(cat => updateWeight(cat, basicWeight));
+            categories_of_his_saved_articles.forEach(cat => updateWeight(cat, basicWeight));
+            categories_of_following_articles.forEach(cat => updateWeight(cat, basicWeight));
+        
+            // First, calculate the mean and standard deviation of views
+            const viewCounts = categories_of_his_articles.map(article => article.views);
+            const meanViews = viewCounts.reduce((a, b) => a + b, 0) / viewCounts.length;
+            const stdDevViews = Math.sqrt(viewCounts.map(view => Math.pow(view - meanViews, 2)).reduce((a, b) => a + b, 0) / viewCounts.length);
+
+            // Modified Gaussian-like function for weighting
+            const gaussianLikeWeight = (views: number): number => {
+                const deviationMultiplier = -0.5;
+                let weight = Math.exp(deviationMultiplier * Math.pow((views - meanViews) / stdDevViews, 2));
+                return weight * 20; // Scale up to a maximum of 20
+            };
+
+            // Apply this function to each article's views
+            categories_of_his_articles.forEach(article => {
+                const viewWeight = gaussianLikeWeight(article.views);
+                article.categories.forEach(cat => updateWeight(cat, viewWeight));
+            });
+            // Convert Map to Array of Objects and then sort it
+            const sortedCategories = Array.from(categoryWeights, ([category, weight]) => ({ category, weight }))
+            .sort((a, b) => b.weight - a.weight);
+
+
+            // Convert sortedCategories to a Map for efficient lookup
+            const categoryWeightMap = new Map(sortedCategories.map(cat => [cat.category, cat.weight]));
+
+            // Function to calculate the sum of weights for a community
+            const calculateWeightSum = (categories:any) => {
+                return categories.reduce((sum:number, category:number) => {
+                    return sum + (categoryWeightMap.get(category) || 0);
+                }, 0);
+            };
+
+            // Calculate and store the sum of weights for each community
+            const communityWeightSums = allCommunity.map(community => ({
+                community_id: community.community_id,
+                weightSum: calculateWeightSum(community.categories)
+            }));
+
+            const sortedCommunityWeightSums = communityWeightSums
+            .sort((a, b) => b.weightSum - a.weightSum)
+            .filter(community => !communities_already_in.includes(community.community_id));
+        
+            console.log(sortedCommunityWeightSums)
+            const orderedCommunities = sortedCommunityWeightSums.map(weightSum => {
+                return allCommunityFull.find(community => community.id_community === weightSum.community_id);
+            });
+
+            return orderedCommunities;
+        }catch{
+            return;
+        }
+    }
+
 }

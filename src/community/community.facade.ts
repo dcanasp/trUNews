@@ -410,6 +410,33 @@ export class CommunityFacade {
         }
         return {"success":true};
     }
+
+    public async recommended(req : Request) {
+        const userId =await getUserIdIfHas(req);
+        if(userId===-999){
+            return {'err':'no hay token'};
+        }
+        const recommended = await this.communityService.recommended(userId);
+        if (! recommended) {
+            return {'err':'fallo la creacion de recomendados'};
+            //send latest 
+        }
+        //@ts-ignore
+        const communitiesWithUsersCount = await this.communityService.getUsersCountFromCommunities(recommended);
+        if(! communitiesWithUsersCount ){
+			return {"err":'no se puso sacar conteo de participantes'}
+		}
+        const finalRecommended:communityTypeExtended[]=[];
+        for (let i = 0; i < recommended.length; i++) {
+            const isMember = await this.communityService.isMemberOfCommunity(userId,communitiesWithUsersCount[i].id_community)
+            finalRecommended.push({
+                ...communitiesWithUsersCount[i],
+                isMember: isMember
+            });
+        }        
+        return finalRecommended;
+    }
+
 }
 
 const getUserIdIfHas = async (req: Request) :Promise<number>=>{

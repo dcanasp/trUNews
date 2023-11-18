@@ -166,4 +166,13 @@ export class CommunityController {
         res.status(400).json(err);
       });
   }
+  
+  public recommended(req: Request, res: Response) {
+    this.communityFacade.recommended(req)
+      .then(event => res.json(event))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
 }
