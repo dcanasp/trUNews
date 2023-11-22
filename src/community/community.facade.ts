@@ -437,6 +437,27 @@ export class CommunityFacade {
         return finalRecommended;
     }
 
+    public async myCommunities(req : Request) {
+        const userId = parseInt(req.params.id,10)
+        const userRequesting = await getUserIdIfHas(req);
+        const myCommunities = await this.communityService.myCommunities(userId);
+        if (! myCommunities || myCommunities.length===0) {
+            return {'err':'no hay comunidades'};
+        }
+        // const finalMyCommunities:communityTypeExtended[]=[];
+        const finalMyCommunities:communityTypeExtended[]=[];
+        for (let i = 0; i < myCommunities.length; i++) {
+            const isMember = await this.communityService.isMemberOfCommunity(userRequesting,myCommunities[i].id_community)
+            finalMyCommunities.push({
+                ...myCommunities[i],
+                isMember: isMember
+            });
+        }        
+
+        return finalMyCommunities;
+    }
+
+
 }
 
 const getUserIdIfHas = async (req: Request) :Promise<number>=>{

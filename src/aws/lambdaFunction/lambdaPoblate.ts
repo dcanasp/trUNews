@@ -78,8 +78,8 @@ async function crearUsuarios(databaseService: PrismaClient) {
 }
 
 
+const numberOfEntriesArticle = numberOfEntries*3;  
 async function crearArticulos(databaseService: PrismaClient) {
-    const numberOfEntriesArticle = numberOfEntries*3;  
     const allUserIds = await databaseService.users.findMany({
       where:{
         rol:1
@@ -202,7 +202,7 @@ async function crearArticleHasCategories(databaseService : PrismaClient) {
         orderBy: {
             id_article: 'desc',  // Order by id_article in descending order to get latest articles
         },
-        take: numberOfEntries,
+        take: numberOfEntriesArticle,
         select: {
             id_article: true
         },

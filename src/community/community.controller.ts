@@ -175,4 +175,12 @@ export class CommunityController {
       });
   }
 
+  public myCommunities(req: Request, res: Response) {
+    this.communityFacade.myCommunities(req)
+      .then(event => res.json(event))
+      .catch(err => {
+        res.status(400).json(err);
+      });
+  }
+
 }

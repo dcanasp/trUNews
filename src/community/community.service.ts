@@ -8,7 +8,7 @@ import {DatabaseErrors} from '../errors/database.errors';
 import {UserService} from '../user/user.service';
 import {Roles} from '../utils/roleDefinition';
 import {resizeImages} from '../utils/resizeImages';
-import {communityType,communityTypeWithUsers, createCommunityType} from '../dto/community';
+import {communityType,communityTypeExtended,communityTypeWithUsers, createCommunityType} from '../dto/community';
 import {works} from '../utils/works';
 import { json } from "stream/consumers";
 import { CreateEventActionRequest } from "aws-sdk/clients/dataexchange";
@@ -1109,6 +1109,46 @@ export class CommunityService {
                 }
             });
             return eventAttendee;
+        }catch{
+            return;
+        }
+    }
+
+    public async myCommunities(userId: number){
+        try{
+            const myCommunitiesId = await this.databaseService.community_has_users.findMany({
+                where:{
+                    users_id_community:userId
+                },
+            });
+            if(!myCommunitiesId){
+                throw new DatabaseErrors('no hay comunidades');
+            }
+            // const myCommunities:communityTypeExtended[] = [];
+            const myCommunities = [];
+            for (const currentCommunityId of myCommunitiesId){
+
+                const eachCommunity = await this.databaseService.community.findFirst({
+                    where:{
+                        id_community:currentCommunityId.community_id_community
+                    },
+                    include:{community_has_categories:{ select: { category: true } }}
+                });
+                if (eachCommunity){
+                    const membersCount = await this.countMembers(currentCommunityId.community_id_community)
+                    myCommunities.push({...eachCommunity,'followerCount':membersCount })
+                }
+
+            }
+            const finalMyCommunities = myCommunities.map((comm)=>{
+                const{community_has_categories,...rest}=comm;
+                const categorias = community_has_categories.flatMap((cat)=>{
+                    return cat.category.cat_name;
+                })
+                return {...rest,categorias}
+            })
+
+            return finalMyCommunities;
         }catch{
             return;
         }

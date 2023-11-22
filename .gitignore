@@ -14,7 +14,7 @@ lerna-debug.log*
 #build
 build/
 coverage/
-
+__pycache__/
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 

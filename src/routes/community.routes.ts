@@ -110,7 +110,10 @@ export class CommunityRouter {
 
         this.router.get('/recommended', (
             req:Request, res:Response) => this.communityController.recommended(req, res));
-    
+            
+        this.router.get('/myCommunities/:id([0-9]+)', (
+            req:Request, res:Response) => this.communityController.myCommunities(req, res));
+            
 
         return this.router
     }

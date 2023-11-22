@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3005:3005"
+    depends_on:
+      - some-rabbit
+      - my-nginx-proxy
+
+  some-rabbit:
+    image: rabbitmq:management
+    environment:
+      RABBITMQ_DEFAULT_USER: trunews
+      RABBITMQ_DEFAULT_PASS: password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  my-nginx-proxy:
+    image: nginx
+    volumes:
+      - /home/ec2-user/trUNews/sslCertificates:/etc/nginx/ssl:ro
+      - /home/ec2-user/trUNews/default.conf:/etc/nginx/conf.d/default.conf:ro
+    extra_hosts:
+      - "host.docker.internal:34.226.1.69"
+    ports:
+      - "80:80"
+      - "443:443"
