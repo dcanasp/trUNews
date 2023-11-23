@@ -55,7 +55,7 @@ export class ArticleFacade {
         if (result === 'timeout' || !result) {
           return {
             err: true,
-            titulos: ['mejor titulo existente', 'segundo mejor titulo', 'tercero'],
+            titulos: ['best existing title', 'second best title', 'third'],
             categorias: [
               {"label": "EDUCATION", "score": 0.34894150495529175 },
               {"label": "BUSINESS", "score": 0.3029727041721344},
