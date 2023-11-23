@@ -51,7 +51,6 @@ export class ArticleFacade {
         const timeoutPromise = this.timeout(120000); // 2 minutes in milliseconds
         
         const result = await Promise.race([modelosPromise, timeoutPromise]);
-        
         if (result === 'timeout' || !result) {
           return {
             err: true,

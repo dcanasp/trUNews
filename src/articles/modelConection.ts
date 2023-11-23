@@ -34,13 +34,12 @@ export async function lanzarQueueRespuesta(texto:string) {
                 console.error("Could not parse message content:", e);
                 return;
               }
-        
               // Now, nestedArray should be [['text1', 'text2'], [{'label': ..., 'score': ...}, ...]]
         
               // Form the object
               let finalObject = {
-                "titulos": nestedArray[0],
-                "categorias": nestedArray[1]
+                "titulos": nestedArray.titulos,
+                "categorias": nestedArray.categorias
               };
               
               resolve(finalObject);
