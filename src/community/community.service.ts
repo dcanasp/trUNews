@@ -1038,9 +1038,6 @@ export class CommunityService {
                     date: true,
                     image_url: true,
                     attendees: {
-                        where: {
-                            user_id_attendee: userId
-                        },
                         select: {
                             user_id_attendee: true
                         }
