@@ -106,7 +106,7 @@ model users {
 model community {
   id_community    Int     @id @default(autoincrement())
   name            String  @unique 
-  description     String?
+  description     String
   creator_id      Int
   date            DateTime @db.Date
   avatar_url      String
