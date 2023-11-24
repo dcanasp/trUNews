@@ -863,10 +863,10 @@ export class ArticleService {
             fs.writeFileSync(`${basePath}/${tempQr}`, qrPng);
             
             // Step 2 & 3: Overlay the logo on top of the QR code
-            const logoBuffer = fs.readFileSync(`${basePath}/logo.jpg`);
+            const logoBuffer = fs.readFileSync(`${basePath}/logo.png`);
 
             const resizedLogoBuffer = await sharp(logoBuffer)
-                .resize(40, 40)
+                .resize(150, 150)
                 .toBuffer();
             const fullQrBuffer = await sharp(`${basePath}/${tempQr}`)
                 .composite([    
