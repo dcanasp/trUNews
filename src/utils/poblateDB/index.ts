@@ -11,12 +11,12 @@ const database = container.resolve(DatabaseService).getClient();
 const numberOfEntries = 300;
 main()
 export async function main() {
-    // await crearUsuarios(database);
-    // await crearArticulos(database);
-    // await crearFollowers(database);
-    // await crearSaved(database);
-    // await crearCategories(database);
-    // await crearArticleHasCategories(database);
+    await crearUsuarios(database);
+    await crearArticulos(database);
+    await crearFollowers(database);
+    await crearSaved(database);
+    await crearCategories(database);
+    await crearArticleHasCategories(database);
     await crearComunidades(database);
     await crearCommunityHasArticle(database);
     await crearCommunityHasCategorys(database);
