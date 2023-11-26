@@ -995,6 +995,17 @@ export class CommunityService {
         }
     }
 
+    public async isAttendee(eventId: number, userId: number) {
+        const event = await this.databaseService.event_attendee.findFirst({
+        where: {
+                event_id_attendee: eventId,
+                user_id_attendee: userId
+            },
+        });
+
+        return !!event;
+    }
+
     public async isCreatorEvent(eventId : number, userId : number) {
         const event = await this.databaseService.event.findFirst({
         where: {
@@ -1054,7 +1065,7 @@ export class CommunityService {
                 date: event.date,
                 image_url: event.image_url,
                 attendeesCount: event.attendees.length,
-                isAttendee: event.attendees.length > 0,
+                isAttendee: event.attendees.some((attendee) => attendee.user_id_attendee === userId),
                 isCreator: event.creator_id === userId
             }));
     
