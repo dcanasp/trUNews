@@ -17,10 +17,10 @@ export async function main() {
     await crearSaved(database);
     await crearCategories(database);
     await crearArticleHasCategories(database);
-	await crearComunidades(database);
-	await crearCommunityHasArticle(database);
-	await crearCommunityHasCategorys(database);
-	await crearCommunityHasUsers(database);
+    await crearComunidades(database);
+    await crearCommunityHasArticle(database);
+    await crearCommunityHasCategorys(database);
+    await crearCommunityHasUsers(database);
     await crearEventosYAsistentes(database);
 }
 async function crearUsuarios(databaseService: PrismaClient) {
@@ -201,7 +201,7 @@ async function crearArticleHasCategories(databaseService : PrismaClient) {
 
 async function crearComunidades(databaseService : PrismaClient) {
 
-    const numberOfEntries = 20;
+    const numberOfEntries = 60;
     const allUserIds = await databaseService.users.findMany({
         select: {
             id_user: true
@@ -211,7 +211,7 @@ async function crearComunidades(databaseService : PrismaClient) {
     for (let i = 0; i < numberOfEntries; i++) {
         let nombre = `${faker.commerce.department()}-${faker.commerce.productAdjective()}-${Math.random().toString(36).substring(2, 8)}`;
         const creator = allUserIds[Math.floor(Math.random() * allUserIds.length)].id_user;
-        const descripcion = Math.random() < 0.5 ? faker.commerce.productDescription() : null;
+        const descripcion = faker.commerce.productDescription();
         const date = faker.date.recent({days: 10});
         const avatar = faker.image.avatar()
         const banner = faker.image.url({height:500,width:1500})
@@ -251,7 +251,7 @@ async function crearComunidades(databaseService : PrismaClient) {
 }
 
 async function crearCommunityHasArticle(databaseService : PrismaClient) {
-    const localNumberOfEntries = Math.ceil(numberOfEntries/3)
+    const localNumberOfEntries = Math.ceil(numberOfEntries/2)
     const allCommunitysId = await databaseService.community.findMany({
         select: {
             id_community: true
@@ -287,7 +287,7 @@ async function crearCommunityHasArticle(databaseService : PrismaClient) {
 };
 
 async function crearCommunityHasCategorys(databaseService : PrismaClient) {
-    const localNumberOfEntries = Math.ceil(numberOfEntries/3)
+    const localNumberOfEntries = Math.ceil(numberOfEntries/2)
     const allCommunitysId = await databaseService.community.findMany({
         select: {
             id_community: true
@@ -343,6 +343,18 @@ async function crearCommunityHasUsers(databaseService : PrismaClient) {
     };
 };
 
+async function createEventName(communityName:string,city:string){
+    const themes = ["Innovation","Sustainability","Entrepreneurship","Creative Writing","Science","Digital Marketing","Photography","Culinary Arts","Sports","Film Making","Fashion","Gaming","Virtual Reality","Robotics","Environmental Awareness","Wellness","Music Production","Literature","Space Exploration","Cybersecurity"];
+    const adjectives = ["Amazing", "Incredible", "Innovative", "Exciting", "Enlightening","Dynamic","Inspiring","Pioneering","Thrilling","Insightful","Trendsetting","Visionary","Revolutionary","Impactful","Interactive","Groundbreaking","Captivating","Unforgettable","Empowering","Engaging","Cutting-Edge","Trailblazing","Transformative","Mesmerizing","Pioneering"];
+    
+      const theme = themes[Math.floor(Math.random() * themes.length)];
+      const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+    
+      return `${adjective} ${theme} in ${city} for ${communityName}`;
+    
+    
+}
+
 async function crearEventosYAsistentes(databaseService: PrismaClient) {
     const allCommunities = await databaseService.community.findMany({
         select: {
@@ -351,11 +363,6 @@ async function crearEventosYAsistentes(databaseService: PrismaClient) {
         }
     });
 
-    const allUsers = await databaseService.users.findMany({
-        select: {
-            id_user: true
-        }
-    });
 
     for (const community of allCommunities) {
         // Obtener usuarios que son miembros de la comunidad
@@ -367,15 +374,15 @@ async function crearEventosYAsistentes(databaseService: PrismaClient) {
                 users_id_community: true
             }
         });
-
-        for (let i = 0; i < 3; i++) {
+        const cantidadEventos = Math.floor(Math.random()*4)+1
+        for (let i = 0; i < cantidadEventos; i++) {
             const randomMember = communityMembers[Math.floor(Math.random() * communityMembers.length)];
 
-            const eventName = `Event for ${community.name} - ${i + 1}`;
             const eventDescription = faker.lorem.sentence();
             const eventPlace = faker.location.city();
             const eventDate = faker.date.recent({ days: 30 });
             const eventImageUrl = faker.image.url({height:500,width:1500})
+            const eventName = await createEventName(community.name,eventPlace);
 
             const createdEvent = await databaseService.event.create({
                 data: {
