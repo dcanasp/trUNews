@@ -1,4 +1,5 @@
 import amqplib from 'amqplib'
+import {permaLogger} from '../utils/logger'
 
 export async function lanzarQueueRespuesta(texto:string) {
     try {
@@ -21,7 +22,7 @@ export async function lanzarQueueRespuesta(texto:string) {
         const numero = await new Promise<any>((resolve) => {
           channel.consume(q.queue, (msg) => {
             let stringMsg = msg?.content.toString('utf8');
-        
+            permaLogger.log('error',stringMsg);
             if (msg?.properties.correlationId === correlationId) {
               
               // Replace single quotes with double quotes to make it a valid JSON string
