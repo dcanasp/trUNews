@@ -1,1 +1,5 @@
-you need to add a certificate.crt and a key-pair.pem, these where created using openssl
+this file is to create the sslCertificates folder where LOCALLY you must have your certificate.crt and a key-pair.pem\
+
+
+these where created using openssl
+

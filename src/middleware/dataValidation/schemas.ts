@@ -5,7 +5,7 @@ export const createUserSchema = z.object({
     name: z.string({ required_error:"Debe haber name"}),
     password: z.string(),
     lastname: z.string({ required_error: "Debe haber lastname"}),
-    rol: z.number().refine(value => value === 0 ||  value === 1 || value===2, {message: "Debe ser 1 o 2"}),
+    rol: z.number().refine(value => value === 1 || value===2, {message: "Debe ser 1 o 2"}),
     profession: z.string().optional(),
     description: z.string().optional(),
     profile_image: z.string().optional(),
